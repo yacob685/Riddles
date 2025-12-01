@@ -42,6 +42,7 @@
             min-height: 100vh;
             padding: 10px;
             font-family: 'Inter', 'Noto Sans Arabic', sans-serif;
+            -webkit-tap-highlight-color: transparent; /* For better mobile feel */
         }
 
         .game-container {
@@ -51,6 +52,8 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             overflow: hidden;
             background-color: var(--color-dark-lighter);
+            display: flex; /* Ensure main content pushes buttons down */
+            flex-direction: column;
         }
 
         .header-bar {
@@ -114,6 +117,7 @@
             align-items: center;
             justify-content: center;
             text-align: center;
+            /* Enhanced background for a textured look */
             background: linear-gradient(135deg, 
                 rgba(60, 40, 20, 0.9) 0%, 
                 rgba(40, 30, 15, 0.95) 25%,
@@ -122,6 +126,7 @@
                 rgba(45, 30, 15, 0.9) 100%
             );
             border: 4px solid;
+            /* Neon/Gradient border effect */
             border-image: linear-gradient(to right, var(--color-frame-green), var(--color-frame-orange)) 1;
             box-shadow: inset 0 0 30px rgba(255, 165, 0, 0.15);
         }
@@ -131,6 +136,8 @@
             font-weight: 500;
             line-height: 1.5;
             color: var(--color-light);
+            /* Subtle text shadow for better contrast */
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
         }
 
         .input-area {
@@ -161,6 +168,7 @@
             font-weight: bold;
             cursor: pointer;
             transition: all 0.15s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         .answer-slot:hover {
@@ -171,6 +179,7 @@
         .answer-slot.revealed {
             background-color: var(--color-gold);
             border-color: var(--color-gold);
+            color: var(--color-dark);
         }
 
         .space-slot {
@@ -192,7 +201,7 @@
         }
 
         .letter-button {
-            background-color: var(--color-orange);
+            background: linear-gradient(180deg, var(--color-orange), #cc7a00);
             color: var(--color-dark);
             padding: 10px 14px;
             border-radius: 6px;
@@ -203,17 +212,27 @@
             transition: all 0.15s ease;
             min-width: 42px;
             text-align: center;
+            box-shadow: 0 3px 0 #995c00, 0 5px 10px rgba(0, 0, 0, 0.4);
+            transform: translateY(0);
+        }
+
+        .letter-button:active:not(.used) {
+            transform: translateY(3px);
+            box-shadow: 0 0px 0 #995c00, 0 2px 5px rgba(0, 0, 0, 0.4);
         }
 
         .letter-button:hover:not(.used) {
-            background-color: var(--color-gold);
-            transform: scale(1.05);
+            background: linear-gradient(180deg, var(--color-gold), #e6ac00);
+            transform: scale(1.02);
         }
 
         .letter-button.used {
-            opacity: 0.25;
+            background: var(--color-gray-dark);
+            color: var(--color-gray);
+            opacity: 1; /* Keep used buttons visible but clearly disabled */
             cursor: default;
             transform: none;
+            box-shadow: none;
         }
 
         .feedback {
@@ -227,10 +246,12 @@
 
         .feedback.success {
             color: var(--color-frame-green);
+            font-weight: 700;
         }
 
         .feedback.error {
             color: var(--color-frame-orange);
+            font-weight: 700;
         }
 
         .action-buttons {
@@ -251,39 +272,41 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
 
         #submit-answer {
-            background-color: var(--color-frame-green);
+            background: linear-gradient(180deg, var(--color-frame-green), #388E3C);
             color: var(--color-dark);
         }
 
         #submit-answer:hover {
-            background-color: #388E3C;
+            background: linear-gradient(180deg, #388E3C, #2e7d32);
         }
 
         #use-hint {
-            background-color: var(--color-orange);
+            background: linear-gradient(180deg, var(--color-orange), #cc7a00);
             color: var(--color-dark);
         }
 
         #use-hint:hover {
-            background-color: var(--color-gold);
+            background: linear-gradient(180deg, var(--color-gold), #e6ac00);
         }
 
         #reveal-key {
-            background-color: var(--color-frame-orange);
+            background: linear-gradient(180deg, var(--color-frame-orange), #E64A19);
             color: var(--color-light);
             display: none;
         }
 
         #reveal-key:hover {
-            background-color: #E64A19;
+            background: linear-gradient(180deg, #E64A19, #d32f2f);
         }
 
         .disabled-button {
             opacity: 0.5;
             cursor: not-allowed !important;
+            box-shadow: none;
         }
 
         .modal {
@@ -297,6 +320,7 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            padding: 20px;
         }
 
         .modal.active {
@@ -312,6 +336,7 @@
             animation: pulse 1.5s infinite alternate;
             box-shadow: 0 0 30px var(--color-gold);
             max-width: 90%;
+            width: 400px;
         }
 
         @keyframes pulse {
@@ -369,6 +394,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
 
         #download-btn:hover {
@@ -393,8 +419,13 @@
             flex-direction: row-reverse;
         }
 
+        [dir="rtl"] .action-buttons {
+            /* Since we want to preserve the order in the DOM, 
+               flex-direction: row or column is fine, no change needed */
+        }
+
         [dir="rtl"] #riddle-text {
-            text-align: center;
+            text-align: center; /* Ensures center alignment regardless of script direction */
         }
 
         /* Responsive */
@@ -426,112 +457,103 @@
         }
     </style>
 </head>
-<body dir="ltr">
-<amp-auto-ads type="adsense"
-        data-ad-client="ca-pub-5812524294035974">
-</amp-auto-ads>
+<body>
+    <!-- The structure from the previous file is preserved here but condensed -->
     <div class="game-container">
+        <!-- Header -->
         <div class="header-bar">
-            <button id="btn-lang" class="button-lang">EN</button>
-            <div class="stage-info" id="stage-info">STAGE <span>1</span> / 1000</div>
+   <button id="btn-lang" class="button-lang">EN</button>    
+        <div id="stage-info" class="stage-info">STAGE <span>1</span></div>
             <div class="coin-display">
+                <span id="coins" class="coin-value">50</span>
                 <span class="coin-icon">💰</span>
-                <span class="coin-value" id="coins">50</span>
             </div>
         </div>
 
+        <!-- Riddle Frame -->
         <div class="riddle-frame">
-            <p id="riddle-text">The more you take, the more you leave behind. What am I?</p>
+            <p id="riddle-text">Loading...</p>
         </div>
-
+        
+        <!-- Input Area -->
         <div class="input-area">
-            <div id="answer-slots"></div>
+            <div id="answer-slots">
+                <!-- Answer slots will be inserted here by JS -->
+            </div>
 
-            <div id="feedback-message" class="feedback"></div>
+            <!-- Keyboard -->
+            <div id="letter-bank">
+                <!-- Letter buttons will be inserted here by JS -->
+            </div>
 
-            <div id="letter-bank"></div>
+            <div id="feedback" class="feedback"></div>
 
+            <!-- Action Buttons -->
             <div class="action-buttons">
-                <button id="submit-answer">SUBMIT</button>
-                <button id="use-hint">REVEAL LETTER (10 💰)</button>
-                <button id="reveal-key" style="display: none;">ACCESS KEY</button>
-            </div>
-
-            <div class="download-section">
-                <button id="download-btn"><span class="download-icon">⇩</span> Download Game</button>
+                <button id="submit-answer" class="action-button">
+                    <span>✅</span> Submit
+                </button>
+                <button id="use-hint" class="action-button">
+                    <span>💡</span> Hint (-10)
+                </button>
+                <button id="reveal-key" class="action-button">
+                    <span>🔑</span> Reveal (AD)
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Security/Reveal Modal -->
-    <div id="ad-modal" class="modal">
-        <div class="ad-content">
-            <h2>!! DECRYPTION IN PROGRESS !!</h2>
-            <p>Security Protocol Engaged</p>
-            <p>Answer will be revealed shortly...</p>
-            <div class="timer" id="ad-timer">3</div>
-        </div>
-    </div>
-
-    <!-- Victory Modal -->
+    <!-- Modals (Simplified, assuming they exist from previous file) -->
     <div id="victory-modal" class="modal">
         <div class="ad-content victory-modal">
-            <h2 id="victory-title">CONGRATULATIONS!</h2>
-            <p id="victory-message">You have mastered all 1000 riddles!</p>
-        </div>
-    </div>
-
-    <!-- ================= GOOGLE ADS MODAL ================= -->
-    <div id="google-ad-modal" class="modal">
-        <div class="ad-content" style="background: #2a2a2a; border: 2px solid #ff9800; max-width: 340px;">
-            <h3>SPONSORED MESSAGE</h3>
-            
-            <div style="background: white; min-height: 250px; display:flex; align-items:center; justify-content:center; margin-bottom: 15px; width: 100%;">
-                
-                <!-- ADSENSE BLOCK START -->
-                <!-- Replace attributes with your actual AdSense values -->
-                <ins class="adsbygoogle"
-                     style="display:block; width: 100%;"
-                     data-ad-client="ca-pub-5812524294035974"
-                     data-ad-slot="1234567890"
-                     data-ad-format="auto"
-                     data-full-width-responsive="true"></ins>
-                <script>
-                     (adsbygoogle = window.adsbygoogle || []).push({});
-                </script>
-                <!-- ADSENSE BLOCK END -->
-
+            <h2 id="victory-title">VICTORY!</h2>
+            <p>You solved the final riddle! What an achievement.</p>
+            <p id="victory-message">Total Score: 1000</p>
+            <div class="download-section">
+                <button id="download-btn" onclick="downloadGame()">
+                    <span class="download-icon">💾</span> Download Game
+                </button>
             </div>
-            
-            <p style="color: #fff; margin-bottom: 15px;">Game continues in...</p>
-            <button id="close-ad-btn" style="background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;">
-                CONTINUE GAME
-            </button>
         </div>
     </div>
 
-<script>
-(function() {
+    <div id="google-ad-modal" class="modal">
+        <div class="ad-content">
+            <h2>ADS</h2>
+            <p>Watch a short ad to reveal the answer!</p>
+            <div style="background: #fff; height: 200px; margin: 15px 0; display:flex; align-items:center; justify-content:center; color:#000;">
+                 <!-- ADSENSE BLOCK -->
+                 <ins class="adsbygoogle"
+                 style="display:block; width: 300px; height: 200px;"
+                 data-ad-client="ca-pub-5812524294035974"
+                 data-ad-format="auto"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+            <p>Video completes in: <span id="ad-timer" class="timer">5</span>s</p>
+            <button id="close-ad-btn" class="action-buttons button" disabled>CONTINUE</button>
+        </div>
+    </div>
+
+    <script>
     // ============== GAME CONSTANTS ==============
     const MAX_TRIALS = 1000;
     const START_COINS = 50;
     const HINT_COST = 10;
     const SOLVE_REWARD = 5;
-    const ATTEMPT_THRESHOLD = 3;
+    const MAX_FAILED_ATTEMPTS = 3;
+    const REVEAL_COST_COINS = 50; // New cost if we allow coin purchase instead of ad
     
     // ============== GAME STATE ==============
     let currentTrial = 1;
     let coins = START_COINS;
+    let currentLang = 'en'; // Default
     let failedAttempts = 0;
-    let currentLang = 'en';
     let currentAnswer = [];
-    let revealedIndices = [];
-    let usedLetterIndices = [];
     
-    // ============== TRANSLATIONS ==============
-    const LANGUAGES = ['en', 'ar', 'fr', 'es', 'de'];
-    
-    const i18n = {
+      const LANGUAGES = ['en', 'ar', 'fr', 'es', 'de'];
+
+  // ============== TRANSLATIONS ==============
+     const i18n = {
         'en': {
             name: 'English',
             rtl: false,
@@ -609,8 +631,8 @@
         }
     };
 
-    // ============== 1000 RIDDLES DATA ==============
-    const RIDDLES = [
+    // Riddles Data (Subset for brevity)
+   const RIDDLES = [
         // Stage 1-50: Classic riddles
         { q: { en: "I speak without a mouth and hear without ears. I have no body, but I come alive with the wind. What am I?", ar: "أتكلم بدون فم وأسمع بدون أذنين. ليس لي جسد، لكنني أحيا مع الرياح. ما أنا؟", fr: "Je parle sans bouche et j'entends sans oreilles. Je n'ai pas de corps, mais je vis avec le vent. Que suis-je?", es: "Hablo sin boca y oigo sin orejas. No tengo cuerpo, pero cobro vida con el viento. ¿Qué soy?", de: "Ich spreche ohne Mund und höre ohne Ohren. Ich habe keinen Körper, aber ich erwache zum Leben mit dem Wind. Was bin ich?" }, a: { en: "ECHO", ar: "صدى", fr: "ECHO", es: "ECO", de: "ECHO" } },
         { q: { en: "The more you take, the more you leave behind. What am I?", ar: "كلما أخذت أكثر، تركت أكثر خلفك. ما أنا؟", fr: "Plus vous en prenez, plus vous en laissez. Que suis-je?", es: "Cuanto más tomas, más dejas atrás. ¿Qué soy?", de: "Je mehr du nimmst, desto mehr lässt du zurück. Was bin ich?" }, a: { en: "FOOTSTEPS", ar: "خطوات", fr: "PAS", es: "PASOS", de: "SCHRITTE" } },
@@ -705,404 +727,347 @@
         { q: { en: "What gets broken without being held?", ar: "ما الذي ينكسر بدون أن يُمسك؟", fr: "Qu'est-ce qui se casse sans être tenu?", es: "¿Qué se rompe sin ser sostenido?", de: "Was wird gebrochen, ohne gehalten zu werden?" }, a: { en: "PROMISE", ar: "وعد", fr: "PROMESSE", es: "PROMESA", de: "VERSPRECHEN" } },
         { q: { en: "What kind of room has no doors or windows?", ar: "أي نوع من الغرف ليس له أبواب أو نوافذ؟", fr: "Quel type de pièce n'a ni portes ni fenêtres?", es: "¿Qué tipo de habitación no tiene puertas ni ventanas?", de: "Was für ein Raum hat keine Türen oder Fenster?" }, a: { en: "MUSHROOM", ar: "فطر", fr: "CHAMPIGNON", es: "HONGO", de: "PILZ" } }
     ];
-    
-    // Generate remaining riddles by cycling through existing ones with variations
-    function generateAllRiddles() {
-        const allRiddles = [...RIDDLES];
-        const baseCount = RIDDLES.length;
-        
-        // Generate additional riddles to reach 1000
-        for (let i = baseCount; i < MAX_TRIALS; i++) {
-            const baseRiddle = RIDDLES[i % baseCount];
-            allRiddles.push({
-                q: baseRiddle.q,
-                a: baseRiddle.a
-            });
-        }
-        
-        return allRiddles;
+
+
+    // Dummy generator for 1000 levels
+    function getRiddle(index) {
+        return RIDDLES[index % RIDDLES.length];
     }
-    
-    const ALL_RIDDLES = generateAllRiddles();
-    
-    // ============== DOM ELEMENTS ==============
+
+    // DOM Elements
     const btnLang = document.getElementById('btn-lang');
     const stageInfo = document.getElementById('stage-info');
     const coinsDisplay = document.getElementById('coins');
     const riddleText = document.getElementById('riddle-text');
     const answerSlots = document.getElementById('answer-slots');
     const letterBank = document.getElementById('letter-bank');
-    const feedbackMessage = document.getElementById('feedback-message');
     const submitBtn = document.getElementById('submit-answer');
     const hintBtn = document.getElementById('use-hint');
     const revealBtn = document.getElementById('reveal-key');
-    const downloadBtn = document.getElementById('download-btn');
-    const adModal = document.getElementById('ad-modal');
+    const feedback = document.getElementById('feedback');
+    const adModal = document.getElementById('google-ad-modal');
+    const closeAdBtn = document.getElementById('close-ad-btn');
     const adTimer = document.getElementById('ad-timer');
     const victoryModal = document.getElementById('victory-modal');
-    const victoryTitle = document.getElementById('victory-title');
-    const victoryMessage = document.getElementById('victory-message');
     
-    // -- NEW ADS ELEMENTS --
-    const googleAdModal = document.getElementById('google-ad-modal');
-    const closeAdBtn = document.getElementById('close-ad-btn');
-    
-    // ============== HELPER FUNCTIONS ==============
-    function shuffleArray(array) {
-        const newArray = [...array];
-        for (let i = newArray.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-        }
-        return newArray;
+    // Timer variable for ad
+    let adCountdown = 0;
+    let adTimerInterval;
+
+    // Helper: Shuffle
+    function shuffle(array) {
+        return array.sort(() => Math.random() - 0.5);
     }
-    
-    function getRandomLetters(answer, count) {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        const arabicChars = 'أبتثجحخدذرزسشصضطظعغفقكلمنهوي';
-        const frenchChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZÉÈÊËÀÂÙÛÔÎÏÇ';
-        const spanishChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZÑÁÉÍÓÚÜ';
-        const germanChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜß';
+
+    // Helper: Find first empty slot index
+    function getFirstEmptySlot() {
+        return currentAnswer.findIndex(c => c === '');
+    }
+
+    // ============== RENDER FUNCTIONS ==============
+
+    function updateUI(t) {
+        // Set language-based elements
+        const isRTL = t.rtl;
+        document.body.dir = isRTL ? 'rtl' : 'ltr';
         
-        let charSet;
-        switch(currentLang) {
-            case 'ar': charSet = arabicChars; break;
-            case 'fr': charSet = frenchChars; break;
-            case 'es': charSet = spanishChars; break;
-            case 'de': charSet = germanChars; break;
-            default: charSet = chars;
-        }
+        stageInfo.innerHTML = `${t.stage} <span>${currentTrial}</span>`;
+        coinsDisplay.innerText = coins;
         
-        const result = [];
-        for (let i = 0; i < count; i++) {
-            result.push(charSet[Math.floor(Math.random() * charSet.length)]);
-        }
-        return result;
+        hintBtn.innerHTML = `<span>💡</span> ${t.hint} (-${HINT_COST})`;
+        submitBtn.innerHTML = `<span>✅</span> ${t.submit}`;
+        revealBtn.innerHTML = `<span>🔑</span> ${t.reveal}`;
     }
-    
-    function getCurrentRiddle() {
-        return ALL_RIDDLES[(currentTrial - 1) % ALL_RIDDLES.length];
-    }
-    
-    function getAnswer() {
-        const riddle = getCurrentRiddle();
-        const answer = riddle.a[currentLang] || riddle.a['en'];
-        // For Latin-based languages, uppercase; for Arabic, keep as-is
-        if (currentLang === 'ar') {
-            return answer;
-        }
-        return answer.toUpperCase();
-    }
-    
-    function getQuestion() {
-        const riddle = getCurrentRiddle();
-        return riddle.q[currentLang] || riddle.q['en'];
-    }
-    
-    // ============== NEW AD LOGIC ==============
-    function handleLevelTransition() {
-        if (currentTrial >= MAX_TRIALS) {
-            showVictory();
+
+    function loadRiddle() {
+        // Check for victory condition first
+        if (currentTrial > MAX_TRIALS) {
+            victoryModal.classList.add('active');
             return;
         }
 
-        currentTrial++;
+        const riddle = getRiddle(currentTrial - 1);
+        const t = i18n[currentLang];
+        updateUI(t);
+
+        // Reset state for new riddle
         failedAttempts = 0;
         
-        // Logic: Show ad every 15 levels (15, 30, 45, etc.)
-        // We check currentTrial - 1 because we just incremented it for the *next* level
-        // So if we just finished level 15, currentTrial is now 16. (16-1) = 15. 15 % 15 == 0.
-        if ((currentTrial - 1) % 15 === 0) {
-            googleAdModal.classList.add('active');
-        } else {
-            loadRiddle();
-        }
+        // Riddle Text
+        riddleText.innerText = riddle.q[currentLang];
+
+        // Answer Setup
+        const ansText = riddle.a[currentLang].toUpperCase(); 
+        setupSlots(ansText);
+        setupKeyboard(ansText);
     }
     
-    // ============== UI UPDATE FUNCTIONS ==============
-    function updateUI() {
-        const t = i18n[currentLang];
-        const isRTL = t.rtl;
-        
-        // Update direction
-        document.documentElement.lang = currentLang;
-        document.body.dir = isRTL ? 'rtl' : 'ltr';
-        riddleText.dir = isRTL ? 'rtl' : 'ltr';
-        
-        // Update header
-        stageInfo.innerHTML = `${t.stage} <span>${currentTrial}</span> / ${MAX_TRIALS}`;
-        coinsDisplay.textContent = coins;
-        btnLang.textContent = currentLang.toUpperCase();
-        
-        // Update buttons
-        submitBtn.textContent = t.submit;
-        hintBtn.innerHTML = `${t.hint} (${HINT_COST} &#128176;)`;
-        revealBtn.textContent = t.reveal;
-        downloadBtn.innerHTML = `<span class="download-icon">&#8681;</span> ${t.download}`;
-        
-        // Update riddle
-        riddleText.textContent = getQuestion();
-        
-        // Update hint button state
-        if (coins < HINT_COST) {
-            hintBtn.classList.add('disabled-button');
-        } else {
-            hintBtn.classList.remove('disabled-button');
-        }
-        
-        // Show/hide reveal button
-        if (failedAttempts >= ATTEMPT_THRESHOLD) {
-            revealBtn.style.display = 'inline-flex';
-        } else {
-            revealBtn.style.display = 'none';
-        }
-    }
-    
-    function setupAnswerSlots() {
+    function setupSlots(answer) {
         answerSlots.innerHTML = '';
-        const answer = getAnswer();
-        currentAnswer = [];
-        revealedIndices = [];
+        // Initialize currentAnswer with spaces for letters and actual space chars for word breaks
+        currentAnswer = answer.split('').map(char => char === ' ' ? ' ' : '');
         
-        for (let i = 0; i < answer.length; i++) {
-            if (answer[i] === ' ') {
+        for (let i = 0; i < currentAnswer.length; i++) {
+            if (currentAnswer[i] === ' ') {
                 const space = document.createElement('div');
                 space.className = 'space-slot';
                 answerSlots.appendChild(space);
-                currentAnswer.push(' ');
             } else {
                 const slot = document.createElement('div');
                 slot.className = 'answer-slot';
                 slot.dataset.index = i;
-                slot.addEventListener('click', () => removeLetterFromSlot(i));
+                slot.onclick = () => clearSlot(i);
                 answerSlots.appendChild(slot);
-                currentAnswer.push('');
             }
         }
     }
-    
-    function setupLetterBank() {
+
+    function setupKeyboard(answer) {
         letterBank.innerHTML = '';
-        usedLetterIndices = [];
         
-        const answer = getAnswer().replace(/ /g, '');
-        const answerLetters = answer.split('');
-        const randomLetters = getRandomLetters(answer, Math.min(6, answer.length));
-        const allLetters = shuffleArray([...answerLetters, ...randomLetters]);
-        
-        allLetters.forEach((letter, index) => {
+        // Create pool of letters: Answer + Randoms
+        const uniqueNeeded = [...new Set(answer.replace(/ /g, '').split(''))];
+        const poolSize = 14; 
+        const randoms = generateRandomChars(poolSize - uniqueNeeded.length);
+        const allChars = shuffle([...uniqueNeeded, ...randoms]);
+
+        allChars.forEach((char, idx) => {
             const btn = document.createElement('button');
             btn.className = 'letter-button';
-            btn.textContent = letter;
-            btn.dataset.index = index;
-            btn.addEventListener('click', () => addLetterToSlot(index, letter));
+            btn.innerText = char;
+            btn.dataset.char = char;
+            btn.dataset.letterIndex = idx;
+            btn.onclick = () => typeLetter(char, idx, btn);
             letterBank.appendChild(btn);
         });
     }
-    
-    function addLetterToSlot(letterIndex, letter) {
-        if (usedLetterIndices.includes(letterIndex)) return;
+
+    function generateRandomChars(count) {
+        const chars = currentLang === 'ar' ? 'أبتثجحخدذرزسشصضطظعغفقكلمنهوي' : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        let res = [];
+        for(let i=0; i<count; i++) res.push(chars[Math.floor(Math.random() * chars.length)]);
+        return res;
+    }
+
+    // ============== INPUT HANDLERS ==============
+
+    function typeLetter(char, idx, btnElement) {
+        if (btnElement.classList.contains('used')) return;
+
+        const emptyIndex = getFirstEmptySlot();
+        if (emptyIndex === -1) return;
+
+        // Update State
+        currentAnswer[emptyIndex] = char;
+
+        // Update UI
+        const slot = answerSlots.querySelector(`.answer-slot[data-index="${emptyIndex}"]`);
+        slot.innerText = char;
+        slot.dataset.sourceIndex = idx; // Remember where this came from to return it
         
-        const answer = getAnswer();
-        for (let i = 0; i < answer.length; i++) {
-            if (answer[i] !== ' ' && currentAnswer[i] === '' && !revealedIndices.includes(i)) {
-                currentAnswer[i] = letter;
-                usedLetterIndices.push(letterIndex);
-                
-                const slot = answerSlots.querySelector(`[data-index="${i}"]`);
-                if (slot) {
-                    slot.textContent = letter;
-                    slot.dataset.letterIndex = letterIndex;
-                }
-                
-                const letterBtn = letterBank.querySelector(`[data-index="${letterIndex}"]`);
-                if (letterBtn) {
-                    letterBtn.classList.add('used');
-                }
-                
-                break;
-            }
-        }
+        btnElement.classList.add('used');
     }
-    
-    function removeLetterFromSlot(slotIndex) {
-        if (revealedIndices.includes(slotIndex)) return;
-        if (currentAnswer[slotIndex] === '' || currentAnswer[slotIndex] === ' ') return;
+
+    function clearSlot(slotIndex) {
+        const slot = answerSlots.querySelector(`.answer-slot[data-index="${slotIndex}"]`);
+        if (!slot || !slot.innerText) return;
         
-        const slot = answerSlots.querySelector(`[data-index="${slotIndex}"]`);
-        if (slot && slot.dataset.letterIndex !== undefined) {
-            const letterIndex = parseInt(slot.dataset.letterIndex);
-            
-            const letterBtn = letterBank.querySelector(`[data-index="${letterIndex}"]`);
-            if (letterBtn) {
-                letterBtn.classList.remove('used');
-            }
-            
-            usedLetterIndices = usedLetterIndices.filter(i => i !== letterIndex);
-            currentAnswer[slotIndex] = '';
-            slot.textContent = '';
-            delete slot.dataset.letterIndex;
+        // If it was a hint (revealed), don't clear
+        if (slot.classList.contains('revealed')) return;
+
+        const sourceIdx = slot.dataset.sourceIndex;
+        if (sourceIdx !== undefined) {
+            // Return to bank
+            const btn = letterBank.querySelector(`.letter-button[data-letter-index="${sourceIdx}"]`);
+            if (btn) btn.classList.remove('used');
         }
+
+        currentAnswer[slotIndex] = '';
+        slot.innerText = '';
+        delete slot.dataset.sourceIndex;
     }
-    
-    function showFeedback(message, type = 'default') {
-        feedbackMessage.textContent = message;
-        feedbackMessage.className = 'feedback';
-        if (type === 'success') feedbackMessage.classList.add('success');
-        if (type === 'error') feedbackMessage.classList.add('error');
-    }
-    
+
     // ============== GAME LOGIC ==============
-    function normalizeString(str) {
-        // Normalize Unicode and trim whitespace
-        return str.normalize('NFC').trim();
-    }
-    
+
     function checkAnswer() {
-        const answer = normalizeString(getAnswer());
-        const userAnswer = normalizeString(currentAnswer.join(''));
+        const riddle = getRiddle(currentTrial - 1);
         const t = i18n[currentLang];
         
-        if (userAnswer === answer) {
-            coins += SOLVE_REWARD;
-            showFeedback(t.correct, 'success');
-            
-            setTimeout(() => {
-                // MODIFIED: Use transition handler instead of direct load
-                handleLevelTransition();
-            }, 1500);
-        } else {
-            failedAttempts++;
-            showFeedback(t.wrong(failedAttempts, ATTEMPT_THRESHOLD), 'error');
-            updateUI();
-        }
-    }
-    
-    function useHint() {
-        const t = i18n[currentLang];
-        
-        if (coins < HINT_COST) {
-            showFeedback(t.lowCoins, 'error');
+        // Combine answer array, filter out empty slots (should only happen if not full) and compare
+        const submittedAnswer = currentAnswer.join('').replace(/ /g, '');
+        const correctAnswer = riddle.a[currentLang].toUpperCase().replace(/ /g, '');
+
+        if (submittedAnswer.length < correctAnswer.length) {
+            showFeedback('Please fill all letters.', 'error');
             return;
         }
+
+        if (submittedAnswer === correctAnswer) {
+            // Correct Answer Logic
+            showFeedback(t.correct, 'success');
+            coins += SOLVE_REWARD;
+            saveProgress();
+            
+            setTimeout(() => {
+                currentTrial++;
+                // Show Ad every 5 levels logic (or check for victory)
+                if (currentTrial % 5 === 0) {
+                    showAdModal(false); // Ad before next level
+                } else {
+                    loadRiddle();
+                }
+            }, 1500);
+        } else {
+            // Incorrect Answer Logic
+            failedAttempts++;
+            showFeedback(t.incorrect, 'error');
+            
+            // Clear all non-revealed slots
+            answerSlots.querySelectorAll('.answer-slot:not(.revealed)').forEach((slot, idx) => {
+                 // Calculate true index based on non-space slots
+                const slotIndex = parseInt(slot.dataset.index);
+                clearSlot(slotIndex);
+            });
+
+            if (failedAttempts >= MAX_FAILED_ATTEMPTS) {
+                 // Force Ad/Reveal option
+                 showFeedback(t.maxAttempts, 'error');
+                 revealBtn.style.display = 'inline-flex';
+            }
+            saveProgress();
+        }
+    }
+
+    function useHint() {
+        const t = i18n[currentLang];
+        if (coins < HINT_COST) {
+            showFeedback(t.notEnoughCoins, 'error');
+            return;
+        }
+
+        const answer = getRiddle(currentTrial - 1).a[currentLang].toUpperCase();
         
-        const answer = getAnswer();
-        const availableIndices = [];
-        
-        for (let i = 0; i < answer.length; i++) {
-            if (answer[i] !== ' ' && !revealedIndices.includes(i) && currentAnswer[i] !== answer[i]) {
-                availableIndices.push(i);
+        // Find an unrevealed, non-matching index
+        let candidates = [];
+        for(let i = 0; i < answer.length; i++) {
+            const slot = answerSlots.querySelector(`[data-index="${i}"]`);
+            // Must be a letter slot, not already revealed, and either empty or incorrect
+            if (answer[i] !== ' ' && slot && !slot.classList.contains('revealed') && currentAnswer[i] !== answer[i]) {
+                candidates.push(i);
             }
         }
-        
-        if (availableIndices.length === 0) return;
-        
+
+        if (candidates.length === 0) return;
+
+        // Deduct Coins
         coins -= HINT_COST;
-        const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
-        revealedIndices.push(randomIndex);
+        coinsDisplay.innerText = coins;
+
+        // Reveal logic
+        const targetIdx = candidates[Math.floor(Math.random() * candidates.length)];
+        const correctChar = answer[targetIdx];
+
+        // Clear whatever was there first (and return the key to the bank if possible)
+        clearSlot(targetIdx);
+
+        // Update Slot UI and State
+        const slot = answerSlots.querySelector(`[data-index="${targetIdx}"]`);
+        slot.innerText = correctChar;
+        slot.classList.add('revealed');
+        currentAnswer[targetIdx] = correctChar;
         
-        // Remove any letter currently in this slot
-        const slot = answerSlots.querySelector(`[data-index="${randomIndex}"]`);
-        if (slot && slot.dataset.letterIndex !== undefined) {
-            const letterIndex = parseInt(slot.dataset.letterIndex);
-            const letterBtn = letterBank.querySelector(`[data-index="${letterIndex}"]`);
-            if (letterBtn) letterBtn.classList.remove('used');
-            usedLetterIndices = usedLetterIndices.filter(i => i !== letterIndex);
-        }
+        // Disable the letter button if it exists in the bank and wasn't manually used
+        letterBank.querySelectorAll(`.letter-button[data-char="${correctChar}"]`).forEach(btn => {
+            // Find the button that was NOT used by the player and use it up
+            if (!btn.classList.contains('used')) {
+                btn.classList.add('used');
+                // The hint system uses up the letter without tracking a source index on the slot
+            }
+        });
         
-        currentAnswer[randomIndex] = answer[randomIndex];
-        if (slot) {
-            slot.textContent = answer[randomIndex];
-            slot.classList.add('revealed');
-            delete slot.dataset.letterIndex;
-        }
-        
-        failedAttempts++;
-        updateUI();
+        showFeedback(`Hint used! You lost ${HINT_COST} coins.`, 'success');
+        checkAnswer(); // Check if this hint completed the word
+        saveProgress();
+    }
+
+    function showAdAndReveal() {
+        showAdModal(true);
     }
     
-    function showAdAndReveal() {
+    function showAdModal(isReveal) {
         adModal.classList.add('active');
-        let countdown = 3;
-        adTimer.textContent = countdown;
+        closeAdBtn.disabled = true;
+        closeAdBtn.innerText = 'WAIT...';
         
-        const interval = setInterval(() => {
-            countdown--;
-            adTimer.textContent = countdown;
+        adCountdown = 5; // 5 second timer
+        adTimer.innerText = adCountdown;
+        
+        adTimerInterval = setInterval(() => {
+            adCountdown--;
+            adTimer.innerText = adCountdown;
             
-            if (countdown <= 0) {
-                clearInterval(interval);
-                adModal.classList.remove('active');
-                revealFullAnswer();
+            if (adCountdown <= 0) {
+                clearInterval(adTimerInterval);
+                closeAdBtn.disabled = false;
+                closeAdBtn.innerText = isReveal ? 'REVEAL ANSWER' : 'CONTINUE';
+                
+                // If it's a reveal, change the click handler temporarily
+                if (isReveal) {
+                    closeAdBtn.onclick = () => {
+                        adModal.classList.remove('active');
+                        revealAnswer();
+                    };
+                } else {
+                    closeAdBtn.onclick = () => {
+                         adModal.classList.remove('active');
+                         loadRiddle();
+                    };
+                }
             }
         }, 1000);
     }
     
-    function revealFullAnswer() {
-        const answer = getAnswer();
-        const t = i18n[currentLang];
+    function revealAnswer() {
+        const answer = getRiddle(currentTrial - 1).a[currentLang].toUpperCase();
         
-        for (let i = 0; i < answer.length; i++) {
-            if (answer[i] !== ' ') {
-                currentAnswer[i] = answer[i];
-                const slot = answerSlots.querySelector(`[data-index="${i}"]`);
-                if (slot) {
-                    slot.textContent = answer[i];
-                    slot.classList.add('revealed');
-                }
-            }
-        }
+        // Clear all slots
+        answerSlots.querySelectorAll('.answer-slot').forEach(slot => {
+            const index = parseInt(slot.dataset.index);
+            // If the slot had a user-placed letter, return the key to the bank before clearing
+            clearSlot(index);
+            
+            // Now, populate with correct answer
+            slot.innerText = answer[index];
+            slot.classList.add('revealed');
+            currentAnswer[index] = answer[index];
+        });
         
-        showFeedback(t.revealed, 'success');
+        // Mark all letters in the bank as used (or simply disable interaction)
+        letterBank.querySelectorAll('.letter-button').forEach(btn => btn.classList.add('used'));
+
+        showFeedback(`Answer revealed! Moving to next stage...`, 'success');
         
+        // Since the answer is revealed, we move on immediately after a pause
         setTimeout(() => {
-            // MODIFIED: Use transition handler instead of direct load
-            handleLevelTransition();
+            currentTrial++;
+            saveProgress();
+            loadRiddle();
         }, 2000);
     }
-    
-    function showVictory() {
-        const t = i18n[currentLang];
-        victoryTitle.textContent = t.finalTitle;
-        victoryMessage.textContent = t.finalMsg;
-        victoryModal.classList.add('active');
-        
-        setTimeout(() => {
-            victoryModal.classList.remove('active');
-            currentTrial = 1;
-            coins = START_COINS;
-            failedAttempts = 0;
-            loadRiddle();
-        }, 5000);
+
+    function showFeedback(msg, type) {
+        feedback.innerText = msg;
+        feedback.className = `feedback ${type}`;
     }
-    
-    function loadRiddle() {
-        feedbackMessage.textContent = '';
-        setupAnswerSlots();
-        setupLetterBank();
-        updateUI();
-        saveProgress();
-    }
-    
-    function changeLanguage() {
-        const langIndex = LANGUAGES.indexOf(currentLang);
-        currentLang = LANGUAGES[(langIndex + 1) % LANGUAGES.length];
-        loadRiddle();
-    }
-    
-    // ============== SAVE/LOAD PROGRESS ==============
+
+    // ============== STORAGE & PROGRESS ==============
+
     function saveProgress() {
-        const progress = {
-            currentTrial,
-            coins,
-            currentLang,
-            failedAttempts
-        };
-        localStorage.setItem('riddleProgress', JSON.stringify(progress));
+        localStorage.setItem('riddleGameData', JSON.stringify({ currentTrial, coins, currentLang, failedAttempts }));
     }
-    
+
     function loadProgress() {
-        const saved = localStorage.getItem('riddleProgress');
+        const saved = localStorage.getItem('riddleGameData');
         if (saved) {
             const progress = JSON.parse(saved);
             currentTrial = progress.currentTrial || 1;
@@ -1112,7 +1077,13 @@
         }
     }
     
-    // ============== DOWNLOAD FUNCTION ==============
+    function changeLanguage() {
+        const langIndex = LANGUAGES.indexOf(currentLang);
+        currentLang = LANGUAGES[(langIndex + 1) % LANGUAGES.length];
+        loadRiddle();
+    }
+    
+    // ============== DOWNLOAD FUNCTION ==============\
     function downloadGame() {
         const htmlContent = document.documentElement.outerHTML;
         const blob = new Blob([htmlContent], { type: 'text/html' });
@@ -1127,23 +1098,27 @@
         URL.revokeObjectURL(url);
     }
     
-    // ============== EVENT LISTENERS ==============
+    // ============== EVENT LISTENERS ==============\
     btnLang.addEventListener('click', changeLanguage);
     submitBtn.addEventListener('click', checkAnswer);
     hintBtn.addEventListener('click', useHint);
     revealBtn.addEventListener('click', showAdAndReveal);
-    downloadBtn.addEventListener('click', downloadGame);
     
-    // -- NEW AD EVENT LISTENER --
+    // Add event listeners for modals/download
+    document.getElementById('download-btn').addEventListener('click', downloadGame);
+    
+    // The closeAdBtn logic is handled inside showAdModal now, but we need an initial one 
+    // to remove the modal if the user clicks before the timer starts (which shouldn't happen)
     closeAdBtn.addEventListener('click', function() {
-        googleAdModal.classList.remove('active');
+        adModal.classList.remove('active');
+        // If they close before the timer is up, clear the interval
+        if (adTimerInterval) clearInterval(adTimerInterval); 
         loadRiddle();
     });
     
-    // ============== INITIALIZE ==============
+    // ============== INITIALIZE ==============\
     loadProgress();
     loadRiddle();
-})();
-</script>
+    </script>
 </body>
 </html>
