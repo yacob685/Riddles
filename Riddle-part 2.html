@@ -1,0 +1,1149 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Ultimate Riddle Challenge: 1000 Trials</title>
+    <meta name="description" content="Test your mind with 1000 of the hardest riddles ever created. Available in English, Arabic, French, Spanish, and German.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Noto+Sans+Arabic:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <script async custom-element="amp-auto-ads"
+        src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js">
+</script>
+    <!-- GOOGLE ADSENSE SCRIPT -->
+    <!-- REPLACE 'ca-pub-XXXXXXXXXXXXXXXX' WITH YOUR ACTUAL PUBLISHER ID -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5812524294035974" crossorigin="anonymous"></script>
+    <style>
+        :root {
+            --color-dark: #1f1f1f;
+            --color-dark-lighter: #2a2a2a;
+            --color-gold: #ffc107;
+            --color-orange: #ff9800;
+            --color-light: #ffffff;
+            --color-gray: #444;
+            --color-gray-dark: #333;
+            --color-frame-green: #4CAF50;
+            --color-frame-orange: #FF5722;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--color-dark);
+            color: var(--color-light);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+            font-family: 'Inter', 'Noto Sans Arabic', sans-serif;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            background-color: var(--color-dark-lighter);
+        }
+
+        .header-bar {
+            background-color: var(--color-gray-dark);
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1rem;
+            border-bottom: 3px solid var(--color-orange);
+            color: var(--color-light);
+            font-weight: bold;
+            gap: 10px;
+        }
+
+        .header-bar .stage-info {
+            color: var(--color-light);
+            font-size: 1.1rem;
+        }
+
+        .header-bar .stage-info span {
+            color: var(--color-gold);
+        }
+
+        .coin-display {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 1.1rem;
+        }
+
+        .coin-display .coin-icon {
+            font-size: 1.2rem;
+        }
+
+        .coin-display .coin-value {
+            color: var(--color-gold);
+            font-weight: bold;
+        }
+
+        .button-lang {
+            background-color: #555;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: none;
+            color: var(--color-light);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .button-lang:hover {
+            background-color: #777;
+        }
+
+        .riddle-frame {
+            padding: 25px 20px;
+            min-height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: linear-gradient(135deg, 
+                rgba(60, 40, 20, 0.9) 0%, 
+                rgba(40, 30, 15, 0.95) 25%,
+                rgba(30, 25, 15, 0.9) 50%,
+                rgba(50, 35, 18, 0.95) 75%,
+                rgba(45, 30, 15, 0.9) 100%
+            );
+            border: 4px solid;
+            border-image: linear-gradient(to right, var(--color-frame-green), var(--color-frame-orange)) 1;
+            box-shadow: inset 0 0 30px rgba(255, 165, 0, 0.15);
+        }
+
+        #riddle-text {
+            font-size: 1.35rem;
+            font-weight: 500;
+            line-height: 1.5;
+            color: var(--color-light);
+        }
+
+        .input-area {
+            background-color: var(--color-gray);
+            padding: 20px 15px;
+        }
+
+        #answer-slots {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 15px;
+            min-height: 42px;
+        }
+
+        .answer-slot {
+            width: 32px;
+            height: 38px;
+            background-color: var(--color-light);
+            color: var(--color-dark);
+            border: 2px solid var(--color-orange);
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .answer-slot:hover {
+            background-color: #eee;
+            transform: scale(1.05);
+        }
+
+        .answer-slot.revealed {
+            background-color: var(--color-gold);
+            border-color: var(--color-gold);
+        }
+
+        .space-slot {
+            width: 16px;
+            height: 38px;
+            background-color: transparent;
+            pointer-events: none;
+        }
+
+        #letter-bank {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            padding: 15px 0;
+            border-top: 2px solid var(--color-gold);
+            border-bottom: 2px solid var(--color-gold);
+            margin-bottom: 15px;
+        }
+
+        .letter-button {
+            background-color: var(--color-orange);
+            color: var(--color-dark);
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            transition: all 0.15s ease;
+            min-width: 42px;
+            text-align: center;
+        }
+
+        .letter-button:hover:not(.used) {
+            background-color: var(--color-gold);
+            transform: scale(1.05);
+        }
+
+        .letter-button.used {
+            opacity: 0.25;
+            cursor: default;
+            transform: none;
+        }
+
+        .feedback {
+            font-size: 1rem;
+            min-height: 28px;
+            text-align: center;
+            color: var(--color-gold);
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .feedback.success {
+            color: var(--color-frame-green);
+        }
+
+        .feedback.error {
+            color: var(--color-frame-orange);
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .action-buttons button {
+            padding: 12px 18px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        #submit-answer {
+            background-color: var(--color-frame-green);
+            color: var(--color-dark);
+        }
+
+        #submit-answer:hover {
+            background-color: #388E3C;
+        }
+
+        #use-hint {
+            background-color: var(--color-orange);
+            color: var(--color-dark);
+        }
+
+        #use-hint:hover {
+            background-color: var(--color-gold);
+        }
+
+        #reveal-key {
+            background-color: var(--color-frame-orange);
+            color: var(--color-light);
+            display: none;
+        }
+
+        #reveal-key:hover {
+            background-color: #E64A19;
+        }
+
+        .disabled-button {
+            opacity: 0.5;
+            cursor: not-allowed !important;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.92);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .ad-content {
+            background: radial-gradient(circle, #222 0%, #000 100%);
+            padding: 40px;
+            border-radius: 15px;
+            border: 4px solid var(--color-gold);
+            text-align: center;
+            animation: pulse 1.5s infinite alternate;
+            box-shadow: 0 0 30px var(--color-gold);
+            max-width: 90%;
+        }
+
+        @keyframes pulse {
+            from { box-shadow: 0 0 15px var(--color-gold); }
+            to { box-shadow: 0 0 45px var(--color-orange); }
+        }
+
+        .ad-content h2, .ad-content h3 {
+            color: var(--color-frame-orange);
+            margin-bottom: 15px;
+        }
+
+        .ad-content h2 { font-size: 1.8rem; }
+        .ad-content h3 { font-size: 1.4rem; }
+
+        .ad-content p {
+            color: var(--color-gold);
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .ad-content .timer {
+            font-size: 3rem;
+            color: var(--color-light);
+            font-family: monospace;
+            margin-top: 20px;
+        }
+
+        .victory-modal {
+            background: radial-gradient(circle, #1a3a1a 0%, #0a1a0a 100%);
+            border-color: var(--color-frame-green);
+            box-shadow: 0 0 30px var(--color-frame-green);
+        }
+
+        .victory-modal h2 {
+            color: var(--color-frame-green);
+        }
+
+        .download-section {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #download-btn {
+            background: linear-gradient(135deg, var(--color-gold), var(--color-orange));
+            color: var(--color-dark);
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #download-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+        }
+
+        .download-icon {
+            font-size: 1.2rem;
+        }
+
+        /* RTL Support */
+        [dir="rtl"] {
+            font-family: 'Noto Sans Arabic', 'Inter', sans-serif;
+        }
+
+        [dir="rtl"] .header-bar {
+            flex-direction: row-reverse;
+        }
+
+        [dir="rtl"] .coin-display {
+            flex-direction: row-reverse;
+        }
+
+        [dir="rtl"] #riddle-text {
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 400px) {
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .action-buttons button {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            #riddle-text {
+                font-size: 1.15rem;
+            }
+            
+            .answer-slot {
+                width: 28px;
+                height: 34px;
+                font-size: 1rem;
+            }
+            
+            .letter-button {
+                padding: 8px 12px;
+                min-width: 38px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body dir="ltr">
+<amp-auto-ads type="adsense"
+        data-ad-client="ca-pub-5812524294035974">
+</amp-auto-ads>
+    <div class="game-container">
+        <div class="header-bar">
+            <button id="btn-lang" class="button-lang">EN</button>
+            <div class="stage-info" id="stage-info">STAGE <span>1</span> / 1000</div>
+            <div class="coin-display">
+                <span class="coin-icon">💰</span>
+                <span class="coin-value" id="coins">50</span>
+            </div>
+        </div>
+
+        <div class="riddle-frame">
+            <p id="riddle-text">The more you take, the more you leave behind. What am I?</p>
+        </div>
+
+        <div class="input-area">
+            <div id="answer-slots"></div>
+
+            <div id="feedback-message" class="feedback"></div>
+
+            <div id="letter-bank"></div>
+
+            <div class="action-buttons">
+                <button id="submit-answer">SUBMIT</button>
+                <button id="use-hint">REVEAL LETTER (10 💰)</button>
+                <button id="reveal-key" style="display: none;">ACCESS KEY</button>
+            </div>
+
+            <div class="download-section">
+                <button id="download-btn"><span class="download-icon">⇩</span> Download Game</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security/Reveal Modal -->
+    <div id="ad-modal" class="modal">
+        <div class="ad-content">
+            <h2>!! DECRYPTION IN PROGRESS !!</h2>
+            <p>Security Protocol Engaged</p>
+            <p>Answer will be revealed shortly...</p>
+            <div class="timer" id="ad-timer">3</div>
+        </div>
+    </div>
+
+    <!-- Victory Modal -->
+    <div id="victory-modal" class="modal">
+        <div class="ad-content victory-modal">
+            <h2 id="victory-title">CONGRATULATIONS!</h2>
+            <p id="victory-message">You have mastered all 1000 riddles!</p>
+        </div>
+    </div>
+
+    <!-- ================= GOOGLE ADS MODAL ================= -->
+    <div id="google-ad-modal" class="modal">
+        <div class="ad-content" style="background: #2a2a2a; border: 2px solid #ff9800; max-width: 340px;">
+            <h3>SPONSORED MESSAGE</h3>
+            
+            <div style="background: white; min-height: 250px; display:flex; align-items:center; justify-content:center; margin-bottom: 15px; width: 100%;">
+                
+                <!-- ADSENSE BLOCK START -->
+                <!-- Replace attributes with your actual AdSense values -->
+                <ins class="adsbygoogle"
+                     style="display:block; width: 100%;"
+                     data-ad-client="ca-pub-5812524294035974"
+                     data-ad-slot="1234567890"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>
+                     (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+                <!-- ADSENSE BLOCK END -->
+
+            </div>
+            
+            <p style="color: #fff; margin-bottom: 15px;">Game continues in...</p>
+            <button id="close-ad-btn" style="background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;">
+                CONTINUE GAME
+            </button>
+        </div>
+    </div>
+
+<script>
+(function() {
+    // ============== GAME CONSTANTS ==============
+    const MAX_TRIALS = 1000;
+    const START_COINS = 50;
+    const HINT_COST = 10;
+    const SOLVE_REWARD = 5;
+    const ATTEMPT_THRESHOLD = 3;
+    
+    // ============== GAME STATE ==============
+    let currentTrial = 1;
+    let coins = START_COINS;
+    let failedAttempts = 0;
+    let currentLang = 'en';
+    let currentAnswer = [];
+    let revealedIndices = [];
+    let usedLetterIndices = [];
+    
+    // ============== TRANSLATIONS ==============
+    const LANGUAGES = ['en', 'ar', 'fr', 'es', 'de'];
+    
+    const i18n = {
+        'en': {
+            name: 'English',
+            rtl: false,
+            stage: 'STAGE',
+            submit: 'SUBMIT',
+            hint: 'REVEAL LETTER',
+            reveal: 'ACCESS KEY',
+            correct: 'CORRECT! Proceeding to next stage...',
+            wrong: (a, m) => `Incorrect. Attempt ${a} of ${m}.`,
+            lowCoins: 'Insufficient coins for hint.',
+            finalTitle: 'GRAND MASTER!',
+            finalMsg: 'You conquered all 1000 riddles!',
+            revealed: 'Answer revealed!',
+            download: 'Download Game'
+        },
+        'ar': {
+            name: 'العربية',
+            rtl: true,
+            stage: 'المرحلة',
+            submit: 'إرسال',
+            hint: 'كشف حرف',
+            reveal: 'مفتاح الحل',
+            correct: 'صحيح! جاري الانتقال...',
+            wrong: (a, m) => `خطأ. المحاولة ${a} من ${m}.`,
+            lowCoins: 'لا توجد نقود كافية.',
+            finalTitle: 'أنت بطل!',
+            finalMsg: 'أكملت جميع الألغاز الألف!',
+            revealed: 'تم كشف الإجابة!',
+            download: 'تحميل اللعبة'
+        },
+        'fr': {
+            name: 'Français',
+            rtl: false,
+            stage: 'NIVEAU',
+            submit: 'VALIDER',
+            hint: 'RÉVÉLER',
+            reveal: 'CLÉ',
+            correct: 'CORRECT! Niveau suivant...',
+            wrong: (a, m) => `Incorrect. Tentative ${a}/${m}.`,
+            lowCoins: 'Pièces insuffisantes.',
+            finalTitle: 'MAÎTRE!',
+            finalMsg: 'Vous avez conquis les 1000 énigmes!',
+            revealed: 'Réponse révélée!',
+            download: 'Télécharger'
+        },
+        'es': {
+            name: 'Español',
+            rtl: false,
+            stage: 'ETAPA',
+            submit: 'ENVIAR',
+            hint: 'REVELAR',
+            reveal: 'CLAVE',
+            correct: '¡CORRECTO! Siguiente etapa...',
+            wrong: (a, m) => `Incorrecto. Intento ${a}/${m}.`,
+            lowCoins: 'Monedas insuficientes.',
+            finalTitle: '¡MAESTRO!',
+            finalMsg: '¡Conquistaste los 1000 acertijos!',
+            revealed: '¡Respuesta revelada!',
+            download: 'Descargar'
+        },
+        'de': {
+            name: 'Deutsch',
+            rtl: false,
+            stage: 'STUFE',
+            submit: 'SENDEN',
+            hint: 'ZEIGEN',
+            reveal: 'SCHLÜSSEL',
+            correct: 'RICHTIG! Nächste Stufe...',
+            wrong: (a, m) => `Falsch. Versuch ${a}/${m}.`,
+            lowCoins: 'Nicht genug Münzen.',
+            finalTitle: 'MEISTER!',
+            finalMsg: 'Du hast alle 1000 Rätsel gemeistert!',
+            revealed: 'Antwort enthüllt!',
+            download: 'Herunterladen'
+        }
+    };
+
+    // ============== 1000 RIDDLES DATA ==============
+    const RIDDLES = [
+        // Stage 1-50: Classic riddles
+        { q: { en: "I speak without a mouth and hear without ears. I have no body, but I come alive with the wind. What am I?", ar: "أتكلم بدون فم وأسمع بدون أذنين. ليس لي جسد، لكنني أحيا مع الرياح. ما أنا؟", fr: "Je parle sans bouche et j'entends sans oreilles. Je n'ai pas de corps, mais je vis avec le vent. Que suis-je?", es: "Hablo sin boca y oigo sin orejas. No tengo cuerpo, pero cobro vida con el viento. ¿Qué soy?", de: "Ich spreche ohne Mund und höre ohne Ohren. Ich habe keinen Körper, aber ich erwache zum Leben mit dem Wind. Was bin ich?" }, a: { en: "ECHO", ar: "صدى", fr: "ECHO", es: "ECO", de: "ECHO" } },
+        { q: { en: "The more you take, the more you leave behind. What am I?", ar: "كلما أخذت أكثر، تركت أكثر خلفك. ما أنا؟", fr: "Plus vous en prenez, plus vous en laissez. Que suis-je?", es: "Cuanto más tomas, más dejas atrás. ¿Qué soy?", de: "Je mehr du nimmst, desto mehr lässt du zurück. Was bin ich?" }, a: { en: "FOOTSTEPS", ar: "خطوات", fr: "PAS", es: "PASOS", de: "SCHRITTE" } },
+        { q: { en: "I have cities, but no houses. I have mountains, but no trees. I have water, but no fish. What am I?", ar: "لدي مدن لكن لا بيوت. لدي جبال لكن لا أشجار. لدي ماء لكن لا سمك. ما أنا؟", fr: "J'ai des villes, mais pas de maisons. J'ai des montagnes, mais pas d'arbres. J'ai de l'eau, mais pas de poissons. Que suis-je?", es: "Tengo ciudades, pero no casas. Tengo montañas, pero no árboles. Tengo agua, pero no peces. ¿Qué soy?", de: "Ich habe Städte, aber keine Häuser. Ich habe Berge, aber keine Bäume. Ich habe Wasser, aber keine Fische. Was bin ich?" }, a: { en: "MAP", ar: "خريطة", fr: "CARTE", es: "MAPA", de: "KARTE" } },
+        { q: { en: "What can travel around the world while staying in a corner?", ar: "ما الذي يمكنه السفر حول العالم وهو في الزاوية؟", fr: "Qu'est-ce qui peut voyager autour du monde en restant dans un coin?", es: "¿Qué puede viajar alrededor del mundo quedándose en una esquina?", de: "Was kann um die Welt reisen und bleibt dabei in einer Ecke?" }, a: { en: "STAMP", ar: "طابع", fr: "TIMBRE", es: "SELLO", de: "BRIEFMARKE" } },
+        { q: { en: "I am not alive, but I grow. I don't have lungs, but I need air. What am I?", ar: "لست حياً لكنني أنمو. ليس لي رئتان لكنني أحتاج الهواء. ما أنا؟", fr: "Je ne suis pas vivant, mais je grandis. Je n'ai pas de poumons, mais j'ai besoin d'air. Que suis-je?", es: "No estoy vivo, pero crezco. No tengo pulmones, pero necesito aire. ¿Qué soy?", de: "Ich bin nicht lebendig, aber ich wachse. Ich habe keine Lungen, aber ich brauche Luft. Was bin ich?" }, a: { en: "FIRE", ar: "نار", fr: "FEU", es: "FUEGO", de: "FEUER" } },
+        { q: { en: "What has a head and a tail but no body?", ar: "ما الذي له رأس وذيل لكن ليس له جسد؟", fr: "Qu'est-ce qui a une tête et une queue mais pas de corps?", es: "¿Qué tiene cabeza y cola pero no cuerpo?", de: "Was hat einen Kopf und einen Schwanz, aber keinen Körper?" }, a: { en: "COIN", ar: "عملة", fr: "PIECE", es: "MONEDA", de: "MUENZE" } },
+        { q: { en: "I can be cracked, made, told, and played. What am I?", ar: "يمكن كسري وصنعي وروايتي ولعبي. ما أنا؟", fr: "On peut me casser, me faire, me raconter et me jouer. Que suis-je?", es: "Puedo ser contado, hecho, roto y jugado. ¿Qué soy?", de: "Ich kann geknackt, gemacht, erzählt und gespielt werden. Was bin ich?" }, a: { en: "JOKE", ar: "نكتة", fr: "BLAGUE", es: "CHISTE", de: "WITZ" } },
+        { q: { en: "The person who makes it, sells it. The person who buys it never uses it. The person who uses it never knows it. What is it?", ar: "من يصنعه يبيعه. من يشتريه لا يستخدمه. من يستخدمه لا يعرفه. ما هو؟", fr: "Celui qui le fabrique le vend. Celui qui l'achète ne l'utilise pas. Celui qui l'utilise ne le sait pas. Qu'est-ce?", es: "Quien lo hace, lo vende. Quien lo compra, no lo usa. Quien lo usa, no lo sabe. ¿Qué es?", de: "Wer es macht, verkauft es. Wer es kauft, benutzt es nicht. Wer es benutzt, weiß es nicht. Was ist es?" }, a: { en: "COFFIN", ar: "تابوت", fr: "CERCUEIL", es: "ATAUD", de: "SARG" } },
+        { q: { en: "I have keys but no locks. I have space but no room. You can enter but can't go inside. What am I?", ar: "لدي مفاتيح لكن لا أقفال. لدي مسافة لكن لا غرفة. يمكنك الدخول لكن لا يمكنك الذهاب للداخل. ما أنا؟", fr: "J'ai des touches mais pas de serrures. J'ai de l'espace mais pas de pièce. Tu peux entrer mais pas aller à l'intérieur. Que suis-je?", es: "Tengo teclas pero no cerraduras. Tengo espacio pero no habitación. Puedes entrar pero no ir adentro. ¿Qué soy?", de: "Ich habe Tasten aber keine Schlösser. Ich habe Platz aber keinen Raum. Du kannst eintreten aber nicht hineingehen. Was bin ich?" }, a: { en: "KEYBOARD", ar: "لوحة مفاتيح", fr: "CLAVIER", es: "TECLADO", de: "TASTATUR" } },
+        { q: { en: "What disappears as soon as you say its name?", ar: "ما الذي يختفي بمجرد أن تقول اسمه؟", fr: "Qu'est-ce qui disparaît dès que tu prononces son nom?", es: "¿Qué desaparece en cuanto dices su nombre?", de: "Was verschwindet, sobald du seinen Namen sagst?" }, a: { en: "SILENCE", ar: "صمت", fr: "SILENCE", es: "SILENCIO", de: "STILLE" } },
+        { q: { en: "What has words but never speaks?", ar: "ما الذي له كلمات لكنه لا يتكلم أبداً؟", fr: "Qu'est-ce qui a des mots mais ne parle jamais?", es: "¿Qué tiene palabras pero nunca habla?", de: "Was hat Wörter, spricht aber nie?" }, a: { en: "BOOK", ar: "كتاب", fr: "LIVRE", es: "LIBRO", de: "BUCH" } },
+        { q: { en: "What is always in front of you but can't be seen?", ar: "ما الذي يكون أمامك دائماً لكن لا يمكن رؤيته؟", fr: "Qu'est-ce qui est toujours devant toi mais ne peut être vu?", es: "¿Qué está siempre frente a ti pero no se puede ver?", de: "Was ist immer vor dir, kann aber nicht gesehen werden?" }, a: { en: "FUTURE", ar: "مستقبل", fr: "AVENIR", es: "FUTURO", de: "ZUKUNFT" } },
+        { q: { en: "What can you break, even if you never pick it up or touch it?", ar: "ما الذي يمكنك كسره حتى لو لم تلتقطه أو تلمسه أبداً؟", fr: "Que peux-tu casser même sans le prendre ou le toucher?", es: "¿Qué puedes romper sin tocarlo ni cogerlo?", de: "Was kannst du brechen, auch wenn du es nie aufhebst oder berührst?" }, a: { en: "PROMISE", ar: "وعد", fr: "PROMESSE", es: "PROMESA", de: "VERSPRECHEN" } },
+        { q: { en: "What goes up but never comes down?", ar: "ما الذي يصعد لكن لا ينزل أبداً؟", fr: "Qu'est-ce qui monte mais ne descend jamais?", es: "¿Qué sube pero nunca baja?", de: "Was geht hinauf, kommt aber nie herunter?" }, a: { en: "AGE", ar: "عمر", fr: "AGE", es: "EDAD", de: "ALTER" } },
+        { q: { en: "What can fill a room but takes up no space?", ar: "ما الذي يمكنه ملء غرفة لكنه لا يشغل أي مساحة؟", fr: "Qu'est-ce qui peut remplir une pièce sans prendre de place?", es: "¿Qué puede llenar una habitación sin ocupar espacio?", de: "Was kann einen Raum füllen, nimmt aber keinen Platz ein?" }, a: { en: "LIGHT", ar: "ضوء", fr: "LUMIERE", es: "LUZ", de: "LICHT" } },
+        { q: { en: "If you have me, you want to share me. If you share me, you haven't got me. What am I?", ar: "إذا كنت تملكني، تريد مشاركتي. إذا شاركتني، لم تعد تملكني. ما أنا؟", fr: "Si tu m'as, tu veux me partager. Si tu me partages, tu ne m'as plus. Que suis-je?", es: "Si me tienes, quieres compartirme. Si me compartes, ya no me tienes. ¿Qué soy?", de: "Wenn du mich hast, willst du mich teilen. Wenn du mich teilst, hast du mich nicht mehr. Was bin ich?" }, a: { en: "SECRET", ar: "سر", fr: "SECRET", es: "SECRETO", de: "GEHEIMNIS" } },
+        { q: { en: "What has a ring but no finger?", ar: "ما الذي له حلقة لكن ليس له إصبع؟", fr: "Qu'est-ce qui a une sonnerie mais pas de doigt?", es: "¿Qué tiene anillo pero no dedo?", de: "Was hat einen Ring, aber keinen Finger?" }, a: { en: "PHONE", ar: "هاتف", fr: "TELEPHONE", es: "TELEFONO", de: "TELEFON" } },
+        { q: { en: "I have a neck but no head. What am I?", ar: "لي رقبة لكن ليس لي رأس. ما أنا؟", fr: "J'ai un cou mais pas de tête. Que suis-je?", es: "Tengo cuello pero no cabeza. ¿Qué soy?", de: "Ich habe einen Hals, aber keinen Kopf. Was bin ich?" }, a: { en: "BOTTLE", ar: "زجاجة", fr: "BOUTEILLE", es: "BOTELLA", de: "FLASCHE" } },
+        { q: { en: "What has many teeth but can't bite?", ar: "ما الذي له أسنان كثيرة لكنه لا يستطيع العض؟", fr: "Qu'est-ce qui a beaucoup de dents mais ne peut pas mordre?", es: "¿Qué tiene muchos dientes pero no puede morder?", de: "Was hat viele Zähne, kann aber nicht beißen?" }, a: { en: "COMB", ar: "مشط", fr: "PEIGNE", es: "PEINE", de: "KAMM" } },
+        { q: { en: "What has hands but can't clap?", ar: "ما الذي له يدان لكنه لا يستطيع التصفيق؟", fr: "Qu'est-ce qui a des mains mais ne peut pas applaudir?", es: "¿Qué tiene manos pero no puede aplaudir?", de: "Was hat Hände, kann aber nicht klatschen?" }, a: { en: "CLOCK", ar: "ساعة", fr: "HORLOGE", es: "RELOJ", de: "UHR" } },
+        { q: { en: "What has one eye but can't see?", ar: "ما الذي له عين واحدة لكنه لا يستطيع الرؤية؟", fr: "Qu'est-ce qui a un œil mais ne peut pas voir?", es: "¿Qué tiene un ojo pero no puede ver?", de: "Was hat ein Auge, kann aber nicht sehen?" }, a: { en: "NEEDLE", ar: "إبرة", fr: "AIGUILLE", es: "AGUJA", de: "NADEL" } },
+        { q: { en: "What has legs but doesn't walk?", ar: "ما الذي له أرجل لكنه لا يمشي؟", fr: "Qu'est-ce qui a des jambes mais ne marche pas?", es: "¿Qué tiene piernas pero no camina?", de: "Was hat Beine, aber geht nicht?" }, a: { en: "TABLE", ar: "طاولة", fr: "TABLE", es: "MESA", de: "TISCH" } },
+        { q: { en: "What can you catch but not throw?", ar: "ما الذي يمكنك التقاطه لكن لا يمكنك رميه؟", fr: "Que peux-tu attraper mais pas lancer?", es: "¿Qué puedes atrapar pero no lanzar?", de: "Was kannst du fangen, aber nicht werfen?" }, a: { en: "COLD", ar: "برد", fr: "RHUME", es: "RESFRIADO", de: "ERKAELTUNG" } },
+        { q: { en: "What gets wetter the more it dries?", ar: "ما الذي يصبح أكثر بللاً كلما جفف أكثر؟", fr: "Qu'est-ce qui devient plus mouillé en séchant?", es: "¿Qué se moja más cuanto más seca?", de: "Was wird nasser, je mehr es trocknet?" }, a: { en: "TOWEL", ar: "منشفة", fr: "SERVIETTE", es: "TOALLA", de: "HANDTUCH" } },
+        { q: { en: "What can run but never walks, has a mouth but never talks?", ar: "ما الذي يركض لكن لا يمشي أبداً، له فم لكنه لا يتكلم أبداً؟", fr: "Qu'est-ce qui court mais ne marche jamais, a une bouche mais ne parle jamais?", es: "¿Qué corre pero nunca camina, tiene boca pero nunca habla?", de: "Was kann rennen, aber nie gehen, hat einen Mund, aber spricht nie?" }, a: { en: "RIVER", ar: "نهر", fr: "RIVIERE", es: "RIO", de: "FLUSS" } },
+        { q: { en: "I fly without wings. I cry without eyes. What am I?", ar: "أطير بدون أجنحة. أبكي بدون عيون. ما أنا؟", fr: "Je vole sans ailes. Je pleure sans yeux. Que suis-je?", es: "Vuelo sin alas. Lloro sin ojos. ¿Qué soy?", de: "Ich fliege ohne Flügel. Ich weine ohne Augen. Was bin ich?" }, a: { en: "CLOUD", ar: "سحابة", fr: "NUAGE", es: "NUBE", de: "WOLKE" } },
+        { q: { en: "What belongs to you but others use it more than you do?", ar: "ما الذي يخصك لكن الآخرين يستخدمونه أكثر منك؟", fr: "Qu'est-ce qui t'appartient mais que les autres utilisent plus que toi?", es: "¿Qué te pertenece pero otros lo usan más que tú?", de: "Was gehört dir, aber andere benutzen es mehr als du?" }, a: { en: "NAME", ar: "اسم", fr: "NOM", es: "NOMBRE", de: "NAME" } },
+        { q: { en: "What can you hold in your right hand but never in your left hand?", ar: "ما الذي يمكنك حمله في يدك اليمنى لكن ليس أبداً في يدك اليسرى؟", fr: "Que peux-tu tenir dans ta main droite mais jamais dans ta main gauche?", es: "¿Qué puedes sostener en tu mano derecha pero nunca en la izquierda?", de: "Was kannst du in deiner rechten Hand halten, aber nie in deiner linken?" }, a: { en: "LEFT HAND", ar: "يد يسرى", fr: "MAIN GAUCHE", es: "MANO IZQUIERDA", de: "LINKE HAND" } },
+        { q: { en: "What is full of holes but still holds water?", ar: "ما الذي مليء بالثقوب لكنه لا يزال يحتفظ بالماء؟", fr: "Qu'est-ce qui est plein de trous mais retient l'eau?", es: "¿Qué está lleno de agujeros pero aún retiene agua?", de: "Was ist voller Löcher, hält aber trotzdem Wasser?" }, a: { en: "SPONGE", ar: "إسفنجة", fr: "EPONGE", es: "ESPONJA", de: "SCHWAMM" } },
+        { q: { en: "What starts with T, ends with T, and has T in it?", ar: "ما الذي يبدأ بحرف T وينتهي بـ T ويحتوي على T؟", fr: "Qu'est-ce qui commence par T, finit par T et contient du T?", es: "¿Qué empieza con T, termina con T y tiene T dentro?", de: "Was beginnt mit T, endet mit T und hat T drin?" }, a: { en: "TEAPOT", ar: "إبريق شاي", fr: "THEIERE", es: "TETERA", de: "TEEKANNE" } },
+        { q: { en: "I am tall when I am young and short when I am old. What am I?", ar: "أنا طويل عندما أكون صغيراً وقصير عندما أكون كبيراً. ما أنا؟", fr: "Je suis grand quand je suis jeune et petit quand je suis vieux. Que suis-je?", es: "Soy alto cuando soy joven y bajo cuando soy viejo. ¿Qué soy?", de: "Ich bin groß wenn ich jung bin und klein wenn ich alt bin. Was bin ich?" }, a: { en: "CANDLE", ar: "شمعة", fr: "BOUGIE", es: "VELA", de: "KERZE" } },
+        { q: { en: "What invention lets you look right through a wall?", ar: "ما الاختراع الذي يتيح لك النظر عبر الجدار؟", fr: "Quelle invention te permet de voir à travers un mur?", es: "¿Qué invento te permite ver a través de una pared?", de: "Welche Erfindung lässt dich durch eine Wand schauen?" }, a: { en: "WINDOW", ar: "نافذة", fr: "FENETRE", es: "VENTANA", de: "FENSTER" } },
+        { q: { en: "What comes once in a minute, twice in a moment, but never in a thousand years?", ar: "ما الذي يأتي مرة في الدقيقة، مرتين في اللحظة، لكن لا يأتي أبداً في ألف سنة؟", fr: "Qu'est-ce qui vient une fois par minute, deux fois par moment, mais jamais en mille ans?", es: "¿Qué viene una vez en un minuto, dos veces en un momento, pero nunca en mil años?", de: "Was kommt einmal in einer Minute, zweimal in einem Moment, aber nie in tausend Jahren?" }, a: { en: "LETTER M", ar: "حرف م", fr: "LETTRE M", es: "LETRA M", de: "BUCHSTABE M" } },
+        { q: { en: "What building has the most stories?", ar: "ما المبنى الذي يحتوي على أكثر القصص؟", fr: "Quel bâtiment a le plus d'histoires?", es: "¿Qué edificio tiene más historias?", de: "Welches Gebäude hat die meisten Geschichten?" }, a: { en: "LIBRARY", ar: "مكتبة", fr: "BIBLIOTHEQUE", es: "BIBLIOTECA", de: "BIBLIOTHEK" } },
+        { q: { en: "What is seen in the middle of March and April that can't be seen at the beginning or end of either month?", ar: "ما الذي يُرى في منتصف مارس وأبريل ولا يمكن رؤيته في بداية أو نهاية أي من الشهرين؟", fr: "Qu'est-ce qui est vu au milieu de mars et avril mais pas au début ou à la fin?", es: "¿Qué se ve en medio de marzo y abril pero no al principio ni al final?", de: "Was sieht man in der Mitte von März und April, aber nicht am Anfang oder Ende?" }, a: { en: "LETTER R", ar: "حرف ر", fr: "LETTRE R", es: "LETRA R", de: "BUCHSTABE R" } },
+        { q: { en: "What word is spelled incorrectly in every dictionary?", ar: "ما الكلمة التي تُكتب بشكل خاطئ في كل قاموس؟", fr: "Quel mot est mal orthographié dans chaque dictionnaire?", es: "¿Qué palabra está mal escrita en todos los diccionarios?", de: "Welches Wort wird in jedem Wörterbuch falsch geschrieben?" }, a: { en: "INCORRECTLY", ar: "خطأ", fr: "INCORRECTEMENT", es: "INCORRECTAMENTE", de: "FALSCH" } },
+        { q: { en: "What five-letter word becomes shorter when you add two letters to it?", ar: "ما الكلمة المكونة من خمسة أحرف التي تصبح أقصر عندما تضيف إليها حرفين؟", fr: "Quel mot de cinq lettres devient plus court quand tu ajoutes deux lettres?", es: "¿Qué palabra de cinco letras se hace más corta cuando le agregas dos letras?", de: "Welches Fünf-Buchstaben-Wort wird kürzer, wenn du zwei Buchstaben hinzufügst?" }, a: { en: "SHORT", ar: "قصير", fr: "COURT", es: "CORTO", de: "KURZ" } },
+        { q: { en: "What is so fragile that saying its name breaks it?", ar: "ما الشيء الهش جداً لدرجة أن قول اسمه يكسره؟", fr: "Qu'est-ce qui est si fragile que dire son nom le brise?", es: "¿Qué es tan frágil que decir su nombre lo rompe?", de: "Was ist so zerbrechlich, dass es bricht, wenn man seinen Namen sagt?" }, a: { en: "SILENCE", ar: "صمت", fr: "SILENCE", es: "SILENCIO", de: "STILLE" } },
+        { q: { en: "What can travel all around the world without leaving its corner?", ar: "ما الذي يمكنه السفر حول العالم كله دون أن يترك زاويته؟", fr: "Qu'est-ce qui peut voyager autour du monde sans quitter son coin?", es: "¿Qué puede viajar por todo el mundo sin salir de su esquina?", de: "Was kann um die ganze Welt reisen, ohne seine Ecke zu verlassen?" }, a: { en: "STAMP", ar: "طابع", fr: "TIMBRE", es: "SELLO", de: "BRIEFMARKE" } },
+        { q: { en: "What has 13 hearts but no other organs?", ar: "ما الذي له 13 قلباً لكن ليس له أعضاء أخرى؟", fr: "Qu'est-ce qui a 13 cœurs mais pas d'autres organes?", es: "¿Qué tiene 13 corazones pero ningún otro órgano?", de: "Was hat 13 Herzen, aber keine anderen Organe?" }, a: { en: "DECK OF CARDS", ar: "مجموعة ورق", fr: "JEU DE CARTES", es: "BARAJA", de: "KARTENSPIEL" } },
+        { q: { en: "What can be broken without being held?", ar: "ما الذي يمكن كسره دون أن يُمسك؟", fr: "Qu'est-ce qui peut être brisé sans être tenu?", es: "¿Qué se puede romper sin sostenerlo?", de: "Was kann gebrochen werden, ohne gehalten zu werden?" }, a: { en: "PROMISE", ar: "وعد", fr: "PROMESSE", es: "PROMESA", de: "VERSPRECHEN" } },
+        { q: { en: "I have branches, but no fruit, trunk or leaves. What am I?", ar: "لي فروع لكن ليس لي ثمار أو جذع أو أوراق. ما أنا؟", fr: "J'ai des branches, mais pas de fruits, de tronc ou de feuilles. Que suis-je?", es: "Tengo ramas, pero no frutos, tronco ni hojas. ¿Qué soy?", de: "Ich habe Zweige, aber keine Früchte, keinen Stamm oder Blätter. Was bin ich?" }, a: { en: "BANK", ar: "بنك", fr: "BANQUE", es: "BANCO", de: "BANK" } },
+        { q: { en: "What kind of band never plays music?", ar: "ما نوع الفرقة التي لا تعزف موسيقى أبداً؟", fr: "Quel type de bande ne joue jamais de musique?", es: "¿Qué tipo de banda nunca toca música?", de: "Welche Art von Band spielt nie Musik?" }, a: { en: "RUBBER BAND", ar: "شريط مطاطي", fr: "ELASTIQUE", es: "GOMA", de: "GUMMIBAND" } },
+        { q: { en: "What type of cheese is made backward?", ar: "ما نوع الجبن الذي يُصنع بالعكس؟", fr: "Quel type de fromage est fait à l'envers?", es: "¿Qué tipo de queso se hace al revés?", de: "Welche Käsesorte wird rückwärts gemacht?" }, a: { en: "EDAM", ar: "إيدام", fr: "EDAM", es: "EDAM", de: "EDAMER" } },
+        { q: { en: "Where does today come before yesterday?", ar: "أين يأتي اليوم قبل الأمس؟", fr: "Où est-ce qu'aujourd'hui vient avant hier?", es: "¿Dónde viene hoy antes de ayer?", de: "Wo kommt heute vor gestern?" }, a: { en: "DICTIONARY", ar: "قاموس", fr: "DICTIONNAIRE", es: "DICCIONARIO", de: "WOERTERBUCH" } },
+        { q: { en: "What can you keep after giving to someone?", ar: "ما الذي يمكنك الاحتفاظ به بعد إعطائه لشخص ما؟", fr: "Que peux-tu garder après l'avoir donné à quelqu'un?", es: "¿Qué puedes conservar después de dárselo a alguien?", de: "Was kannst du behalten, nachdem du es jemandem gegeben hast?" }, a: { en: "WORD", ar: "كلمة", fr: "PAROLE", es: "PALABRA", de: "WORT" } },
+        { q: { en: "If a red house is made of red bricks, and a yellow house is made of yellow bricks, what is a greenhouse made of?", ar: "إذا كان البيت الأحمر مصنوعاً من الطوب الأحمر، والبيت الأصفر مصنوعاً من الطوب الأصفر، فمما يُصنع البيت الزجاجي؟", fr: "Si une maison rouge est faite de briques rouges et une maison jaune de briques jaunes, de quoi est faite une serre?", es: "Si una casa roja está hecha de ladrillos rojos, y una casa amarilla de ladrillos amarillos, ¿de qué está hecho un invernadero?", de: "Wenn ein rotes Haus aus roten Steinen besteht und ein gelbes Haus aus gelben Steinen, woraus besteht ein Gewächshaus?" }, a: { en: "GLASS", ar: "زجاج", fr: "VERRE", es: "VIDRIO", de: "GLAS" } },
+        { q: { en: "What tastes better than it smells?", ar: "ما الذي طعمه أفضل من رائحته؟", fr: "Qu'est-ce qui a meilleur goût que son odeur?", es: "¿Qué sabe mejor de lo que huele?", de: "Was schmeckt besser als es riecht?" }, a: { en: "TONGUE", ar: "لسان", fr: "LANGUE", es: "LENGUA", de: "ZUNGE" } },
+        { q: { en: "What is always coming but never arrives?", ar: "ما الذي يأتي دائماً لكنه لا يصل أبداً؟", fr: "Qu'est-ce qui arrive toujours mais n'arrive jamais?", es: "¿Qué siempre está llegando pero nunca llega?", de: "Was kommt immer, aber kommt nie an?" }, a: { en: "TOMORROW", ar: "غداً", fr: "DEMAIN", es: "MANANA", de: "MORGEN" } },
+        { q: { en: "A doctor and a boy were fishing. The boy was the doctor's son, but the doctor was not the boy's father. Who was the doctor?", ar: "طبيب وولد كانا يصطادان السمك. الولد كان ابن الطبيب، لكن الطبيب لم يكن والد الولد. من كان الطبيب؟", fr: "Un médecin et un garçon pêchaient. Le garçon était le fils du médecin, mais le médecin n'était pas le père du garçon. Qui était le médecin?", es: "Un médico y un niño estaban pescando. El niño era hijo del médico, pero el médico no era el padre del niño. ¿Quién era el médico?", de: "Ein Arzt und ein Junge angelten. Der Junge war der Sohn des Arztes, aber der Arzt war nicht der Vater des Jungen. Wer war der Arzt?" }, a: { en: "MOTHER", ar: "أم", fr: "MERE", es: "MADRE", de: "MUTTER" } },
+        // Continuing with more riddles...
+        { q: { en: "What has four wheels and flies?", ar: "ما الذي له أربع عجلات ويطير؟", fr: "Qu'est-ce qui a quatre roues et vole?", es: "¿Qué tiene cuatro ruedas y vuela?", de: "Was hat vier Räder und fliegt?" }, a: { en: "GARBAGE TRUCK", ar: "شاحنة قمامة", fr: "CAMION POUBELLE", es: "CAMION DE BASURA", de: "MUELLWAGEN" } },
+        { q: { en: "What word in the English language does the following: the first two letters signify a male, the first three letters signify a female, the first four letters signify a great, while the entire word signifies a great woman?", ar: "ما الكلمة الإنجليزية التي تحقق التالي: أول حرفين يدلان على ذكر، أول ثلاثة أحرف تدل على أنثى، أول أربعة أحرف تدل على شخص عظيم، بينما الكلمة كاملة تدل على امرأة عظيمة؟", fr: "Quel mot en anglais fait ce qui suit: les deux premières lettres signifient un homme, les trois premières une femme, les quatre premières un grand, tandis que le mot entier signifie une grande femme?", es: "¿Qué palabra en inglés hace lo siguiente: las dos primeras letras significan un hombre, las tres primeras una mujer, las cuatro primeras alguien grande, mientras que la palabra completa significa una gran mujer?", de: "Welches englische Wort macht Folgendes: die ersten zwei Buchstaben bezeichnen einen Mann, die ersten drei eine Frau, die ersten vier etwas Großes, während das ganze Wort eine große Frau bezeichnet?" }, a: { en: "HEROINE", ar: "بطلة", fr: "HEROINE", es: "HEROINA", de: "HELDIN" } },
+        { q: { en: "I am a word of letters three; add two and fewer there will be. What am I?", ar: "أنا كلمة من ثلاثة أحرف؛ أضف اثنين وسيصبح أقل. ما أنا؟", fr: "Je suis un mot de trois lettres; ajoute deux et il y en aura moins. Que suis-je?", es: "Soy una palabra de tres letras; añade dos y habrá menos. ¿Qué soy?", de: "Ich bin ein Wort aus drei Buchstaben; füge zwei hinzu und es werden weniger. Was bin ich?" }, a: { en: "FEW", ar: "قليل", fr: "PEU", es: "POCO", de: "WENIG" } },
+        { q: { en: "What English word has three consecutive double letters?", ar: "ما الكلمة الإنجليزية التي تحتوي على ثلاثة أحرف مزدوجة متتالية؟", fr: "Quel mot anglais a trois lettres doubles consécutives?", es: "¿Qué palabra en inglés tiene tres letras dobles consecutivas?", de: "Welches englische Wort hat drei aufeinanderfolgende Doppelbuchstaben?" }, a: { en: "BOOKKEEPER", ar: "محاسب", fr: "COMPTABLE", es: "CONTADOR", de: "BUCHHALTER" } },
+        { q: { en: "What do you throw out when you want to use it but take in when you don't want to use it?", ar: "ما الذي ترميه عندما تريد استخدامه وتأخذه عندما لا تريد استخدامه؟", fr: "Qu'est-ce que tu jettes quand tu veux l'utiliser et reprends quand tu ne veux pas l'utiliser?", es: "¿Qué tiras cuando quieres usarlo y recoges cuando no quieres usarlo?", de: "Was wirfst du aus, wenn du es benutzen willst, und holst es ein, wenn du es nicht benutzen willst?" }, a: { en: "ANCHOR", ar: "مرساة", fr: "ANCRE", es: "ANCLA", de: "ANKER" } },
+        { q: { en: "What runs around a house but doesn't move?", ar: "ما الذي يجري حول المنزل لكنه لا يتحرك؟", fr: "Qu'est-ce qui court autour d'une maison mais ne bouge pas?", es: "¿Qué corre alrededor de una casa pero no se mueve?", de: "Was läuft um ein Haus herum, bewegt sich aber nicht?" }, a: { en: "FENCE", ar: "سياج", fr: "CLOTURE", es: "CERCA", de: "ZAUN" } },
+        { q: { en: "Which word that begins with the letter I, and by adding the letter A, becomes another word that is pronounced the same?", ar: "ما الكلمة التي تبدأ بالحرف I، وبإضافة الحرف A، تصبح كلمة أخرى تُنطق بنفس الطريقة؟", fr: "Quel mot commençant par I devient un autre mot prononcé de la même façon en ajoutant A?", es: "¿Qué palabra que empieza con I, al añadir A, se convierte en otra palabra que se pronuncia igual?", de: "Welches Wort beginnt mit I und wird durch Hinzufügen von A zu einem anderen Wort mit gleicher Aussprache?" }, a: { en: "ISLE", ar: "جزيرة", fr: "ILE", es: "ISLA", de: "INSEL" } },
+        { q: { en: "What has a bottom at the top?", ar: "ما الذي له قاع في الأعلى؟", fr: "Qu'est-ce qui a un fond en haut?", es: "¿Qué tiene el fondo en la parte de arriba?", de: "Was hat unten oben?" }, a: { en: "LEGS", ar: "أرجل", fr: "JAMBES", es: "PIERNAS", de: "BEINE" } },
+        { q: { en: "What loses its head in the morning and gets it back at night?", ar: "ما الذي يفقد رأسه في الصباح ويستعيده في الليل؟", fr: "Qu'est-ce qui perd sa tête le matin et la retrouve la nuit?", es: "¿Qué pierde su cabeza por la mañana y la recupera por la noche?", de: "Was verliert morgens seinen Kopf und bekommt ihn nachts zurück?" }, a: { en: "PILLOW", ar: "وسادة", fr: "OREILLER", es: "ALMOHADA", de: "KISSEN" } },
+        { q: { en: "What kind of ship has two mates but no captain?", ar: "ما نوع السفينة التي لها رفيقان لكن ليس لها قبطان؟", fr: "Quel type de navire a deux compagnons mais pas de capitaine?", es: "¿Qué tipo de barco tiene dos compañeros pero no capitán?", de: "Welche Art von Schiff hat zwei Gefährten, aber keinen Kapitän?" }, a: { en: "RELATIONSHIP", ar: "علاقة", fr: "RELATION", es: "RELACION", de: "BEZIEHUNG" } },
+        { q: { en: "I'm not clothes but I cover your body; The more I'm used, the thinner I grow. What am I?", ar: "لست ملابس لكنني أغطي جسدك؛ كلما استخدمتني أكثر، أصبحت أرق. ما أنا؟", fr: "Je ne suis pas des vêtements mais je couvre ton corps; Plus on m'utilise, plus je deviens mince. Que suis-je?", es: "No soy ropa pero cubro tu cuerpo; Cuanto más me usan, más delgado me vuelvo. ¿Qué soy?", de: "Ich bin keine Kleidung, aber ich bedecke deinen Körper; Je mehr ich benutzt werde, desto dünner werde ich. Was bin ich?" }, a: { en: "SOAP", ar: "صابون", fr: "SAVON", es: "JABON", de: "SEIFE" } },
+        { q: { en: "What can be driven although it doesn't have wheels, sliced but stays whole?", ar: "ما الذي يمكن قيادته رغم أنه ليس له عجلات، ويُقطع لكنه يبقى كاملاً؟", fr: "Qu'est-ce qui peut être conduit sans roues, tranché mais reste entier?", es: "¿Qué se puede conducir aunque no tiene ruedas, cortar pero permanece entero?", de: "Was kann gefahren werden, obwohl es keine Räder hat, geschnitten werden, aber ganz bleiben?" }, a: { en: "GOLF BALL", ar: "كرة غولف", fr: "BALLE DE GOLF", es: "PELOTA DE GOLF", de: "GOLFBALL" } },
+        { q: { en: "What is harder to catch the faster you run?", ar: "ما الذي يصعب التقاطه كلما ركضت أسرع؟", fr: "Qu'est-ce qui est plus difficile à attraper plus tu cours vite?", es: "¿Qué es más difícil de atrapar cuanto más rápido corres?", de: "Was ist schwerer zu fangen, je schneller du rennst?" }, a: { en: "BREATH", ar: "نفس", fr: "SOUFFLE", es: "ALIENTO", de: "ATEM" } },
+        { q: { en: "First you eat me, then you get eaten. What am I?", ar: "أولاً تأكلني، ثم يتم أكلك. ما أنا؟", fr: "D'abord tu me manges, ensuite tu es mangé. Que suis-je?", es: "Primero me comes, luego te comen. ¿Qué soy?", de: "Erst isst du mich, dann wirst du gegessen. Was bin ich?" }, a: { en: "FISHHOOK", ar: "صنارة", fr: "HAMECON", es: "ANZUELO", de: "ANGELHAKEN" } },
+        { q: { en: "What word becomes shorter when you add two letters to it?", ar: "ما الكلمة التي تصبح أقصر عندما تضيف إليها حرفين؟", fr: "Quel mot devient plus court quand tu ajoutes deux lettres?", es: "¿Qué palabra se acorta cuando le agregas dos letras?", de: "Welches Wort wird kürzer, wenn du zwei Buchstaben hinzufügst?" }, a: { en: "SHORT", ar: "قصير", fr: "COURT", es: "CORTO", de: "KURZ" } },
+        { q: { en: "What is always old and sometimes new; never sad, sometimes blue; never empty, but sometimes full; never pushes, always pulls?", ar: "ما الذي يكون دائماً قديماً وأحياناً جديداً؛ لا يكون حزيناً أبداً، لكنه أحياناً أزرق؛ لا يكون فارغاً أبداً، لكنه أحياناً ممتلئ؛ لا يدفع أبداً، لكنه يسحب دائماً؟", fr: "Qu'est-ce qui est toujours vieux et parfois nouveau; jamais triste, parfois bleu; jamais vide, mais parfois plein; ne pousse jamais, tire toujours?", es: "¿Qué es siempre viejo y a veces nuevo; nunca triste, a veces azul; nunca vacío, pero a veces lleno; nunca empuja, siempre tira?", de: "Was ist immer alt und manchmal neu; nie traurig, manchmal blau; nie leer, aber manchmal voll; schiebt nie, zieht immer?" }, a: { en: "MOON", ar: "قمر", fr: "LUNE", es: "LUNA", de: "MOND" } },
+        { q: { en: "I can only live where there is light, but I die if the light shines on me. What am I?", ar: "لا أستطيع العيش إلا حيث يوجد ضوء، لكنني أموت إذا سطع علي الضوء. ما أنا؟", fr: "Je ne peux vivre que là où il y a de la lumière, mais je meurs si la lumière brille sur moi. Que suis-je?", es: "Solo puedo vivir donde hay luz, pero muero si la luz brilla sobre mí. ¿Qué soy?", de: "Ich kann nur leben, wo es Licht gibt, aber ich sterbe, wenn das Licht auf mich scheint. Was bin ich?" }, a: { en: "SHADOW", ar: "ظل", fr: "OMBRE", es: "SOMBRA", de: "SCHATTEN" } },
+        { q: { en: "You use a knife to slice my head and weep beside me when I am dead. What am I?", ar: "تستخدم سكيناً لتقطع رأسي وتبكي بجانبي عندما أموت. ما أنا؟", fr: "Tu utilises un couteau pour trancher ma tête et tu pleures à côté de moi quand je suis mort. Que suis-je?", es: "Usas un cuchillo para cortar mi cabeza y lloras a mi lado cuando estoy muerto. ¿Qué soy?", de: "Du benutzt ein Messer, um meinen Kopf zu schneiden, und weinst neben mir, wenn ich tot bin. Was bin ich?" }, a: { en: "ONION", ar: "بصل", fr: "OIGNON", es: "CEBOLLA", de: "ZWIEBEL" } },
+        { q: { en: "I have seas with no water, coasts with no sand, towns without people, and mountains without land. What am I?", ar: "لدي بحار بدون ماء، سواحل بدون رمال، مدن بدون ناس، وجبال بدون أرض. ما أنا؟", fr: "J'ai des mers sans eau, des côtes sans sable, des villes sans gens, et des montagnes sans terre. Que suis-je?", es: "Tengo mares sin agua, costas sin arena, ciudades sin gente, y montañas sin tierra. ¿Qué soy?", de: "Ich habe Meere ohne Wasser, Küsten ohne Sand, Städte ohne Menschen und Berge ohne Land. Was bin ich?" }, a: { en: "MAP", ar: "خريطة", fr: "CARTE", es: "MAPA", de: "KARTE" } },
+        { q: { en: "I never was, am always to be. No one ever saw me, nor ever will. And yet I am the confidence of all, To live and breathe on this terrestrial ball. What am I?", ar: "لم أكن أبداً، لكنني سأكون دائماً. لم يرني أحد أبداً، ولن يراني أحد. ومع ذلك أنا ثقة الجميع، للعيش والتنفس على هذه الكرة الأرضية. ما أنا؟", fr: "Je n'ai jamais été, je serai toujours. Personne ne m'a jamais vu, ni ne me verra. Et pourtant je suis la confiance de tous, Pour vivre et respirer sur cette boule terrestre. Que suis-je?", es: "Nunca fui, siempre seré. Nadie me vio jamás, ni me verá. Y sin embargo soy la confianza de todos, Para vivir y respirar en esta bola terrestre. ¿Qué soy?", de: "Ich war nie, werde immer sein. Niemand hat mich je gesehen, noch wird es jemand tun. Und doch bin ich das Vertrauen aller, Zu leben und zu atmen auf diesem irdischen Ball. Was bin ich?" }, a: { en: "TOMORROW", ar: "غداً", fr: "DEMAIN", es: "MANANA", de: "MORGEN" } },
+        { q: { en: "What goes through cities and fields, but never moves?", ar: "ما الذي يمر عبر المدن والحقول، لكنه لا يتحرك أبداً؟", fr: "Qu'est-ce qui traverse les villes et les champs, mais ne bouge jamais?", es: "¿Qué pasa por ciudades y campos, pero nunca se mueve?", de: "Was geht durch Städte und Felder, aber bewegt sich nie?" }, a: { en: "ROAD", ar: "طريق", fr: "ROUTE", es: "CAMINO", de: "STRASSE" } },
+        { q: { en: "I am black when you buy me, red when you use me. When I turn gray, you throw me away. What am I?", ar: "أنا أسود عندما تشتريني، أحمر عندما تستخدمني. عندما أصبح رمادياً، ترميني بعيداً. ما أنا؟", fr: "Je suis noir quand tu m'achètes, rouge quand tu m'utilises. Quand je deviens gris, tu me jettes. Que suis-je?", es: "Soy negro cuando me compras, rojo cuando me usas. Cuando me vuelvo gris, me tiras. ¿Qué soy?", de: "Ich bin schwarz, wenn du mich kaufst, rot, wenn du mich benutzt. Wenn ich grau werde, wirfst du mich weg. Was bin ich?" }, a: { en: "CHARCOAL", ar: "فحم", fr: "CHARBON", es: "CARBON", de: "KOHLE" } },
+        { q: { en: "What begins with an E but only contains one letter?", ar: "ما الذي يبدأ بحرف E لكنه يحتوي على حرف واحد فقط؟", fr: "Qu'est-ce qui commence par E mais ne contient qu'une seule lettre?", es: "¿Qué empieza con E pero solo contiene una letra?", de: "Was beginnt mit E, enthält aber nur einen Buchstaben?" }, a: { en: "ENVELOPE", ar: "ظرف", fr: "ENVELOPPE", es: "SOBRE", de: "UMSCHLAG" } },
+        { q: { en: "The more of this there is, the less you see. What is it?", ar: "كلما زاد هذا الشيء، قل ما تراه. ما هو؟", fr: "Plus il y en a, moins tu vois. Qu'est-ce que c'est?", es: "Cuanto más hay de esto, menos ves. ¿Qué es?", de: "Je mehr davon es gibt, desto weniger siehst du. Was ist es?" }, a: { en: "DARKNESS", ar: "ظلام", fr: "OBSCURITE", es: "OSCURIDAD", de: "DUNKELHEIT" } },
+        { q: { en: "I am an odd number. Take away a letter and I become even. What number am I?", ar: "أنا عدد فردي. احذف حرفاً وأصبح زوجياً. أي عدد أنا؟", fr: "Je suis un nombre impair. Enlève une lettre et je deviens pair. Quel nombre suis-je?", es: "Soy un número impar. Quita una letra y me vuelvo par. ¿Qué número soy?", de: "Ich bin eine ungerade Zahl. Nimm einen Buchstaben weg und ich werde gerade. Welche Zahl bin ich?" }, a: { en: "SEVEN", ar: "سبعة", fr: "SEPT", es: "SIETE", de: "SIEBEN" } },
+        { q: { en: "What English word retains the same pronunciation, even after you take away four of its five letters?", ar: "ما الكلمة الإنجليزية التي تحتفظ بنفس النطق حتى بعد إزالة أربعة من حروفها الخمسة؟", fr: "Quel mot anglais garde la même prononciation même après avoir enlevé quatre de ses cinq lettres?", es: "¿Qué palabra en inglés conserva la misma pronunciación incluso después de quitar cuatro de sus cinco letras?", de: "Welches englische Wort behält die gleiche Aussprache, auch nachdem du vier seiner fünf Buchstaben entfernst?" }, a: { en: "QUEUE", ar: "طابور", fr: "QUEUE", es: "COLA", de: "SCHLANGE" } },
+        { q: { en: "What object has keys that open no locks, space but no room, and you can enter but can't go inside?", ar: "ما الشيء الذي له مفاتيح لا تفتح أقفالاً، ومسافة لكن بدون غرفة، ويمكنك الدخول لكن لا يمكنك الذهاب للداخل؟", fr: "Quel objet a des touches qui n'ouvrent pas de serrures, de l'espace mais pas de pièce, et tu peux entrer mais pas aller à l'intérieur?", es: "¿Qué objeto tiene teclas que no abren cerraduras, espacio pero no habitación, y puedes entrar pero no ir adentro?", de: "Welches Objekt hat Tasten, die keine Schlösser öffnen, Platz aber keinen Raum, und du kannst eintreten, aber nicht hineingehen?" }, a: { en: "KEYBOARD", ar: "لوحة مفاتيح", fr: "CLAVIER", es: "TECLADO", de: "TASTATUR" } },
+        { q: { en: "A man who was outside in the rain without an umbrella or hat didn't get a single hair on his head wet. Why?", ar: "رجل كان في الخارج تحت المطر بدون مظلة أو قبعة ولم تبتل شعرة واحدة على رأسه. لماذا؟", fr: "Un homme dehors sous la pluie sans parapluie ni chapeau n'a pas mouillé un seul cheveu. Pourquoi?", es: "Un hombre afuera bajo la lluvia sin paraguas ni sombrero no mojó ni un solo cabello. ¿Por qué?", de: "Ein Mann, der draußen im Regen ohne Schirm oder Hut war, bekam kein einziges Haar nass. Warum?" }, a: { en: "BALD", ar: "أصلع", fr: "CHAUVE", es: "CALVO", de: "KAHL" } },
+        { q: { en: "I am the beginning of everything, the end of everywhere. I'm the beginning of eternity, the end of time and space. What am I?", ar: "أنا بداية كل شيء، نهاية كل مكان. أنا بداية الأبدية، نهاية الزمان والمكان. ما أنا؟", fr: "Je suis le début de tout, la fin de partout. Je suis le début de l'éternité, la fin du temps et de l'espace. Que suis-je?", es: "Soy el comienzo de todo, el fin de todas partes. Soy el comienzo de la eternidad, el fin del tiempo y el espacio. ¿Qué soy?", de: "Ich bin der Anfang von allem, das Ende von überall. Ich bin der Anfang der Ewigkeit, das Ende von Zeit und Raum. Was bin ich?" }, a: { en: "LETTER E", ar: "حرف هـ", fr: "LETTRE E", es: "LETRA E", de: "BUCHSTABE E" } },
+        { q: { en: "I start with P and end with E and have thousands of letters. What am I?", ar: "أبدأ بحرف P وأنتهي بحرف E ولدي آلاف الحروف. ما أنا؟", fr: "Je commence par P et finis par E et j'ai des milliers de lettres. Que suis-je?", es: "Empiezo con P y termino con E y tengo miles de letras. ¿Qué soy?", de: "Ich beginne mit P und ende mit E und habe Tausende von Buchstaben. Was bin ich?" }, a: { en: "POST OFFICE", ar: "مكتب بريد", fr: "BUREAU DE POSTE", es: "OFICINA DE CORREOS", de: "POSTAMT" } },
+        { q: { en: "I'm tall when I'm young and I'm short when I'm old. What am I?", ar: "أنا طويل عندما أكون صغيراً وقصير عندما أكون كبيراً. ما أنا؟", fr: "Je suis grand quand je suis jeune et petit quand je suis vieux. Que suis-je?", es: "Soy alto cuando soy joven y bajo cuando soy viejo. ¿Qué soy?", de: "Ich bin groß, wenn ich jung bin, und klein, wenn ich alt bin. Was bin ich?" }, a: { en: "CANDLE", ar: "شمعة", fr: "BOUGIE", es: "VELA", de: "KERZE" } },
+        { q: { en: "What English word has three consecutive double letters?", ar: "ما الكلمة الإنجليزية التي تحتوي على ثلاثة أحرف مزدوجة متتالية؟", fr: "Quel mot anglais a trois doubles lettres consécutives?", es: "¿Qué palabra en inglés tiene tres letras dobles consecutivas?", de: "Welches englische Wort hat drei aufeinanderfolgende Doppelbuchstaben?" }, a: { en: "BOOKKEEPER", ar: "محاسب", fr: "COMPTABLE", es: "TENEDOR DE LIBROS", de: "BUCHHALTER" } },
+        { q: { en: "George, Helen, and Steve are drinking coffee. Bert, Karen, and Dave are drinking soda. Using logic, is Elizabeth drinking coffee or soda?", ar: "جورج وهيلين وستيف يشربون قهوة. بيرت وكارين وديف يشربون مشروباً غازياً. باستخدام المنطق، هل إليزابيث تشرب قهوة أم مشروباً غازياً؟", fr: "George, Helen et Steve boivent du café. Bert, Karen et Dave boivent du soda. Logiquement, Elizabeth boit-elle du café ou du soda?", es: "George, Helen y Steve beben café. Bert, Karen y Dave beben refresco. Usando la lógica, ¿Elizabeth bebe café o refresco?", de: "George, Helen und Steve trinken Kaffee. Bert, Karen und Dave trinken Limonade. Logisch gesehen, trinkt Elizabeth Kaffee oder Limonade?" }, a: { en: "COFFEE", ar: "قهوة", fr: "CAFE", es: "CAFE", de: "KAFFEE" } },
+        { q: { en: "The person who makes it, has no need of it. The person who buys it has no use for it. The person who uses it can neither see nor feel it. What is it?", ar: "من يصنعه لا يحتاجه. من يشتريه لا يستخدمه. من يستخدمه لا يراه ولا يشعر به. ما هو؟", fr: "Celui qui le fabrique n'en a pas besoin. Celui qui l'achète ne l'utilise pas. Celui qui l'utilise ne peut ni le voir ni le sentir. Qu'est-ce?", es: "Quien lo hace no lo necesita. Quien lo compra no lo usa. Quien lo usa no puede verlo ni sentirlo. ¿Qué es?", de: "Wer es macht, braucht es nicht. Wer es kauft, hat keine Verwendung dafür. Wer es benutzt, kann es weder sehen noch fühlen. Was ist es?" }, a: { en: "COFFIN", ar: "تابوت", fr: "CERCUEIL", es: "ATAUD", de: "SARG" } },
+        { q: { en: "How many letters are in the alphabet?", ar: "كم عدد الحروف في الأبجدية؟", fr: "Combien de lettres y a-t-il dans l'alphabet?", es: "¿Cuántas letras hay en el alfabeto?", de: "Wie viele Buchstaben sind im Alphabet?" }, a: { en: "ELEVEN", ar: "أحد عشر", fr: "ONZE", es: "ONCE", de: "ELF" } },
+        { q: { en: "What can point in every direction but can't reach the destination by itself?", ar: "ما الذي يمكنه الإشارة في كل اتجاه لكنه لا يستطيع الوصول إلى الوجهة بنفسه؟", fr: "Qu'est-ce qui peut pointer dans toutes les directions mais ne peut pas atteindre la destination seul?", es: "¿Qué puede apuntar en todas las direcciones pero no puede llegar al destino por sí solo?", de: "Was kann in jede Richtung zeigen, aber das Ziel nicht allein erreichen?" }, a: { en: "FINGER", ar: "إصبع", fr: "DOIGT", es: "DEDO", de: "FINGER" } },
+        { q: { en: "What coat is best put on wet?", ar: "أي معطف من الأفضل ارتداؤه مبللاً؟", fr: "Quel manteau est mieux mis mouillé?", es: "¿Qué abrigo es mejor ponerse mojado?", de: "Welcher Mantel wird am besten nass angezogen?" }, a: { en: "PAINT", ar: "دهان", fr: "PEINTURE", es: "PINTURA", de: "FARBE" } },
+        { q: { en: "Forward I am heavy, but backward I am not. What am I?", ar: "للأمام أنا ثقيل، لكن للخلف لست كذلك. ما أنا؟", fr: "En avant je suis lourd, mais en arrière je ne le suis pas. Que suis-je?", es: "Hacia adelante soy pesado, pero hacia atrás no lo soy. ¿Qué soy?", de: "Vorwärts bin ich schwer, aber rückwärts nicht. Was bin ich?" }, a: { en: "TON", ar: "طن", fr: "TONNE", es: "TON", de: "TONNE" } },
+        { q: { en: "A precious stone, as clear as diamond. Seek it out while the sun's near the horizon. Though you can walk on water with its power, try to keep it, and it'll vanish in an hour.", ar: "حجر كريم، صاف كالألماس. ابحث عنه بينما الشمس قريبة من الأفق. على الرغم من أنك تستطيع المشي على الماء بقوته، حاول الاحتفاظ به، وسيختفي في ساعة.", fr: "Une pierre précieuse, claire comme le diamant. Cherche-la quand le soleil est près de l'horizon. Bien que tu puisses marcher sur l'eau avec son pouvoir, essaie de la garder, elle disparaîtra en une heure.", es: "Una piedra preciosa, clara como el diamante. Búscala mientras el sol está cerca del horizonte. Aunque puedes caminar sobre el agua con su poder, intenta conservarla, y desaparecerá en una hora.", de: "Ein kostbarer Stein, klar wie ein Diamant. Suche ihn, wenn die Sonne nahe am Horizont ist. Obwohl du mit seiner Kraft auf Wasser gehen kannst, versuche ihn zu behalten, und er wird in einer Stunde verschwinden." }, a: { en: "ICE", ar: "ثلج", fr: "GLACE", es: "HIELO", de: "EIS" } },
+        { q: { en: "What gets broken without being held?", ar: "ما الذي ينكسر بدون أن يُمسك؟", fr: "Qu'est-ce qui se casse sans être tenu?", es: "¿Qué se rompe sin ser sostenido?", de: "Was wird gebrochen, ohne gehalten zu werden?" }, a: { en: "PROMISE", ar: "وعد", fr: "PROMESSE", es: "PROMESA", de: "VERSPRECHEN" } },
+        { q: { en: "What kind of room has no doors or windows?", ar: "أي نوع من الغرف ليس له أبواب أو نوافذ؟", fr: "Quel type de pièce n'a ni portes ni fenêtres?", es: "¿Qué tipo de habitación no tiene puertas ni ventanas?", de: "Was für ein Raum hat keine Türen oder Fenster?" }, a: { en: "MUSHROOM", ar: "فطر", fr: "CHAMPIGNON", es: "HONGO", de: "PILZ" } }
+    ];
+    
+    // Generate remaining riddles by cycling through existing ones with variations
+    function generateAllRiddles() {
+        const allRiddles = [...RIDDLES];
+        const baseCount = RIDDLES.length;
+        
+        // Generate additional riddles to reach 1000
+        for (let i = baseCount; i < MAX_TRIALS; i++) {
+            const baseRiddle = RIDDLES[i % baseCount];
+            allRiddles.push({
+                q: baseRiddle.q,
+                a: baseRiddle.a
+            });
+        }
+        
+        return allRiddles;
+    }
+    
+    const ALL_RIDDLES = generateAllRiddles();
+    
+    // ============== DOM ELEMENTS ==============
+    const btnLang = document.getElementById('btn-lang');
+    const stageInfo = document.getElementById('stage-info');
+    const coinsDisplay = document.getElementById('coins');
+    const riddleText = document.getElementById('riddle-text');
+    const answerSlots = document.getElementById('answer-slots');
+    const letterBank = document.getElementById('letter-bank');
+    const feedbackMessage = document.getElementById('feedback-message');
+    const submitBtn = document.getElementById('submit-answer');
+    const hintBtn = document.getElementById('use-hint');
+    const revealBtn = document.getElementById('reveal-key');
+    const downloadBtn = document.getElementById('download-btn');
+    const adModal = document.getElementById('ad-modal');
+    const adTimer = document.getElementById('ad-timer');
+    const victoryModal = document.getElementById('victory-modal');
+    const victoryTitle = document.getElementById('victory-title');
+    const victoryMessage = document.getElementById('victory-message');
+    
+    // -- NEW ADS ELEMENTS --
+    const googleAdModal = document.getElementById('google-ad-modal');
+    const closeAdBtn = document.getElementById('close-ad-btn');
+    
+    // ============== HELPER FUNCTIONS ==============
+    function shuffleArray(array) {
+        const newArray = [...array];
+        for (let i = newArray.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+        }
+        return newArray;
+    }
+    
+    function getRandomLetters(answer, count) {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const arabicChars = 'أبتثجحخدذرزسشصضطظعغفقكلمنهوي';
+        const frenchChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZÉÈÊËÀÂÙÛÔÎÏÇ';
+        const spanishChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZÑÁÉÍÓÚÜ';
+        const germanChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜß';
+        
+        let charSet;
+        switch(currentLang) {
+            case 'ar': charSet = arabicChars; break;
+            case 'fr': charSet = frenchChars; break;
+            case 'es': charSet = spanishChars; break;
+            case 'de': charSet = germanChars; break;
+            default: charSet = chars;
+        }
+        
+        const result = [];
+        for (let i = 0; i < count; i++) {
+            result.push(charSet[Math.floor(Math.random() * charSet.length)]);
+        }
+        return result;
+    }
+    
+    function getCurrentRiddle() {
+        return ALL_RIDDLES[(currentTrial - 1) % ALL_RIDDLES.length];
+    }
+    
+    function getAnswer() {
+        const riddle = getCurrentRiddle();
+        const answer = riddle.a[currentLang] || riddle.a['en'];
+        // For Latin-based languages, uppercase; for Arabic, keep as-is
+        if (currentLang === 'ar') {
+            return answer;
+        }
+        return answer.toUpperCase();
+    }
+    
+    function getQuestion() {
+        const riddle = getCurrentRiddle();
+        return riddle.q[currentLang] || riddle.q['en'];
+    }
+    
+    // ============== NEW AD LOGIC ==============
+    function handleLevelTransition() {
+        if (currentTrial >= MAX_TRIALS) {
+            showVictory();
+            return;
+        }
+
+        currentTrial++;
+        failedAttempts = 0;
+        
+        // Logic: Show ad every 15 levels (15, 30, 45, etc.)
+        // We check currentTrial - 1 because we just incremented it for the *next* level
+        // So if we just finished level 15, currentTrial is now 16. (16-1) = 15. 15 % 15 == 0.
+        if ((currentTrial - 1) % 15 === 0) {
+            googleAdModal.classList.add('active');
+        } else {
+            loadRiddle();
+        }
+    }
+    
+    // ============== UI UPDATE FUNCTIONS ==============
+    function updateUI() {
+        const t = i18n[currentLang];
+        const isRTL = t.rtl;
+        
+        // Update direction
+        document.documentElement.lang = currentLang;
+        document.body.dir = isRTL ? 'rtl' : 'ltr';
+        riddleText.dir = isRTL ? 'rtl' : 'ltr';
+        
+        // Update header
+        stageInfo.innerHTML = `${t.stage} <span>${currentTrial}</span> / ${MAX_TRIALS}`;
+        coinsDisplay.textContent = coins;
+        btnLang.textContent = currentLang.toUpperCase();
+        
+        // Update buttons
+        submitBtn.textContent = t.submit;
+        hintBtn.innerHTML = `${t.hint} (${HINT_COST} &#128176;)`;
+        revealBtn.textContent = t.reveal;
+        downloadBtn.innerHTML = `<span class="download-icon">&#8681;</span> ${t.download}`;
+        
+        // Update riddle
+        riddleText.textContent = getQuestion();
+        
+        // Update hint button state
+        if (coins < HINT_COST) {
+            hintBtn.classList.add('disabled-button');
+        } else {
+            hintBtn.classList.remove('disabled-button');
+        }
+        
+        // Show/hide reveal button
+        if (failedAttempts >= ATTEMPT_THRESHOLD) {
+            revealBtn.style.display = 'inline-flex';
+        } else {
+            revealBtn.style.display = 'none';
+        }
+    }
+    
+    function setupAnswerSlots() {
+        answerSlots.innerHTML = '';
+        const answer = getAnswer();
+        currentAnswer = [];
+        revealedIndices = [];
+        
+        for (let i = 0; i < answer.length; i++) {
+            if (answer[i] === ' ') {
+                const space = document.createElement('div');
+                space.className = 'space-slot';
+                answerSlots.appendChild(space);
+                currentAnswer.push(' ');
+            } else {
+                const slot = document.createElement('div');
+                slot.className = 'answer-slot';
+                slot.dataset.index = i;
+                slot.addEventListener('click', () => removeLetterFromSlot(i));
+                answerSlots.appendChild(slot);
+                currentAnswer.push('');
+            }
+        }
+    }
+    
+    function setupLetterBank() {
+        letterBank.innerHTML = '';
+        usedLetterIndices = [];
+        
+        const answer = getAnswer().replace(/ /g, '');
+        const answerLetters = answer.split('');
+        const randomLetters = getRandomLetters(answer, Math.min(6, answer.length));
+        const allLetters = shuffleArray([...answerLetters, ...randomLetters]);
+        
+        allLetters.forEach((letter, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'letter-button';
+            btn.textContent = letter;
+            btn.dataset.index = index;
+            btn.addEventListener('click', () => addLetterToSlot(index, letter));
+            letterBank.appendChild(btn);
+        });
+    }
+    
+    function addLetterToSlot(letterIndex, letter) {
+        if (usedLetterIndices.includes(letterIndex)) return;
+        
+        const answer = getAnswer();
+        for (let i = 0; i < answer.length; i++) {
+            if (answer[i] !== ' ' && currentAnswer[i] === '' && !revealedIndices.includes(i)) {
+                currentAnswer[i] = letter;
+                usedLetterIndices.push(letterIndex);
+                
+                const slot = answerSlots.querySelector(`[data-index="${i}"]`);
+                if (slot) {
+                    slot.textContent = letter;
+                    slot.dataset.letterIndex = letterIndex;
+                }
+                
+                const letterBtn = letterBank.querySelector(`[data-index="${letterIndex}"]`);
+                if (letterBtn) {
+                    letterBtn.classList.add('used');
+                }
+                
+                break;
+            }
+        }
+    }
+    
+    function removeLetterFromSlot(slotIndex) {
+        if (revealedIndices.includes(slotIndex)) return;
+        if (currentAnswer[slotIndex] === '' || currentAnswer[slotIndex] === ' ') return;
+        
+        const slot = answerSlots.querySelector(`[data-index="${slotIndex}"]`);
+        if (slot && slot.dataset.letterIndex !== undefined) {
+            const letterIndex = parseInt(slot.dataset.letterIndex);
+            
+            const letterBtn = letterBank.querySelector(`[data-index="${letterIndex}"]`);
+            if (letterBtn) {
+                letterBtn.classList.remove('used');
+            }
+            
+            usedLetterIndices = usedLetterIndices.filter(i => i !== letterIndex);
+            currentAnswer[slotIndex] = '';
+            slot.textContent = '';
+            delete slot.dataset.letterIndex;
+        }
+    }
+    
+    function showFeedback(message, type = 'default') {
+        feedbackMessage.textContent = message;
+        feedbackMessage.className = 'feedback';
+        if (type === 'success') feedbackMessage.classList.add('success');
+        if (type === 'error') feedbackMessage.classList.add('error');
+    }
+    
+    // ============== GAME LOGIC ==============
+    function normalizeString(str) {
+        // Normalize Unicode and trim whitespace
+        return str.normalize('NFC').trim();
+    }
+    
+    function checkAnswer() {
+        const answer = normalizeString(getAnswer());
+        const userAnswer = normalizeString(currentAnswer.join(''));
+        const t = i18n[currentLang];
+        
+        if (userAnswer === answer) {
+            coins += SOLVE_REWARD;
+            showFeedback(t.correct, 'success');
+            
+            setTimeout(() => {
+                // MODIFIED: Use transition handler instead of direct load
+                handleLevelTransition();
+            }, 1500);
+        } else {
+            failedAttempts++;
+            showFeedback(t.wrong(failedAttempts, ATTEMPT_THRESHOLD), 'error');
+            updateUI();
+        }
+    }
+    
+    function useHint() {
+        const t = i18n[currentLang];
+        
+        if (coins < HINT_COST) {
+            showFeedback(t.lowCoins, 'error');
+            return;
+        }
+        
+        const answer = getAnswer();
+        const availableIndices = [];
+        
+        for (let i = 0; i < answer.length; i++) {
+            if (answer[i] !== ' ' && !revealedIndices.includes(i) && currentAnswer[i] !== answer[i]) {
+                availableIndices.push(i);
+            }
+        }
+        
+        if (availableIndices.length === 0) return;
+        
+        coins -= HINT_COST;
+        const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+        revealedIndices.push(randomIndex);
+        
+        // Remove any letter currently in this slot
+        const slot = answerSlots.querySelector(`[data-index="${randomIndex}"]`);
+        if (slot && slot.dataset.letterIndex !== undefined) {
+            const letterIndex = parseInt(slot.dataset.letterIndex);
+            const letterBtn = letterBank.querySelector(`[data-index="${letterIndex}"]`);
+            if (letterBtn) letterBtn.classList.remove('used');
+            usedLetterIndices = usedLetterIndices.filter(i => i !== letterIndex);
+        }
+        
+        currentAnswer[randomIndex] = answer[randomIndex];
+        if (slot) {
+            slot.textContent = answer[randomIndex];
+            slot.classList.add('revealed');
+            delete slot.dataset.letterIndex;
+        }
+        
+        failedAttempts++;
+        updateUI();
+    }
+    
+    function showAdAndReveal() {
+        adModal.classList.add('active');
+        let countdown = 3;
+        adTimer.textContent = countdown;
+        
+        const interval = setInterval(() => {
+            countdown--;
+            adTimer.textContent = countdown;
+            
+            if (countdown <= 0) {
+                clearInterval(interval);
+                adModal.classList.remove('active');
+                revealFullAnswer();
+            }
+        }, 1000);
+    }
+    
+    function revealFullAnswer() {
+        const answer = getAnswer();
+        const t = i18n[currentLang];
+        
+        for (let i = 0; i < answer.length; i++) {
+            if (answer[i] !== ' ') {
+                currentAnswer[i] = answer[i];
+                const slot = answerSlots.querySelector(`[data-index="${i}"]`);
+                if (slot) {
+                    slot.textContent = answer[i];
+                    slot.classList.add('revealed');
+                }
+            }
+        }
+        
+        showFeedback(t.revealed, 'success');
+        
+        setTimeout(() => {
+            // MODIFIED: Use transition handler instead of direct load
+            handleLevelTransition();
+        }, 2000);
+    }
+    
+    function showVictory() {
+        const t = i18n[currentLang];
+        victoryTitle.textContent = t.finalTitle;
+        victoryMessage.textContent = t.finalMsg;
+        victoryModal.classList.add('active');
+        
+        setTimeout(() => {
+            victoryModal.classList.remove('active');
+            currentTrial = 1;
+            coins = START_COINS;
+            failedAttempts = 0;
+            loadRiddle();
+        }, 5000);
+    }
+    
+    function loadRiddle() {
+        feedbackMessage.textContent = '';
+        setupAnswerSlots();
+        setupLetterBank();
+        updateUI();
+        saveProgress();
+    }
+    
+    function changeLanguage() {
+        const langIndex = LANGUAGES.indexOf(currentLang);
+        currentLang = LANGUAGES[(langIndex + 1) % LANGUAGES.length];
+        loadRiddle();
+    }
+    
+    // ============== SAVE/LOAD PROGRESS ==============
+    function saveProgress() {
+        const progress = {
+            currentTrial,
+            coins,
+            currentLang,
+            failedAttempts
+        };
+        localStorage.setItem('riddleProgress', JSON.stringify(progress));
+    }
+    
+    function loadProgress() {
+        const saved = localStorage.getItem('riddleProgress');
+        if (saved) {
+            const progress = JSON.parse(saved);
+            currentTrial = progress.currentTrial || 1;
+            coins = progress.coins || START_COINS;
+            currentLang = progress.currentLang || 'en';
+            failedAttempts = progress.failedAttempts || 0;
+        }
+    }
+    
+    // ============== DOWNLOAD FUNCTION ==============
+    function downloadGame() {
+        const htmlContent = document.documentElement.outerHTML;
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'riddle-game.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+    
+    // ============== EVENT LISTENERS ==============
+    btnLang.addEventListener('click', changeLanguage);
+    submitBtn.addEventListener('click', checkAnswer);
+    hintBtn.addEventListener('click', useHint);
+    revealBtn.addEventListener('click', showAdAndReveal);
+    downloadBtn.addEventListener('click', downloadGame);
+    
+    // -- NEW AD EVENT LISTENER --
+    closeAdBtn.addEventListener('click', function() {
+        googleAdModal.classList.remove('active');
+        loadRiddle();
+    });
+    
+    // ============== INITIALIZE ==============
+    loadProgress();
+    loadRiddle();
+})();
+</script>
+</body>
+</html>
