@@ -148,6 +148,9 @@
                 <div class="h-20 mb-4 glass rounded-2xl flex items-center justify-between px-8 shadow-2xl relative overflow-hidden">
                     <div class="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500"></div>
                     <div class="flex items-center gap-4">
+                        <button id="btn-pause" onclick="app.togglePause()" class="hidden hover:bg-indigo-500/20 p-2 rounded-lg transition-colors text-indigo-400">
+                            <i data-lucide="pause" class="w-6 h-6"></i>
+                        </button>
                         <div class="text-indigo-500"><i data-lucide="timer" class="w-6 h-6 animate-pulse"></i></div>
                         <div class="flex flex-col">
                             <div id="timer" class="text-4xl font-black font-mono text-white tabular-nums leading-none">00</div>
@@ -177,12 +180,20 @@
                         </button>
                     </div>
 
+                    <!-- REVEAL OVERLAY -->
                     <div id="overlay-reveal" class="hidden absolute inset-0 bg-indigo-600/95 flex flex-col items-center justify-center text-white p-6 z-30 backdrop-blur-sm">
                         <div class="animate-float">
                             <i data-lucide="award" class="w-20 h-20 text-yellow-300 mb-6 drop-shadow-xl"></i>
                         </div>
                         <div class="text-sm uppercase tracking-[0.5em] font-bold opacity-70 mb-4">The Secret Word Was</div>
-                        <div id="reveal-word" class="text-7xl md:text-9xl font-black mb-10 drop-shadow-2xl italic">---</div>
+                        
+                        <div class="flex items-center gap-4 mb-10">
+                            <div id="reveal-word" class="text-7xl md:text-9xl font-black drop-shadow-2xl italic">---</div>
+                            <button onclick="app.speakWord()" class="p-4 bg-white/10 hover:bg-white/20 rounded-2xl transition-all shadow-lg hover:scale-105 active:scale-95 group" title="Pronounce Word">
+                                <i data-lucide="volume-2" class="w-8 h-8 text-white group-hover:text-yellow-300 transition-colors"></i>
+                            </button>
+                        </div>
+                        
                         <div class="text-xs uppercase tracking-[0.3em] font-black opacity-50 mb-6 border-b border-white/20 pb-2">Fastest Fingers</div>
                         <div id="reveal-winners" class="flex flex-wrap justify-center gap-3 mb-8"></div>
                         
@@ -297,7 +308,8 @@ const firebaseConfig = {
 
         const state = {
             user: null, roomId: null, room: null, players: [], myTurn: false,
-            isDrawing: false, tool: 'pencil', color: '#000000', size: 8, currentStroke: [], unsubs: []
+            isDrawing: false, tool: 'pencil', color: '#000000', size: 8, currentStroke: [], unsubs: [],
+            timerInterval: null
         };
 
         const els = {
@@ -322,7 +334,8 @@ const firebaseConfig = {
             colorPalette: document.getElementById('color-palette'), 
             messages: document.getElementById('chat-messages'),
             chatInput: document.getElementById('chat-input'),
-            myScore: document.getElementById('my-score')
+            myScore: document.getElementById('my-score'),
+            pauseBtn: document.getElementById('btn-pause')
         };
 
         const ctx = els.canvas.getContext('2d');
@@ -340,6 +353,7 @@ const firebaseConfig = {
                         currentWord: '', currentDrawer: '', guessedPlayers: [], 
                         round: 0,
                         roundEndTime: null,
+                        timeRemaining: 0,
                         createdAt: serverTimestamp()
                     });
                 } else if (type === 'public') {
@@ -422,6 +436,27 @@ const firebaseConfig = {
                     roundEndTime: new Date(Date.now() + 61000)
                 });
             },
+            togglePause: async () => {
+                if (!state.room || state.room.hostId !== state.user.uid) return;
+                const isPaused = state.room.status === 'paused';
+                
+                if (isPaused) {
+                    // Resume: calculate new end time based on saved remaining time
+                    const remaining = state.room.timeRemaining || 60000;
+                    await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', state.roomId), {
+                        status: 'playing',
+                        roundEndTime: new Date(Date.now() + remaining),
+                        timeRemaining: 0
+                    });
+                } else if (state.room.status === 'playing') {
+                    // Pause: save remaining time
+                    const remaining = Math.max(0, (state.room.roundEndTime.toMillis() - Date.now()));
+                    await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', state.roomId), {
+                        status: 'paused',
+                        timeRemaining: remaining
+                    });
+                }
+            },
             sendMessage: async (e) => {
                 e.preventDefault();
                 const text = els.chatInput.value.trim();
@@ -457,6 +492,11 @@ const firebaseConfig = {
                     await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', state.roomId), { strokes: [] }); 
                     ctx.clearRect(0,0,els.canvas.width, els.canvas.height);
                 }
+            },
+            speakWord: () => {
+                if (!state.room || !state.room.currentWord) return;
+                const utterance = new SpeechSynthesisUtterance(state.room.currentWord);
+                window.speechSynthesis.speak(utterance);
             }
         };
 
@@ -476,6 +516,32 @@ const firebaseConfig = {
             redraw();
         }
 
+        // Live Timer Loop to ensure smooth countdown
+        function startTimerLoop() {
+            if (state.timerInterval) clearInterval(state.timerInterval);
+            state.timerInterval = setInterval(() => {
+                if (state.room && state.room.status === 'playing' && state.room.roundEndTime) {
+                    const diff = Math.max(0, Math.floor((state.room.roundEndTime.toMillis() - Date.now()) / 1000));
+                    els.timer.innerText = diff.toString().padStart(2, '0');
+                    
+                    if (diff === 0 && state.room.hostId === state.user.uid) {
+                        // End round automatically
+                        clearInterval(state.timerInterval);
+                        updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', state.roomId), { 
+                            status: 'reveal', roundEndTime: new Date(Date.now() + 5000) 
+                        });
+                    }
+                } else if (state.room && state.room.status === 'reveal' && state.room.roundEndTime) {
+                     // Auto restart after reveal
+                     const diff = Math.max(0, Math.floor((state.room.roundEndTime.toMillis() - Date.now()) / 1000));
+                     if (diff === 0 && state.room.hostId === state.user.uid) {
+                         clearInterval(state.timerInterval);
+                         app.startNewRound();
+                     }
+                }
+            }, 1000);
+        }
+
         function setupListeners(roomId) {
             // Room Listener
             state.unsubs.push(onSnapshot(doc(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', roomId), (snap) => {
@@ -489,6 +555,16 @@ const firebaseConfig = {
                 state.myTurn = d.currentDrawer === state.user.uid;
                 updateUI(d);
                 if (!state.myTurn) { redraw(); }
+                
+                // Manage Timer Loop based on status
+                if (d.status === 'playing' || d.status === 'reveal') {
+                    if (!state.timerInterval) startTimerLoop();
+                } else {
+                    if (state.timerInterval) {
+                        clearInterval(state.timerInterval);
+                        state.timerInterval = null;
+                    }
+                }
             }));
 
             // Players Listener
@@ -540,12 +616,19 @@ const firebaseConfig = {
         function updateUI(d) {
             els.roomCodeDisplay.innerText = state.roomId;
             const isPlaying = d.status === 'playing';
+            const isPaused = d.status === 'paused';
             const isReveal = d.status === 'reveal';
             const isGameOver = d.status === 'gameover';
             const isHost = d.hostId === state.user.uid;
             
             // Update Round Count
             els.roundCount.innerText = d.round || 0;
+
+            // Pause Button State
+            els.pauseBtn.classList.toggle('hidden', !isHost || (!isPlaying && !isPaused));
+            els.pauseBtn.innerHTML = isPaused 
+                ? '<i data-lucide="play" class="w-6 h-6"></i>' 
+                : '<i data-lucide="pause" class="w-6 h-6"></i>';
 
             if (isPlaying) {
                 if (state.myTurn) {
@@ -554,6 +637,9 @@ const firebaseConfig = {
                     const masked = d.currentWord.replace(/[a-zA-Z]/g, '_ ');
                     els.statusText.innerHTML = `<span class="text-indigo-500 tracking-[0.5em] font-mono">${masked}</span>`;
                 }
+            } else if (isPaused) {
+                els.statusText.innerText = "GAME PAUSED";
+                els.timer.innerText = "||";
             } else if (isGameOver) {
                 els.statusText.innerText = "GAME OVER";
             } else {
@@ -593,19 +679,10 @@ const firebaseConfig = {
                     return `<div class="bg-white/10 px-4 py-2 rounded-xl text-sm font-bold border border-white/20">${p?.name || 'Player'}</div>`;
                 }).join('');
             }
-
-            if (state.room.roundEndTime && isPlaying) {
-                const diff = Math.max(0, Math.floor((state.room.roundEndTime.toMillis() - Date.now()) / 1000));
-                els.timer.innerText = diff.toString().padStart(2, '0');
-                if (diff === 0 && d.hostId === state.user.uid) {
-                    updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', state.roomId), { 
-                        status: 'reveal', roundEndTime: new Date(Date.now() + 5000) 
-                    });
-                }
-            }
-            if (isReveal && d.hostId === state.user.uid) {
-                const diff = Math.max(0, Math.floor((state.room.roundEndTime.toMillis() - Date.now()) / 1000));
-                if (diff === 0) app.startNewRound();
+            
+            // Handle timer visual update immediately on snapshot for responsiveness if paused
+            if (isPaused && d.timeRemaining) {
+                 els.timer.innerText = Math.floor(d.timeRemaining/1000).toString().padStart(2, '0');
             }
         }
 
