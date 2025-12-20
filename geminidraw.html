@@ -42,6 +42,21 @@
         
         .ad-slot { background: rgba(15, 23, 42, 0.5); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
         .ad-slot::before { content: 'ADVERTISEMENT'; font-size: 10px; color: #475569; letter-spacing: 0.2em; font-weight: 800; }
+        
+        /* Tooltip for kick button */
+        .kick-btn:hover::after {
+            content: "Kick";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ef4444;
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body class="text-white h-screen overflow-hidden flex flex-col">
@@ -122,7 +137,7 @@
                         </div>
                         <div id="display-room-id" class="font-mono text-indigo-400 font-black text-xl tracking-tighter">---</div>
                     </div>
-                    <button onclick="app.leaveRoom()" class="p-2 hover:bg-red-500/10 rounded-lg text-slate-500 hover:text-red-400 transition-colors"><i data-lucide="log-out" class="w-5 h-5"></i></button>
+                    <button onclick="app.leaveRoom()" class="p-2 hover:bg-red-500/10 rounded-lg text-slate-500 hover:text-red-400 transition-colors" title="Leave Room"><i data-lucide="log-out" class="w-5 h-5"></i></button>
                 </div>
                 <div id="player-list" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar hidden md:block"></div>
                 <div class="ad-slot w-full h-48 border-t border-slate-800 hidden md:flex"></div>
@@ -157,7 +172,7 @@
                         </div>
                         <h2 class="text-3xl font-black mb-2 uppercase italic">Ready to Draw?</h2>
                         <p class="text-slate-500 max-w-xs mb-8">Waiting for the host to start the match.</p>
-                        <button id="btn-start-game" onclick="app.startNewRound()" class="hidden bg-indigo-600 hover:bg-indigo-500 px-12 py-4 rounded-2xl font-black text-lg shadow-xl shadow-indigo-500/20 active:translate-y-1 transition-all uppercase tracking-widest">
+                        <button id="btn-start-game" onclick="app.startNewRound()" class="bg-indigo-600 hover:bg-indigo-500 px-12 py-4 rounded-2xl font-black text-lg shadow-xl shadow-indigo-500/20 active:translate-y-1 transition-all uppercase tracking-widest">
                             START ROUND
                         </button>
                     </div>
@@ -200,14 +215,14 @@
                 </div>
 
                 <!-- Floating Tools -->
-                <div id="drawing-tools" class="hidden absolute bottom-12 left-1/2 -translate-x-1/2 glass p-3 rounded-3xl shadow-2xl flex items-center gap-4 z-40 border-slate-600">
+                <div id="drawing-tools" class="hidden absolute bottom-12 left-1/2 -translate-x-1/2 glass p-3 rounded-3xl shadow-2xl flex items-center gap-4 z-40 border-slate-600 max-w-[90vw] overflow-x-auto custom-scrollbar">
                     <div id="color-palette" class="flex gap-2 border-r border-slate-700 pr-4"></div>
-                    <div class="flex items-center gap-3">
-                        <button onclick="app.setTool('pencil')" id="tool-pencil" class="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center transition-all"><i data-lucide="pencil" class="w-5 h-5"></i></button>
-                        <button onclick="app.setTool('eraser')" id="tool-eraser" class="w-12 h-12 rounded-xl text-slate-400 hover:bg-slate-700 flex items-center justify-center transition-all"><i data-lucide="eraser" class="w-5 h-5"></i></button>
+                    <div class="flex items-center gap-3 flex-shrink-0">
+                        <button onclick="app.setTool('pencil')" id="tool-pencil" class="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center transition-all flex-shrink-0"><i data-lucide="pencil" class="w-5 h-5"></i></button>
+                        <button onclick="app.setTool('eraser')" id="tool-eraser" class="w-12 h-12 rounded-xl text-slate-400 hover:bg-slate-700 flex items-center justify-center transition-all flex-shrink-0"><i data-lucide="eraser" class="w-5 h-5"></i></button>
                         <div class="h-10 w-[1px] bg-slate-700 mx-1"></div>
                         <input type="range" min="2" max="50" value="8" oninput="app.setBrushSize(this.value)" class="w-24 accent-indigo-500 cursor-pointer h-2 bg-slate-900 rounded-full appearance-none">
-                        <button onclick="app.clearCanvas()" class="w-12 h-12 rounded-xl text-rose-400 hover:bg-rose-500/20 flex items-center justify-center transition-all"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                        <button onclick="app.clearCanvas()" class="w-12 h-12 rounded-xl text-rose-400 hover:bg-rose-500/20 flex items-center justify-center transition-all flex-shrink-0"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
                     </div>
                 </div>
             </div>
@@ -235,39 +250,54 @@
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+        import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
         import { getFirestore, collection, doc, setDoc, addDoc, getDoc, onSnapshot, updateDoc, deleteDoc, serverTimestamp, arrayUnion, increment } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
 
         // --- FIREBASE CONFIGURATION ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyB-3kAk-lMT3jTny2YIs2R1_0mG-tJlmJI",
-            authDomain: "puzzlesapp.firebaseapp.com",
-            databaseURL: "https://puzzlesapp-default-rtdb.firebaseio.com",
-            projectId: "puzzlesapp",
-            storageBucket: "puzzlesapp.firebasestorage.app",
-            messagingSenderId: "303461259730",
-            appId: "1:303461259730:web:a1790a976b6d58d71dd00b",
-            measurementId: "G-8YEJEBX0NE"
-        };
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyB-3kAk-lMT3jTny2YIs2R1_0mG-tJlmJI",
+  authDomain: "puzzlesapp.firebaseapp.com",
+  databaseURL: "https://puzzlesapp-default-rtdb.firebaseio.com",
+  projectId: "puzzlesapp",
+  storageBucket: "puzzlesapp.firebasestorage.app",
+  messagingSenderId: "303461259730",
+  appId: "1:303461259730:web:a1790a976b6d58d71dd00b",
+  measurementId: "G-8YEJEBX0NE"
+};
 
         const appInstance = initializeApp(firebaseConfig);
         const auth = getAuth(appInstance);
         const db = getFirestore(appInstance);
-        const APP_ID = "scribbler-v2-final";
+        const APP_ID = "scribbler-v3-final"; // Updated ID for fresh starts
 
         const WORDS = [
-            "Pizza", "Guitar", "Elephant", "Mountain", "Computer", "Batman", "Spaceship", "Dinosaur", "Hamburger", "Eiffel Tower", "Cactus", "Submarine", "Fireworks", "Tornado", "Skeleton", 
-            "Volcano", "Octopus", "Lighthouse", "Parachute", "Pineapple", "Rollercoaster", "Statue of Liberty", "Snowman", "Telescope", "Kangaroo", "Dragon", "Crocodile", "Spacesuit", "Microscope",
-            "Sushi", "Violin", "Windmill", "Campfire", "Diamond", "Penguin", "Robot", "Treasure Map", "Hot Air Balloon", "Pyramid", "Medusa", "Alien", "Knight", "Mermaid", "Scorpion", "Castle",
-            "Butterfly", "Zebra", "Astronaut", "Waterfall", "Compass", "Whale", "Anchor", "Bonsai Tree", "Jellyfish", "Moon", "Saturn", "Cobra", "Peacock", "T-Rex", "Hammock", "Rainforest"
+            "Sun", "Moon", "Star", "Cloud", "Rain", "Tree", "Leaf", "Flower", "Grass", "Apple",
+            "Banana", "Grape", "Egg", "Milk", "Cup", "Mug", "Plate", "Fork", "Knife", "Spoon",
+            "Table", "Chair", "Bed", "Door", "Window", "House", "Key", "Lock", "Phone", "Book",
+            "Pen", "Pencil", "Paper", "Scissors", "Bag", "Hat", "Shirt", "Pants", "Shoe", "Sock",
+            "Ring", "Watch", "Ball", "Bat", "Box", "Gift", "Bow", "Flag", "Kite", "Boat",
+            "Car", "Bus", "Bike", "Plane", "Road", "Hill", "Lake", "Fish", "Bird", "Cat",
+            "Dog", "Mouse", "Pig", "Cow", "Duck", "Bee", "Ant", "Worm", "Snake", "Heart",
+            "Smile", "Eye", "Nose", "Ear", "Hand", "Foot", "Bone", "Hair", "Lamp", "Bulb",
+            "TV", "Clock", "Coin", "Candle", "Fire", "Ice", "Soap", "Comb", "Brush", "Bowl",
+            "Tent", "Boot", "Bell", "Drum", "Pipe", "Hammer", "Nail", "Saw", "Ladder", "Bridge"
         ];
         
-        const COLORS = ['#1e293b', '#ef4444', '#22c55e', '#3b82f6', '#eab308', '#a855f7', '#06b6d4', '#ec4899'];
+        // Expanded Color Palette
+        const COLORS = [
+            '#000000', '#4b5563', '#9ca3af', '#ffffff', // Grayscale
+            '#ef4444', '#f97316', '#eab308', '#84cc16', // Red, Orange, Yellow, Lime
+            '#22c55e', '#10b981', '#06b6d4', '#3b82f6', // Green, Emerald, Cyan, Blue
+            '#6366f1', '#8b5cf6', '#a855f7', '#d946ef', // Indigo, Violet, Purple, Magenta
+            '#ec4899', '#f43f5e', '#78350f', '#d4d4d8'  // Pink, Rose, Brown, Light Gray
+        ];
+        
         const MAX_ROUNDS = 10;
 
         const state = {
             user: null, roomId: null, room: null, players: [], myTurn: false,
-            isDrawing: false, tool: 'pencil', color: '#1e293b', size: 8, currentStroke: [], unsubs: []
+            isDrawing: false, tool: 'pencil', color: '#000000', size: 8, currentStroke: [], unsubs: []
         };
 
         const els = {
@@ -312,6 +342,9 @@
                         roundEndTime: null,
                         createdAt: serverTimestamp()
                     });
+                } else if (type === 'public') {
+                    // Update host if public room exists but host might be stale
+                    // Note: We don't overwrite hostId here blindly, handled in player logic
                 }
                 app.joinRoom(code);
             },
@@ -333,13 +366,27 @@
             },
             leaveRoom: async () => {
                 if (!state.roomId || !state.user) return;
-                await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', state.roomId, 'players', state.user.uid));
+                // Attempt to remove player doc
+                try {
+                    await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', state.roomId, 'players', state.user.uid));
+                } catch (e) { console.error("Error leaving room:", e); }
+                
                 state.unsubs.forEach(u => u());
                 state.unsubs = [];
                 state.roomId = null;
                 showView('lobby');
             },
+            kickPlayer: async (playerId) => {
+                if (!state.roomId || !state.room) return;
+                // Only host can kick
+                if (state.room.hostId !== state.user.uid) return;
+                
+                if (confirm('Are you sure you want to kick this player?')) {
+                     await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', state.roomId, 'players', playerId));
+                }
+            },
             startNewRound: async () => {
+                // Allow starting with 1 player for testing/solo play
                 if (!state.roomId || state.players.length < 1) return;
 
                 // Check for Game Over condition
@@ -354,16 +401,13 @@
                 const word = WORDS[Math.floor(Math.random() * WORDS.length)];
                 
                 // Sequential Turn Logic
-                // We sort by ID to ensure a stable, deterministic order regardless of score or join time latency
                 const sortedPlayers = [...state.players].sort((a, b) => a.id.localeCompare(b.id));
                 
                 let nextDrawerId;
                 if (!state.room.currentDrawer) {
-                    // First round starts with first player in sorted list
                     nextDrawerId = sortedPlayers[0].id;
                 } else {
                     const currentIndex = sortedPlayers.findIndex(p => p.id === state.room.currentDrawer);
-                    // Wrap around to 0 if we reached the end
                     const nextIndex = (currentIndex + 1) % sortedPlayers.length;
                     nextDrawerId = sortedPlayers[nextIndex].id;
                 }
@@ -433,8 +477,13 @@
         }
 
         function setupListeners(roomId) {
+            // Room Listener
             state.unsubs.push(onSnapshot(doc(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', roomId), (snap) => {
-                if(!snap.exists()) return;
+                if(!snap.exists()) {
+                    // Room deleted
+                    app.leaveRoom();
+                    return;
+                }
                 const d = snap.data();
                 state.room = d;
                 state.myTurn = d.currentDrawer === state.user.uid;
@@ -442,13 +491,40 @@
                 if (!state.myTurn) { redraw(); }
             }));
 
+            // Players Listener
             state.unsubs.push(onSnapshot(collection(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', roomId, 'players'), (snap) => {
-                state.players = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.score - a.score);
+                const newPlayers = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                
+                // Kick Detection: If I was in the game but am no longer in the player list
+                if (state.players.length > 0 && !newPlayers.find(p => p.id === state.user.uid)) {
+                    alert('You have been kicked from the room.');
+                    app.leaveRoom();
+                    return;
+                }
+                
+                state.players = newPlayers.sort((a,b) => b.score - a.score);
+                
+                // Host Migration Logic
+                // If current host is NOT in player list, assign host to first player (who joined earliest usually, or just top of list)
+                // We verify based on the sorted list or just arbitrary stability
+                if (state.room && state.players.length > 0) {
+                    const hostExists = state.players.find(p => p.id === state.room.hostId);
+                    if (!hostExists) {
+                        // Current user claims host if they are the first in the list (or determined by joinedAt if we sorted that way)
+                        // For simplicity, using first in current sorted array (score based) or fallback to ID sort for stability
+                        const stableSort = [...state.players].sort((a,b) => (a.joinedAt?.toMillis() || 0) - (b.joinedAt?.toMillis() || 0));
+                        if (stableSort[0].id === state.user.uid) {
+                            updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', roomId), { hostId: state.user.uid });
+                        }
+                    }
+                }
+
                 renderPlayers();
                 const me = state.players.find(p => p.id === state.user.uid);
                 if (me) els.myScore.innerText = me.score;
             }));
 
+            // Chat Listener
             state.unsubs.push(onSnapshot(collection(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', roomId, 'messages'), (snap) => {
                 const msgs = snap.docs.map(d => d.data()).sort((a,b) => a.timestamp - b.timestamp);
                 els.messages.innerHTML = msgs.slice(-40).map(m => `
@@ -484,6 +560,7 @@
                 els.statusText.innerText = "Scribbler";
             }
 
+            // Start button logic: Host only, and allow even 1 player
             els.overlayWaiting.classList.toggle('hidden', d.status !== 'waiting');
             els.startBtn.classList.toggle('hidden', state.players.length < 1 || !isHost);
             
@@ -493,7 +570,6 @@
             // Game Over Screen Logic
             els.overlayGameOver.classList.toggle('hidden', !isGameOver);
             if (isGameOver) {
-                // Generate final leaderboard
                 els.finalLeaderboard.innerHTML = state.players.map((p, idx) => `
                     <div class="flex items-center justify-between bg-slate-800 p-4 rounded-2xl border border-slate-700">
                         <div class="flex items-center gap-4">
@@ -534,23 +610,37 @@
         }
 
         function renderPlayers() {
-            els.playerList.innerHTML = state.players.map((p, idx) => `
-                <div class="player-card p-4 rounded-2xl glass flex items-center justify-between border-l-4 ${p.id === state.room?.currentDrawer ? 'border-indigo-500 bg-indigo-500/10 shadow-lg' : 'border-transparent'} ${state.room?.guessedPlayers.includes(p.id) ? 'bg-indigo-900/10' : ''}">
+            const isHost = state.room?.hostId === state.user.uid;
+            
+            els.playerList.innerHTML = state.players.map((p, idx) => {
+                const isMe = p.id === state.user.uid;
+                const isDrawer = p.id === state.room?.currentDrawer;
+                const hasGuessed = state.room?.guessedPlayers.includes(p.id);
+                
+                return `
+                <div class="player-card p-4 rounded-2xl glass flex items-center justify-between border-l-4 ${isDrawer ? 'border-indigo-500 bg-indigo-500/10 shadow-lg' : 'border-transparent'} ${hasGuessed ? 'bg-indigo-900/10' : ''}">
                     <div class="flex items-center gap-3 overflow-hidden">
                         <div class="w-8 h-8 rounded-lg bg-slate-950 flex items-center justify-center font-black text-xs text-indigo-500">
                             ${idx + 1}
                         </div>
                         <div class="truncate">
-                            <div class="font-black text-sm uppercase tracking-tight ${state.room?.guessedPlayers.includes(p.id) ? 'text-indigo-400' : ''}">${p.name}</div>
+                            <div class="font-black text-sm uppercase tracking-tight ${hasGuessed ? 'text-indigo-400' : ''}">${p.name} ${isMe ? '(You)' : ''}</div>
                             <div class="text-[10px] text-slate-500 font-bold">${p.score} PTS</div>
                         </div>
                     </div>
-                    <div>
-                        ${p.id === state.room?.currentDrawer ? '<i data-lucide="pen-tool" class="w-4 h-4 text-indigo-400"></i>' : ''}
-                        ${state.room?.guessedPlayers.includes(p.id) ? '<i data-lucide="check" class="w-4 h-4 text-indigo-500"></i>' : ''}
+                    <div class="flex items-center gap-2">
+                        ${isDrawer ? '<i data-lucide="pen-tool" class="w-4 h-4 text-indigo-400"></i>' : ''}
+                        ${hasGuessed ? '<i data-lucide="check" class="w-4 h-4 text-indigo-500"></i>' : ''}
+                        
+                        <!-- Kick Button: Visible if I am host, target is not me -->
+                        ${isHost && !isMe ? `
+                            <button onclick="app.kickPlayer('${p.id}')" class="kick-btn relative w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white flex items-center justify-center transition-all">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        ` : ''}
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
             lucide.createIcons();
         }
 
@@ -608,7 +698,7 @@
 
         function updateToolUI() {
             els.colorPalette.innerHTML = COLORS.map(c => `
-                <button onclick="app.setColor('${c}')" class="w-8 h-8 rounded-full border-4 transition-transform ${state.color === c ? 'border-white scale-125' : 'border-transparent'}" style="background:${c}"></button>
+                <button onclick="app.setColor('${c}')" class="w-8 h-8 rounded-full border-4 transition-transform ${state.color === c ? 'border-white scale-125' : 'border-transparent flex-shrink-0'}" style="background:${c}"></button>
             `).join('');
             document.getElementById('tool-pencil').classList.toggle('bg-indigo-600', state.tool === 'pencil');
             document.getElementById('tool-eraser').classList.toggle('bg-indigo-600', state.tool === 'eraser');
