@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scribbler - Draw & Guess</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-0000000000000000" crossorigin="anonymous"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'bounce-slow': 'bounce 3s infinite',
+                        'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap');
+        
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background: radial-gradient(circle at top right, #1e293b, #0f172a);
+        }
+        canvas { touch-action: none; background-color: white; cursor: crosshair; }
+        .player-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        
+        .ad-slot { background: rgba(15, 23, 42, 0.5); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+        .ad-slot::before { content: 'ADVERTISEMENT'; font-size: 10px; color: #475569; letter-spacing: 0.2em; font-weight: 800; }
+    </style>
+</head>
+<body class="text-white h-screen overflow-hidden flex flex-col">
+
+    <div id="app" class="h-full w-full relative">
+        
+        <!-- LOADING VIEW -->
+        <div id="view-loading" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-950">
+            <div class="relative">
+                <div class="animate-spin rounded-full h-24 w-24 border-t-4 border-indigo-500 mb-8"></div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <i data-lucide="brush" class="text-indigo-400 w-8 h-8"></i>
+                </div>
+            </div>
+            <p class="text-slate-400 animate-pulse tracking-widest uppercase font-semibold">Connecting to PuzzlesApp...</p>
+        </div>
+
+        <!-- LOBBY VIEW -->
+        <div id="view-lobby" class="hidden absolute inset-0 z-40 overflow-y-auto p-4 flex flex-col items-center">
+            
+            <!-- Banner Ad -->
+            <div class="ad-slot w-full max-w-4xl h-24 mb-8 rounded-2xl border border-slate-800 mt-4"></div>
+
+            <div class="max-w-4xl w-full mx-auto space-y-12 pb-20">
+                <div class="text-center space-y-4 pt-6">
+                    <div class="inline-block px-4 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-bold uppercase tracking-widest mb-4">
+                        Multiplayer Scribble Arena
+                    </div>
+                    <h1 class="text-7xl md:text-9xl font-black italic bg-gradient-to-br from-white via-indigo-300 to-indigo-600 bg-clip-text text-transparent drop-shadow-2xl">
+                        SCRIBBLER
+                    </h1>
+                    <p class="text-slate-400 text-lg md:text-xl font-light italic">"A picture is worth a thousand guesses."</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 px-4">
+                    <div class="glass p-8 rounded-3xl group hover:scale-[1.02] transition-transform cursor-pointer overflow-hidden relative" onclick="app.createRoom('public')">
+                        <div class="absolute -right-4 -top-4 w-32 h-32 bg-indigo-600/10 rounded-full blur-3xl group-hover:bg-indigo-600/20 transition-colors"></div>
+                        <div class="w-16 h-16 bg-indigo-500 rounded-2xl flex items-center justify-center mb-6 shadow-xl shadow-indigo-500/20 group-hover:rotate-6 transition-transform">
+                            <i data-lucide="globe" class="w-8 h-8 text-white"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3 uppercase tracking-tight">Public Lobby</h3>
+                        <p class="text-slate-400 mb-8 leading-relaxed">Jump into a game with people from around the world instantly.</p>
+                        <button class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-2xl shadow-lg border-b-4 border-indigo-800 active:border-b-0 active:translate-y-1 transition-all uppercase tracking-widest">
+                            Quick Play
+                        </button>
+                    </div>
+
+                    <div class="glass p-8 rounded-3xl group hover:scale-[1.02] transition-transform overflow-hidden relative">
+                        <div class="absolute -right-4 -top-4 w-32 h-32 bg-pink-600/10 rounded-full blur-3xl group-hover:bg-pink-600/20 transition-colors"></div>
+                        <div class="w-16 h-16 bg-pink-500 rounded-2xl flex items-center justify-center mb-6 shadow-xl shadow-pink-500/20 group-hover:-rotate-6 transition-transform">
+                            <i data-lucide="lock" class="w-8 h-8 text-white"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3 uppercase tracking-tight">Private Room</h3>
+                        <p class="text-slate-400 mb-8 leading-relaxed">Host a private match and invite your friends via code.</p>
+                        
+                        <div class="space-y-4">
+                            <button onclick="app.createRoom('private')" class="w-full bg-slate-700 hover:bg-slate-600 py-3 rounded-xl border-b-4 border-slate-900 transition-all font-bold">Create Room</button>
+                            <div class="flex gap-2">
+                                <input type="text" id="room-code-input" placeholder="CODE" class="bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 w-full focus:outline-none focus:border-pink-500 font-mono text-center uppercase tracking-widest">
+                                <button onclick="app.joinRoomInput()" class="bg-pink-600 hover:bg-pink-500 px-6 rounded-xl font-bold transition-colors">Join</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ad-slot w-full h-32 rounded-2xl border border-slate-800"></div>
+            </div>
+        </div>
+
+        <!-- GAME VIEW -->
+        <div id="view-game" class="hidden absolute inset-0 z-30 flex flex-col md:flex-row bg-slate-950">
+            <!-- Leaderboard -->
+            <div class="w-full md:w-72 bg-slate-900/80 backdrop-blur-md flex flex-col border-r border-slate-800 h-24 md:h-full z-10">
+                <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-indigo-500/20 rounded-lg flex items-center justify-center">
+                            <i data-lucide="hash" class="w-4 h-4 text-indigo-400"></i>
+                        </div>
+                        <div id="display-room-id" class="font-mono text-indigo-400 font-black text-xl tracking-tighter">---</div>
+                    </div>
+                    <button onclick="app.leaveRoom()" class="p-2 hover:bg-red-500/10 rounded-lg text-slate-500 hover:text-red-400 transition-colors"><i data-lucide="log-out" class="w-5 h-5"></i></button>
+                </div>
+                <div id="player-list" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar hidden md:block"></div>
+                <div class="ad-slot w-full h-48 border-t border-slate-800 hidden md:flex"></div>
+            </div>
+
+            <!-- Canvas Container -->
+            <div class="flex-1 flex flex-col relative h-full bg-slate-950 p-2 md:p-6">
+                <div class="h-20 mb-4 glass rounded-2xl flex items-center justify-between px-8 shadow-2xl relative overflow-hidden">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500"></div>
+                    <div class="flex items-center gap-4">
+                        <div class="text-indigo-500"><i data-lucide="timer" class="w-6 h-6 animate-pulse"></i></div>
+                        <div id="timer" class="text-4xl font-black font-mono text-white tabular-nums">00</div>
+                    </div>
+                    
+                    <div id="game-status-text" class="font-black text-2xl tracking-[0.2em] uppercase text-center flex-1 mx-4 drop-shadow-md">Waiting...</div>
+                    
+                    <div class="flex items-center gap-3 bg-slate-800/50 px-4 py-2 rounded-xl border border-slate-700">
+                        <i data-lucide="zap" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                        <span id="my-score" class="font-bold text-lg">0</span>
+                    </div>
+                </div>
+
+                <div class="flex-1 relative rounded-3xl shadow-2xl overflow-hidden bg-white border-[12px] border-slate-900">
+                    <canvas id="game-canvas" class="w-full h-full"></canvas>
+                    
+                    <div id="overlay-waiting" class="hidden absolute inset-0 bg-slate-950/90 flex flex-col items-center justify-center text-center p-6 z-20">
+                        <div class="w-20 h-20 bg-indigo-500/20 rounded-3xl flex items-center justify-center mb-6 animate-bounce-slow">
+                            <i data-lucide="users" class="w-10 h-10 text-indigo-400"></i>
+                        </div>
+                        <h2 class="text-3xl font-black mb-2 uppercase italic">Need Rivals</h2>
+                        <p class="text-slate-500 max-w-xs mb-8">Grab some friends! We need at least 2 players to start the match.</p>
+                        <button id="btn-start-game" onclick="app.startNewRound()" class="hidden bg-indigo-600 hover:bg-indigo-500 px-12 py-4 rounded-2xl font-black text-lg shadow-xl shadow-indigo-500/20 active:translate-y-1 transition-all">START ROUND</button>
+                    </div>
+
+                    <div id="overlay-reveal" class="hidden absolute inset-0 bg-indigo-600/95 flex flex-col items-center justify-center text-white p-6 z-30 backdrop-blur-sm">
+                        <div class="animate-float">
+                            <i data-lucide="award" class="w-20 h-20 text-yellow-300 mb-6 drop-shadow-xl"></i>
+                        </div>
+                        <div class="text-sm uppercase tracking-[0.5em] font-bold opacity-70 mb-4">The Secret Word Was</div>
+                        <div id="reveal-word" class="text-7xl md:text-9xl font-black mb-10 drop-shadow-2xl italic">---</div>
+                        <div class="text-xs uppercase tracking-[0.3em] font-black opacity-50 mb-6 border-b border-white/20 pb-2">Fastest Fingers</div>
+                        <div id="reveal-winners" class="flex flex-wrap justify-center gap-3"></div>
+                    </div>
+                </div>
+
+                <!-- Floating Tools -->
+                <div id="drawing-tools" class="hidden absolute bottom-12 left-1/2 -translate-x-1/2 glass p-3 rounded-3xl shadow-2xl flex items-center gap-4 z-40 border-slate-600">
+                    <div id="color-palette" class="flex gap-2 border-r border-slate-700 pr-4"></div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="app.setTool('pencil')" id="tool-pencil" class="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center transition-all"><i data-lucide="pencil" class="w-5 h-5"></i></button>
+                        <button onclick="app.setTool('eraser')" id="tool-eraser" class="w-12 h-12 rounded-xl text-slate-400 hover:bg-slate-700 flex items-center justify-center transition-all"><i data-lucide="eraser" class="w-5 h-5"></i></button>
+                        <div class="h-10 w-[1px] bg-slate-700 mx-1"></div>
+                        <input type="range" min="2" max="50" value="8" oninput="app.setBrushSize(this.value)" class="w-24 accent-indigo-500 cursor-pointer h-2 bg-slate-900 rounded-full appearance-none">
+                        <button onclick="app.clearCanvas()" class="w-12 h-12 rounded-xl text-rose-400 hover:bg-rose-500/20 flex items-center justify-center transition-all"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Sidebar -->
+            <div class="w-full md:w-96 bg-slate-900 flex flex-col h-1/3 md:h-full border-l border-slate-800">
+                <div class="p-4 border-b border-slate-800 flex items-center gap-2">
+                    <i data-lucide="message-circle" class="w-4 h-4 text-slate-500"></i>
+                    <span class="text-xs font-black uppercase tracking-widest text-slate-500">Global Chat</span>
+                </div>
+                
+                <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar text-sm"></div>
+                
+                <form onsubmit="app.sendMessage(event)" class="p-4 bg-slate-950/50">
+                    <div class="relative">
+                        <input id="chat-input" type="text" autocomplete="off" placeholder="What are they drawing?" class="w-full bg-slate-900 border-2 border-slate-800 rounded-2xl px-6 py-4 focus:outline-none focus:border-indigo-500 transition-all text-white font-medium">
+                        <button type="submit" class="absolute right-3 top-3 w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg active:scale-95 transition-transform">
+                            <i data-lucide="chevron-right" class="w-6 h-6"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+        import { getFirestore, collection, doc, setDoc, addDoc, getDoc, onSnapshot, updateDoc, deleteDoc, serverTimestamp, arrayUnion, increment } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+
+        // --- FIREBASE CONFIGURATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyB-3kAk-lMT3jTny2YIs2R1_0mG-tJlmJI",
+            authDomain: "puzzlesapp.firebaseapp.com",
+            databaseURL: "https://puzzlesapp-default-rtdb.firebaseio.com",
+            projectId: "puzzlesapp",
+            storageBucket: "puzzlesapp.firebasestorage.app",
+            messagingSenderId: "303461259730",
+            appId: "1:303461259730:web:a1790a976b6d58d71dd00b",
+            measurementId: "G-8YEJEBX0NE"
+        };
+
+        const appInstance = initializeApp(firebaseConfig);
+        const auth = getAuth(appInstance);
+        const db = getFirestore(appInstance);
+        const APP_ID = "scribbler-v2-final";
+
+        const WORDS = [
+            "Pizza", "Guitar", "Elephant", "Mountain", "Computer", "Batman", "Spaceship", "Dinosaur", "Hamburger", "Eiffel Tower", "Cactus", "Submarine", "Fireworks", "Tornado", "Skeleton", 
+            "Volcano", "Octopus", "Lighthouse", "Parachute", "Pineapple", "Rollercoaster", "Statue of Liberty", "Snowman", "Telescope", "Kangaroo", "Dragon", "Crocodile", "Spacesuit", "Microscope",
+            "Sushi", "Violin", "Windmill", "Campfire", "Diamond", "Penguin", "Robot", "Treasure Map", "Hot Air Balloon", "Pyramid", "Medusa", "Alien", "Knight", "Mermaid", "Scorpion", "Castle",
+            "Butterfly", "Zebra", "Astronaut", "Waterfall", "Compass", "Whale", "Anchor", "Bonsai Tree", "Jellyfish", "Moon", "Saturn", "Cobra", "Peacock", "T-Rex", "Hammock", "Rainforest"
+        ];
+        
+        const COLORS = ['#1e293b', '#ef4444', '#22c55e', '#3b82f6', '#eab308', '#a855f7', '#06b6d4', '#ec4899'];
+
+        const state = {
+            user: null, roomId: null, room: null, players: [], myTurn: false,
+            isDrawing: false, tool: 'pencil', color: '#1e293b', size: 8, currentStroke: [], unsubs: []
+        };
+
+        const els = {
+            viewLoading: document.getElementById('view-loading'), 
+            viewLobby: document.getElementById('view-lobby'),
+            viewGame: document.getElementById('view-game'), 
+            roomCodeDisplay: document.getElementById('display-room-id'),
+            playerList: document.getElementById('player-list'), 
+            timer: document.getElementById('timer'),
+            statusText: document.getElementById('game-status-text'), 
+            canvas: document.getElementById('game-canvas'),
+            overlayWaiting: document.getElementById('overlay-waiting'), 
+            startBtn: document.getElementById('btn-start-game'),
+            overlayReveal: document.getElementById('overlay-reveal'), 
+            revealWord: document.getElementById('reveal-word'),
+            revealWinners: document.getElementById('reveal-winners'), 
+            tools: document.getElementById('drawing-tools'),
+            colorPalette: document.getElementById('color-palette'), 
+            messages: document.getElementById('chat-messages'),
+            chatInput: document.getElementById('chat-input'),
+            myScore: document.getElementById('my-score')
+        };
+
+        const ctx = els.canvas.getContext('2d');
+
+        window.app = {
+            createRoom: async (type) => {
+                if (!state.user) return;
+                const code = type === 'public' ? 'GLOBAL' : Math.random().toString(36).substring(2, 7).toUpperCase();
+                const roomRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', code);
+                const snap = await getDoc(roomRef);
+                
+                if (!snap.exists()) {
+                    await setDoc(roomRef, {
+                        type, hostId: state.user.uid, status: 'waiting', strokes: [],
+                        currentWord: '', currentDrawer: '', guessedPlayers: [], roundEndTime: null,
+                        createdAt: serverTimestamp()
+                    });
+                }
+                app.joinRoom(code);
+            },
+            joinRoomInput: () => {
+                const code = document.getElementById('room-code-input').value.trim().toUpperCase();
+                if (code) app.joinRoom(code);
+            },
+            joinRoom: async (code) => {
+                if (!state.user) return;
+                const playerRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', code, 'players', state.user.uid);
+                await setDoc(playerRef, {
+                    name: "Player_" + state.user.uid.substring(0, 4),
+                    score: 0,
+                    joinedAt: serverTimestamp()
+                });
+                state.roomId = code;
+                setupListeners(code);
+                showView('game');
+            },
+            leaveRoom: async () => {
+                if (!state.roomId || !state.user) return;
+                await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', state.roomId, 'players', state.user.uid));
+                state.unsubs.forEach(u => u());
+                state.unsubs = [];
+                state.roomId = null;
+                showView('lobby');
+            },
+            startNewRound: async () => {
+                if (!state.roomId || state.players.length < 2) return;
+                const word = WORDS[Math.floor(Math.random() * WORDS.length)];
+                const nextDrawer = state.players[Math.floor(Math.random() * state.players.length)].id;
+                
+                await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', state.roomId), {
+                    status: 'playing', 
+                    currentWord: word, 
+                    currentDrawer: nextDrawer,
+                    strokes: [], 
+                    guessedPlayers: [], 
+                    roundEndTime: new Date(Date.now() + 61000)
+                });
+            },
+            sendMessage: async (e) => {
+                e.preventDefault();
+                const text = els.chatInput.value.trim();
+                if (!text || !state.room || !state.user) return;
+                els.chatInput.value = '';
+
+                const isCorrect = state.room.status === 'playing' && !state.myTurn && 
+                                 text.toLowerCase() === state.room.currentWord.toLowerCase() &&
+                                 !state.room.guessedPlayers.includes(state.user.uid);
+
+                await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', state.roomId, 'messages'), {
+                    sender: state.user.uid, 
+                    senderName: state.players.find(p => p.id === state.user.uid)?.name || "Guest",
+                    text: isCorrect ? "🎯 FOUND THE WORD!" : text,
+                    isCorrect, 
+                    timestamp: serverTimestamp()
+                });
+
+                if (isCorrect) {
+                    await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', state.roomId), {
+                        guessedPlayers: arrayUnion(state.user.uid)
+                    });
+                    await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', state.roomId, 'players', state.user.uid), {
+                        score: increment(100)
+                    });
+                }
+            },
+            setTool: (t) => { state.tool = t; updateToolUI(); },
+            setColor: (c) => { state.color = c; state.tool = 'pencil'; updateToolUI(); },
+            setBrushSize: (s) => { state.size = parseInt(s); },
+            clearCanvas: async () => { 
+                if(state.myTurn) {
+                    await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', state.roomId), { strokes: [] }); 
+                    ctx.clearRect(0,0,els.canvas.width, els.canvas.height);
+                }
+            }
+        };
+
+        function showView(v) {
+            ['loading', 'lobby', 'game'].forEach(id => els['view'+id.charAt(0).toUpperCase()+id.slice(1)].classList.add('hidden'));
+            els['view'+v.charAt(0).toUpperCase()+v.slice(1)].classList.remove('hidden');
+            if(v === 'game') setTimeout(resizeCanvas, 300);
+            lucide.createIcons();
+        }
+
+        function resizeCanvas() {
+            const p = els.canvas.parentElement;
+            els.canvas.width = p.clientWidth;
+            els.canvas.height = p.clientHeight;
+            ctx.lineCap = 'round'; 
+            ctx.lineJoin = 'round';
+            redraw();
+        }
+
+        function setupListeners(roomId) {
+            state.unsubs.push(onSnapshot(doc(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', roomId), (snap) => {
+                if(!snap.exists()) return;
+                const d = snap.data();
+                state.room = d;
+                state.myTurn = d.currentDrawer === state.user.uid;
+                updateUI(d);
+                if (!state.myTurn) { redraw(); }
+            }));
+
+            state.unsubs.push(onSnapshot(collection(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', roomId, 'players'), (snap) => {
+                state.players = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.score - a.score);
+                renderPlayers();
+                const me = state.players.find(p => p.id === state.user.uid);
+                if (me) els.myScore.innerText = me.score;
+            }));
+
+            state.unsubs.push(onSnapshot(collection(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', roomId, 'messages'), (snap) => {
+                const msgs = snap.docs.map(d => d.data()).sort((a,b) => a.timestamp - b.timestamp);
+                els.messages.innerHTML = msgs.slice(-40).map(m => `
+                    <div class="flex flex-col group ${m.isCorrect ? 'bg-indigo-500/10 border-l-4 border-indigo-500 p-2 rounded-r-lg' : 'hover:bg-slate-800/40 p-1 rounded transition-colors'}">
+                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">${m.senderName}</span>
+                        <span class="${m.isCorrect ? 'text-indigo-400 font-black italic' : 'text-slate-300'}">${m.text}</span>
+                    </div>
+                `).join('');
+                els.messages.scrollTop = els.messages.scrollHeight;
+            }));
+        }
+
+        function updateUI(d) {
+            els.roomCodeDisplay.innerText = state.roomId;
+            const isPlaying = d.status === 'playing';
+            const isReveal = d.status === 'reveal';
+            
+            if (isPlaying) {
+                if (state.myTurn) {
+                    els.statusText.innerHTML = `<span class="text-indigo-500 mr-2">DRAWING:</span> <span class="text-white">${d.currentWord}</span>`;
+                } else {
+                    const masked = d.currentWord.replace(/[a-zA-Z]/g, '_ ');
+                    els.statusText.innerHTML = `<span class="text-indigo-500 tracking-[0.5em] font-mono">${masked}</span>`;
+                }
+            } else {
+                els.statusText.innerText = "Scribbler";
+            }
+
+            els.overlayWaiting.classList.toggle('hidden', d.status !== 'waiting');
+            els.startBtn.classList.toggle('hidden', state.players.length < 2);
+            els.overlayReveal.classList.toggle('hidden', !isReveal);
+            els.tools.classList.toggle('hidden', !state.myTurn || !isPlaying);
+            
+            if (isReveal) {
+                els.revealWord.innerText = d.currentWord;
+                els.revealWinners.innerHTML = d.guessedPlayers.map(id => {
+                    const p = state.players.find(pl => pl.id === id);
+                    return `<div class="bg-white/10 px-4 py-2 rounded-xl text-sm font-bold border border-white/20">${p?.name || 'Player'}</div>`;
+                }).join('');
+            }
+
+            if (state.room.roundEndTime && isPlaying) {
+                const diff = Math.max(0, Math.floor((state.room.roundEndTime.toMillis() - Date.now()) / 1000));
+                els.timer.innerText = diff.toString().padStart(2, '0');
+                if (diff === 0 && d.hostId === state.user.uid) {
+                    updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', state.roomId), { 
+                        status: 'reveal', roundEndTime: new Date(Date.now() + 5000) 
+                    });
+                }
+            }
+            if (isReveal && d.hostId === state.user.uid) {
+                const diff = Math.max(0, Math.floor((state.room.roundEndTime.toMillis() - Date.now()) / 1000));
+                if (diff === 0) app.startNewRound();
+            }
+        }
+
+        function renderPlayers() {
+            els.playerList.innerHTML = state.players.map((p, idx) => `
+                <div class="player-card p-4 rounded-2xl glass flex items-center justify-between border-l-4 ${p.id === state.room?.currentDrawer ? 'border-indigo-500 bg-indigo-500/10 shadow-lg' : 'border-transparent'} ${state.room?.guessedPlayers.includes(p.id) ? 'bg-indigo-900/10' : ''}">
+                    <div class="flex items-center gap-3 overflow-hidden">
+                        <div class="w-8 h-8 rounded-lg bg-slate-950 flex items-center justify-center font-black text-xs text-indigo-500">
+                            ${idx + 1}
+                        </div>
+                        <div class="truncate">
+                            <div class="font-black text-sm uppercase tracking-tight ${state.room?.guessedPlayers.includes(p.id) ? 'text-indigo-400' : ''}">${p.name}</div>
+                            <div class="text-[10px] text-slate-500 font-bold">${p.score} PTS</div>
+                        </div>
+                    </div>
+                    <div>
+                        ${p.id === state.room?.currentDrawer ? '<i data-lucide="pen-tool" class="w-4 h-4 text-indigo-400"></i>' : ''}
+                        ${state.room?.guessedPlayers.includes(p.id) ? '<i data-lucide="check" class="w-4 h-4 text-indigo-500"></i>' : ''}
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function redraw() {
+            ctx.clearRect(0,0,els.canvas.width, els.canvas.height);
+            if(!state.room?.strokes) return;
+            state.room.strokes.forEach(s => {
+                if (s.points.length < 1) return;
+                ctx.beginPath();
+                ctx.strokeStyle = s.color;
+                ctx.lineWidth = s.size;
+                ctx.moveTo(s.points[0].x * els.canvas.width, s.points[0].y * els.canvas.height);
+                s.points.forEach(p => ctx.lineTo(p.x * els.canvas.width, p.y * els.canvas.height));
+                ctx.stroke();
+            });
+        }
+
+        function getPos(e) {
+            const rect = els.canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x: (clientX - rect.left) / rect.width, y: (clientY - rect.top) / rect.height };
+        }
+
+        function startDraw(e) {
+            if(!state.myTurn || state.room.status !== 'playing') return;
+            state.isDrawing = true;
+            const pos = getPos(e);
+            state.currentStroke = [pos];
+        }
+
+        function moveDraw(e) {
+            if(!state.isDrawing) return;
+            const pos = getPos(e);
+            state.currentStroke.push(pos);
+            
+            ctx.beginPath();
+            ctx.strokeStyle = state.tool === 'eraser' ? '#FFFFFF' : state.color;
+            ctx.lineWidth = state.size;
+            const prev = state.currentStroke[state.currentStroke.length-2];
+            ctx.moveTo(prev.x * els.canvas.width, prev.y * els.canvas.height);
+            ctx.lineTo(pos.x * els.canvas.width, pos.y * els.canvas.height);
+            ctx.stroke();
+        }
+
+        async function endDraw() {
+            if(!state.isDrawing) return;
+            state.isDrawing = false;
+            if (state.currentStroke.length > 0) {
+                await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', state.roomId), {
+                    strokes: arrayUnion({ color: state.tool === 'eraser' ? '#FFFFFF' : state.color, size: state.size, points: state.currentStroke })
+                });
+            }
+        }
+
+        function updateToolUI() {
+            els.colorPalette.innerHTML = COLORS.map(c => `
+                <button onclick="app.setColor('${c}')" class="w-8 h-8 rounded-full border-4 transition-transform ${state.color === c ? 'border-white scale-125' : 'border-transparent'}" style="background:${c}"></button>
+            `).join('');
+            document.getElementById('tool-pencil').classList.toggle('bg-indigo-600', state.tool === 'pencil');
+            document.getElementById('tool-eraser').classList.toggle('bg-indigo-600', state.tool === 'eraser');
+        }
+
+        onAuthStateChanged(auth, u => {
+            state.user = u;
+            if(u) showView('lobby');
+            else signInAnonymously(auth);
+        });
+
+        window.onload = () => lucide.createIcons();
+        window.onresize = resizeCanvas;
+
+        els.canvas.addEventListener('mousedown', startDraw);
+        els.canvas.addEventListener('mousemove', moveDraw);
+        window.addEventListener('mouseup', endDraw);
+        els.canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); });
+        els.canvas.addEventListener('touchmove', (e) => { e.preventDefault(); moveDraw(e); });
+        window.addEventListener('touchend', endDraw);
+        
+        updateToolUI();
+    </script>
+</body>
+</html>
