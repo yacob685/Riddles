@@ -134,7 +134,10 @@
                     <div class="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500"></div>
                     <div class="flex items-center gap-4">
                         <div class="text-indigo-500"><i data-lucide="timer" class="w-6 h-6 animate-pulse"></i></div>
-                        <div id="timer" class="text-4xl font-black font-mono text-white tabular-nums">00</div>
+                        <div class="flex flex-col">
+                            <div id="timer" class="text-4xl font-black font-mono text-white tabular-nums leading-none">00</div>
+                            <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Round <span id="round-count">0</span>/10</div>
+                        </div>
                     </div>
                     
                     <div id="game-status-text" class="font-black text-2xl tracking-[0.2em] uppercase text-center flex-1 mx-4 drop-shadow-md">Waiting...</div>
@@ -173,6 +176,27 @@
                             Next Round <i data-lucide="arrow-right" class="w-5 h-5"></i>
                         </button>
                     </div>
+
+                    <!-- Game Over Overlay -->
+                    <div id="overlay-gameover" class="hidden absolute inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center text-center p-6">
+                        <div class="animate-float mb-6">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-indigo-500 blur-3xl opacity-20 rounded-full"></div>
+                                <i data-lucide="trophy" class="w-24 h-24 text-yellow-400 relative z-10 drop-shadow-2xl"></i>
+                            </div>
+                        </div>
+                        <h1 class="text-6xl font-black text-white mb-2 uppercase italic tracking-tighter">Game Over</h1>
+                        <p class="text-slate-400 mb-8 uppercase tracking-widest text-sm font-bold">Final Standings</p>
+                        
+                        <div id="final-leaderboard" class="w-full max-w-md bg-slate-900/50 rounded-3xl p-2 space-y-2 border border-slate-800 shadow-2xl max-h-[40vh] overflow-y-auto custom-scrollbar mb-8">
+                            <!-- Leaderboard Items Injected Here -->
+                        </div>
+
+                        <button onclick="app.leaveRoom()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg active:translate-y-1 transition-all flex items-center gap-2">
+                            <i data-lucide="home" class="w-5 h-5"></i> Back to Lobby
+                        </button>
+                    </div>
+
                 </div>
 
                 <!-- Floating Tools -->
@@ -239,6 +263,7 @@
         ];
         
         const COLORS = ['#1e293b', '#ef4444', '#22c55e', '#3b82f6', '#eab308', '#a855f7', '#06b6d4', '#ec4899'];
+        const MAX_ROUNDS = 10;
 
         const state = {
             user: null, roomId: null, room: null, players: [], myTurn: false,
@@ -252,12 +277,15 @@
             roomCodeDisplay: document.getElementById('display-room-id'),
             playerList: document.getElementById('player-list'), 
             timer: document.getElementById('timer'),
+            roundCount: document.getElementById('round-count'),
             statusText: document.getElementById('game-status-text'), 
             canvas: document.getElementById('game-canvas'),
             overlayWaiting: document.getElementById('overlay-waiting'), 
             startBtn: document.getElementById('btn-start-game'),
             nextBtn: document.getElementById('btn-next-round'),
-            overlayReveal: document.getElementById('overlay-reveal'), 
+            overlayReveal: document.getElementById('overlay-reveal'),
+            overlayGameOver: document.getElementById('overlay-gameover'),
+            finalLeaderboard: document.getElementById('final-leaderboard'),
             revealWord: document.getElementById('reveal-word'),
             revealWinners: document.getElementById('reveal-winners'), 
             tools: document.getElementById('drawing-tools'),
@@ -279,7 +307,9 @@
                 if (!snap.exists()) {
                     await setDoc(roomRef, {
                         type, hostId: state.user.uid, status: 'waiting', strokes: [],
-                        currentWord: '', currentDrawer: '', guessedPlayers: [], roundEndTime: null,
+                        currentWord: '', currentDrawer: '', guessedPlayers: [], 
+                        round: 0,
+                        roundEndTime: null,
                         createdAt: serverTimestamp()
                     });
                 }
@@ -310,17 +340,41 @@
                 showView('lobby');
             },
             startNewRound: async () => {
-                // Changed condition: allow starting with 1 player for testing
                 if (!state.roomId || state.players.length < 1) return;
+
+                // Check for Game Over condition
+                const currentRound = state.room.round || 0;
+                if (currentRound >= MAX_ROUNDS) {
+                    await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', state.roomId), {
+                        status: 'gameover'
+                    });
+                    return;
+                }
+
                 const word = WORDS[Math.floor(Math.random() * WORDS.length)];
-                const nextDrawer = state.players[Math.floor(Math.random() * state.players.length)].id;
+                
+                // Sequential Turn Logic
+                // We sort by ID to ensure a stable, deterministic order regardless of score or join time latency
+                const sortedPlayers = [...state.players].sort((a, b) => a.id.localeCompare(b.id));
+                
+                let nextDrawerId;
+                if (!state.room.currentDrawer) {
+                    // First round starts with first player in sorted list
+                    nextDrawerId = sortedPlayers[0].id;
+                } else {
+                    const currentIndex = sortedPlayers.findIndex(p => p.id === state.room.currentDrawer);
+                    // Wrap around to 0 if we reached the end
+                    const nextIndex = (currentIndex + 1) % sortedPlayers.length;
+                    nextDrawerId = sortedPlayers[nextIndex].id;
+                }
                 
                 await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', state.roomId), {
                     status: 'playing', 
                     currentWord: word, 
-                    currentDrawer: nextDrawer,
+                    currentDrawer: nextDrawerId,
                     strokes: [], 
                     guessedPlayers: [], 
+                    round: increment(1),
                     roundEndTime: new Date(Date.now() + 61000)
                 });
             },
@@ -411,8 +465,12 @@
             els.roomCodeDisplay.innerText = state.roomId;
             const isPlaying = d.status === 'playing';
             const isReveal = d.status === 'reveal';
+            const isGameOver = d.status === 'gameover';
             const isHost = d.hostId === state.user.uid;
             
+            // Update Round Count
+            els.roundCount.innerText = d.round || 0;
+
             if (isPlaying) {
                 if (state.myTurn) {
                     els.statusText.innerHTML = `<span class="text-indigo-500 mr-2">DRAWING:</span> <span class="text-white">${d.currentWord}</span>`;
@@ -420,16 +478,35 @@
                     const masked = d.currentWord.replace(/[a-zA-Z]/g, '_ ');
                     els.statusText.innerHTML = `<span class="text-indigo-500 tracking-[0.5em] font-mono">${masked}</span>`;
                 }
+            } else if (isGameOver) {
+                els.statusText.innerText = "GAME OVER";
             } else {
                 els.statusText.innerText = "Scribbler";
             }
 
             els.overlayWaiting.classList.toggle('hidden', d.status !== 'waiting');
-            // Allow starting if 1+ players (modified from 2)
             els.startBtn.classList.toggle('hidden', state.players.length < 1 || !isHost);
             
             els.overlayReveal.classList.toggle('hidden', !isReveal);
-            els.nextBtn.classList.toggle('hidden', !isHost); // Only host sees next button
+            els.nextBtn.classList.toggle('hidden', !isHost);
+            
+            // Game Over Screen Logic
+            els.overlayGameOver.classList.toggle('hidden', !isGameOver);
+            if (isGameOver) {
+                // Generate final leaderboard
+                els.finalLeaderboard.innerHTML = state.players.map((p, idx) => `
+                    <div class="flex items-center justify-between bg-slate-800 p-4 rounded-2xl border border-slate-700">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 ${idx === 0 ? 'bg-yellow-500 text-slate-900' : 'bg-slate-700 text-slate-400'} rounded-xl flex items-center justify-center font-black text-lg">
+                                ${idx === 0 ? '<i data-lucide="crown" class="w-6 h-6"></i>' : idx + 1}
+                            </div>
+                            <div class="text-white font-bold uppercase tracking-wide">${p.name}</div>
+                        </div>
+                        <div class="text-indigo-400 font-black text-xl">${p.score}</div>
+                    </div>
+                `).join('');
+                lucide.createIcons();
+            }
 
             els.tools.classList.toggle('hidden', !state.myTurn || !isPlaying);
             
