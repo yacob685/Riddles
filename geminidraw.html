@@ -152,9 +152,11 @@
                         <div class="w-20 h-20 bg-indigo-500/20 rounded-3xl flex items-center justify-center mb-6 animate-bounce-slow">
                             <i data-lucide="users" class="w-10 h-10 text-indigo-400"></i>
                         </div>
-                        <h2 class="text-3xl font-black mb-2 uppercase italic">Need Rivals</h2>
-                        <p class="text-slate-500 max-w-xs mb-8">Grab some friends! We need at least 2 players to start the match.</p>
-                        <button id="btn-start-game" onclick="app.startNewRound()" class="hidden bg-indigo-600 hover:bg-indigo-500 px-12 py-4 rounded-2xl font-black text-lg shadow-xl shadow-indigo-500/20 active:translate-y-1 transition-all">START ROUND</button>
+                        <h2 class="text-3xl font-black mb-2 uppercase italic">Ready to Draw?</h2>
+                        <p class="text-slate-500 max-w-xs mb-8">Waiting for the host to start the match.</p>
+                        <button id="btn-start-game" onclick="app.startNewRound()" class="hidden bg-indigo-600 hover:bg-indigo-500 px-12 py-4 rounded-2xl font-black text-lg shadow-xl shadow-indigo-500/20 active:translate-y-1 transition-all uppercase tracking-widest">
+                            START ROUND
+                        </button>
                     </div>
 
                     <div id="overlay-reveal" class="hidden absolute inset-0 bg-indigo-600/95 flex flex-col items-center justify-center text-white p-6 z-30 backdrop-blur-sm">
@@ -164,7 +166,12 @@
                         <div class="text-sm uppercase tracking-[0.5em] font-bold opacity-70 mb-4">The Secret Word Was</div>
                         <div id="reveal-word" class="text-7xl md:text-9xl font-black mb-10 drop-shadow-2xl italic">---</div>
                         <div class="text-xs uppercase tracking-[0.3em] font-black opacity-50 mb-6 border-b border-white/20 pb-2">Fastest Fingers</div>
-                        <div id="reveal-winners" class="flex flex-wrap justify-center gap-3"></div>
+                        <div id="reveal-winners" class="flex flex-wrap justify-center gap-3 mb-8"></div>
+                        
+                        <!-- Next Round Button -->
+                        <button id="btn-next-round" onclick="app.startNewRound()" class="hidden bg-white text-indigo-600 hover:bg-indigo-50 px-8 py-3 rounded-xl font-black uppercase tracking-widest shadow-lg transition-all active:scale-95 flex items-center gap-2">
+                            Next Round <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -249,6 +256,7 @@
             canvas: document.getElementById('game-canvas'),
             overlayWaiting: document.getElementById('overlay-waiting'), 
             startBtn: document.getElementById('btn-start-game'),
+            nextBtn: document.getElementById('btn-next-round'),
             overlayReveal: document.getElementById('overlay-reveal'), 
             revealWord: document.getElementById('reveal-word'),
             revealWinners: document.getElementById('reveal-winners'), 
@@ -302,7 +310,8 @@
                 showView('lobby');
             },
             startNewRound: async () => {
-                if (!state.roomId || state.players.length < 2) return;
+                // Changed condition: allow starting with 1 player for testing
+                if (!state.roomId || state.players.length < 1) return;
                 const word = WORDS[Math.floor(Math.random() * WORDS.length)];
                 const nextDrawer = state.players[Math.floor(Math.random() * state.players.length)].id;
                 
@@ -402,6 +411,7 @@
             els.roomCodeDisplay.innerText = state.roomId;
             const isPlaying = d.status === 'playing';
             const isReveal = d.status === 'reveal';
+            const isHost = d.hostId === state.user.uid;
             
             if (isPlaying) {
                 if (state.myTurn) {
@@ -415,8 +425,12 @@
             }
 
             els.overlayWaiting.classList.toggle('hidden', d.status !== 'waiting');
-            els.startBtn.classList.toggle('hidden', state.players.length < 2);
+            // Allow starting if 1+ players (modified from 2)
+            els.startBtn.classList.toggle('hidden', state.players.length < 1 || !isHost);
+            
             els.overlayReveal.classList.toggle('hidden', !isReveal);
+            els.nextBtn.classList.toggle('hidden', !isHost); // Only host sees next button
+
             els.tools.classList.toggle('hidden', !state.myTurn || !isPlaying);
             
             if (isReveal) {
