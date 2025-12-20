@@ -520,22 +520,22 @@ const firebaseConfig = {
         function startTimerLoop() {
             if (state.timerInterval) clearInterval(state.timerInterval);
             state.timerInterval = setInterval(() => {
-                if (state.room && state.room.status === 'playing' && state.room.roundEndTime) {
+                if(!state.room) return;
+
+                if (state.room.status === 'playing' && state.room.roundEndTime) {
                     const diff = Math.max(0, Math.floor((state.room.roundEndTime.toMillis() - Date.now()) / 1000));
                     els.timer.innerText = diff.toString().padStart(2, '0');
                     
-                    if (diff === 0 && state.room.hostId === state.user.uid) {
+                    if (diff <= 0 && state.room.hostId === state.user.uid) {
                         // End round automatically
-                        clearInterval(state.timerInterval);
                         updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', state.roomId), { 
                             status: 'reveal', roundEndTime: new Date(Date.now() + 5000) 
                         });
                     }
-                } else if (state.room && state.room.status === 'reveal' && state.room.roundEndTime) {
+                } else if (state.room.status === 'reveal' && state.room.roundEndTime) {
                      // Auto restart after reveal
                      const diff = Math.max(0, Math.floor((state.room.roundEndTime.toMillis() - Date.now()) / 1000));
-                     if (diff === 0 && state.room.hostId === state.user.uid) {
-                         clearInterval(state.timerInterval);
+                     if (diff <= 0 && state.room.hostId === state.user.uid) {
                          app.startNewRound();
                      }
                 }
@@ -555,6 +555,20 @@ const firebaseConfig = {
                 state.myTurn = d.currentDrawer === state.user.uid;
                 updateUI(d);
                 if (!state.myTurn) { redraw(); }
+                
+                // HOST LOGIC: Check for All Guessed
+                if (state.room.status === 'playing' && state.room.hostId === state.user.uid) {
+                    const drawerId = state.room.currentDrawer;
+                    // Filter players to ensure we only count actual people in the room who are NOT drawing
+                    const guessers = state.players.filter(p => p.id !== drawerId);
+                    
+                    if (guessers.length > 0 && state.room.guessedPlayers.length >= guessers.length) {
+                         // Everyone guessed! End round immediately.
+                         updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'rooms', roomId), { 
+                            status: 'reveal', roundEndTime: new Date(Date.now() + 5000) 
+                        });
+                    }
+                }
                 
                 // Manage Timer Loop based on status
                 if (d.status === 'playing' || d.status === 'reveal') {
