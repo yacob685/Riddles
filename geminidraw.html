@@ -154,7 +154,7 @@
                         <div class="text-indigo-500"><i data-lucide="timer" class="w-6 h-6 animate-pulse"></i></div>
                         <div class="flex flex-col">
                             <div id="timer" class="text-4xl font-black font-mono text-white tabular-nums leading-none">00</div>
-                            <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Round <span id="round-count">0</span>/10</div>
+                            <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Round <span id="round-count">0</span>/20</div>
                         </div>
                     </div>
                     
@@ -282,18 +282,51 @@ const firebaseConfig = {
         const db = getFirestore(appInstance);
         const APP_ID = "scribbler-v3-final"; // Updated ID for fresh starts
 
-        const WORDS = [
-            "Sun", "Moon", "Star", "Cloud", "Rain", "Tree", "Leaf", "Flower", "Grass", "Apple",
-            "Banana", "Grape", "Egg", "Milk", "Cup", "Mug", "Plate", "Fork", "Knife", "Spoon",
-            "Table", "Chair", "Bed", "Door", "Window", "House", "Key", "Lock", "Phone", "Book",
-            "Pen", "Pencil", "Paper", "Scissors", "Bag", "Hat", "Shirt", "Pants", "Shoe", "Sock",
-            "Ring", "Watch", "Ball", "Bat", "Box", "Gift", "Bow", "Flag", "Kite", "Boat",
-            "Car", "Bus", "Bike", "Plane", "Road", "Hill", "Lake", "Fish", "Bird", "Cat",
-            "Dog", "Mouse", "Pig", "Cow", "Duck", "Bee", "Ant", "Worm", "Snake", "Heart",
-            "Smile", "Eye", "Nose", "Ear", "Hand", "Foot", "Bone", "Hair", "Lamp", "Bulb",
-            "TV", "Clock", "Coin", "Candle", "Fire", "Ice", "Soap", "Comb", "Brush", "Bowl",
-            "Tent", "Boot", "Bell", "Drum", "Pipe", "Hammer", "Nail", "Saw", "Ladder", "Bridge"
-        ];
+      const WORDS = [
+    // Original 100
+ 
+
+    // 200 New Words
+    "Ocean", "Desert", "Jungle", "Forest", "Mountain", "Valley", "River", "Stream", "Island", "Volcano",
+    "Canyon", "Pebble", "Shell", "Storm", "Snow", "Frost", "Mist", "Thunder", "Breeze", "Shadow",
+    "Lion", "Tiger", "Bear", "Wolf", "Fox", "Rabbit", "Deer", "Horse", "Zebra", "Monkey",
+    "Shark", "Whale", "Turtle", "Frog", "Spider", "Eagle", "Owl", "Parrot", "Dragon", "Beetle",
+    "Bread", "Cheese", "Pizza", "Pasta", "Cookie", "Cake", "Honey", "Juice", "Water", "Lemon",
+    "Peach", "Cherry", "Carrot", "Potato", "Onion", "Stove", "Oven", "Fridge", "Toaster", "Kettle",
+    "Coat", "Jacket", "Dress", "Skirt", "Tie", "Belt", "Glove", "Scarf", "Mask", "Helmet",
+    "Purse", "Wallet", "Mirror", "Button", "Zipper", "Pocket", "Glasses", "Necklace", "Jewel", "Crown",
+    "Sofa", "Carpet", "Shelf", "Desk", "Drawer", "Pillow", "Blanket", "Towel", "Curtain", "Vase",
+    "Attic", "Garage", "Porch", "Stairs", "Roof", "Chimney", "Fence", "Gate", "Frame", "Photo",
+    "Camera", "Laptop", "Screen", "Mousepad", "Battery", "Wire", "Remote", "Radio", "Guitar", "Piano",
+    "Violin", "Flute", "Trumpet", "Rocket", "Train", "Truck", "Wagon", "Anchor", "Compass", "Map",
+    "School", "Church", "Store", "Bank", "Farm", "Park", "Beach", "Hotel", "Castle", "Tower",
+    "Prison", "Office", "Factory", "Museum", "Library", "Cinema", "Clinic", "Market", "Street", "Alley",
+    "Brain", "Throat", "Shoulder", "Elbow", "Wrist", "Finger", "Knee", "Ankle", "Muscle", "Blood",
+    "Tooth", "Tongue", "Cheek", "Chin", "Chest", "Back", "Stomach", "Skin", "Nerve", "Skull",
+    "Music", "Sound", "Light", "Color", "Space", "Planet", "Comet", "Spirit", "Ghost", "Magic",
+    "Dream", "Sleep", "Peace", "War", "Gold", "Silver", "Iron", "Stone", "Wood", "Glass",
+    "Jump", "Dance", "Song", "Game", "Race", "Fight", "Hug", "Kiss", "Wave", "Step",    "Sun", "Moon", "Star", "Cloud", "Rain", "Tree", "Leaf", "Flower", "Grass", "Apple",
+    "Banana", "Grape", "Egg", "Milk", "Cup", "Mug", "Plate", "Fork", "Knife", "Spoon",
+    "Table", "Chair", "Bed", "Door", "Window", "House", "Key", "Lock", "Phone", "Book",
+    "Pen", "Pencil", "Paper", "Scissors", "Bag", "Hat", "Shirt", "Pants", "Shoe", "Sock",
+    "Ring", "Watch", "Ball", "Bat", "Box", "Gift", "Bow", "Flag", "Kite", "Boat",
+    "Car", "Bus", "Bike", "Plane", "Road", "Hill", "Lake", "Fish", "Bird", "Cat",
+    "Dog", "Mouse", "Pig", "Cow", "Duck", "Bee", "Ant", "Worm", "Snake", "Heart",
+    "Smile", "Eye", "Nose", "Ear", "Hand", "Foot", "Bone", "Hair", "Lamp", "Bulb",
+    "TV", "Clock", "Coin", "Candle", "Fire", "Ice", "Soap", "Comb", "Brush", "Bowl",
+    "Tent", "Boot", "Bell", "Drum", "Pipe", "Hammer", "Nail", "Saw", "Ladder", "Bridge",
+    "Path", "Trip", "Work", "Play", "Rest", "Speed", "Power", "Idea", "Thought", "Goal",
+    "Balloon", "Bubble", "Crayon", "Eraser", "Glue", "Magnet", "Needle", "Thread", "String", "Rope",
+    "Basket", "Bucket", "Barrel", "Sack", "Bottle", "Flask", "Crate", "Cabinet", "Bench", "Stool",
+    "Plunger", "Wrench", "Screw", "Drill", "Chisel", "Pliers", "Axe", "Shovel", "Rake", "Broom",
+    "Trophy", "Medal", "Whistle", "Helmet", "Gloves", "Jersey", "Saddle", "Skates", "Skiis", "Board",
+    "Lemonade", "Coffee", "Tea", "Soup", "Salad", "Steak", "Candy", "Sugar", "Salt", "Pepper",
+    "Goat", "Sheep", "Donkey", "Camel", "Hippo", "Rhino", "Panda", "Koala", "Otter", "Seal",
+    "Acorn", "Berry", "Bush", "Cactus", "Fern", "Moss", "Palm", "Pine", "Root", "Twig",
+    "Anchor", "Barrel", "Cannon", "Deck", "Mast", "Sail", "Wheel", "Cabin", "Dock", "Pier",
+    "Robot", "Alien", "Laser", "Portal", "Shield", "Sword", "Armor", "Cape", "Wand", "Potion",
+    "Autumn", "Winter", "Spring", "Summer", "Morning", "Afternoon", "Evening", "Night", "Today", "Year"
+];
         
         // Expanded Color Palette
         const COLORS = [
@@ -304,7 +337,7 @@ const firebaseConfig = {
             '#ec4899', '#f43f5e', '#78350f', '#d4d4d8'  // Pink, Rose, Brown, Light Gray
         ];
         
-        const MAX_ROUNDS = 10;
+        const MAX_ROUNDS = 20;
 
         const state = {
             user: null, roomId: null, room: null, players: [], myTurn: false,
@@ -815,3 +848,4 @@ const firebaseConfig = {
     </script>
 </body>
 </html>
+
