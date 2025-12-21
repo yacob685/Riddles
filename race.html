@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Race Master 3D: Multiplayer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #1a1a1a; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; -webkit-user-select: none; }
+        #game-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
+        .pointer-events-auto { pointer-events: auto; }
+        
+        /* Custom UI Styles */
+        .glass-panel {
+            background: rgba(20, 20, 30, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #ff0055, #ff0000);
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: transform 0.1s, filter 0.1s;
+        }
+        .btn-primary:active { transform: scale(0.95); filter: brightness(0.9); }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #444, #222);
+            color: white;
+            border: 1px solid #555;
+        }
+        .btn-secondary:active { transform: scale(0.95); }
+
+        #joystick-zone {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            z-index: 5;
+        }
+        
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: #ff0055;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <!-- 3D Canvas Container -->
+    <div id="game-container"></div>
+
+    <!-- UI Layer -->
+    <div id="ui-layer" class="flex flex-col justify-center items-center">
+        
+        <!-- INITIAL AUTH/LOADING SCREEN -->
+        <div id="loading-screen" class="absolute inset-0 bg-black flex flex-col items-center justify-center pointer-events-auto z-50">
+            <h1 class="text-4xl font-black text-white italic mb-4 tracking-tighter transform -skew-x-12">RACE MASTER <span class="text-red-600">3D</span></h1>
+            <div class="loading-spinner mb-4"></div>
+            <p class="text-gray-400 text-sm animate-pulse">Connecting to server...</p>
+        </div>
+
+        <!-- LOBBY SCREEN -->
+        <div id="lobby-screen" class="hidden absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm pointer-events-auto z-40">
+            <div class="glass-panel p-8 rounded-2xl w-full max-w-md mx-4 text-center">
+                <h1 class="text-3xl font-black text-white italic mb-6 tracking-tighter transform -skew-x-6">MULTIPLAYER <span class="text-red-500">LOBBY</span></h1>
+                
+                <div class="mb-6 text-left">
+                    <label class="text-xs text-gray-400 uppercase font-bold ml-1">Racer Name</label>
+                    <input type="text" id="player-name-input" class="w-full bg-gray-800 text-white border border-gray-700 rounded-lg p-3 mt-1 focus:outline-none focus:border-red-500 transition-colors" placeholder="SpeedDemon" maxlength="10">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <button id="btn-create-mode" class="p-4 rounded-xl bg-gray-800 border-2 border-red-600 text-white hover:bg-gray-700 transition-all">
+                        <div class="text-2xl mb-1">👑</div>
+                        <div class="font-bold text-sm">Create Room</div>
+                    </button>
+                    <button id="btn-join-mode" class="p-4 rounded-xl bg-gray-800 border border-gray-700 text-gray-400 hover:bg-gray-700 transition-all">
+                        <div class="text-2xl mb-1">🚀</div>
+                        <div class="font-bold text-sm">Join Room</div>
+                    </button>
+                </div>
+
+                <!-- Create Mode UI -->
+                <div id="create-ui" class="space-y-4">
+                    <button id="btn-create-room" class="btn-primary w-full py-4 rounded-xl shadow-lg shadow-red-900/20">
+                        Start Private Room
+                    </button>
+                </div>
+
+                <!-- Join Mode UI -->
+                <div id="join-ui" class="hidden space-y-4">
+                    <div class="text-left">
+                        <label class="text-xs text-gray-400 uppercase font-bold ml-1">Room Code</label>
+                        <input type="text" id="room-code-input" class="w-full bg-gray-800 text-white border border-gray-700 rounded-lg p-3 mt-1 text-center font-mono text-xl tracking-widest uppercase focus:outline-none focus:border-red-500 transition-colors" placeholder="XXXX" maxlength="4">
+                    </div>
+                    <button id="btn-join-room" class="btn-primary w-full py-4 rounded-xl shadow-lg shadow-red-900/20">
+                        Join Race
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- WAITING ROOM / LOBBY STATUS -->
+        <div id="waiting-screen" class="hidden absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-md pointer-events-auto z-40">
+            <div class="glass-panel p-6 rounded-2xl w-full max-w-sm mx-4 text-center">
+                <div class="text-gray-400 text-xs font-bold uppercase mb-2">Room Code</div>
+                <div id="display-room-code" class="text-5xl font-mono font-bold text-white mb-6 tracking-widest bg-gray-900/50 p-4 rounded-xl border border-dashed border-gray-600 select-all">????</div>
+                
+                <div class="text-left mb-6">
+                    <div class="flex justify-between items-end mb-2">
+                        <span class="text-xs text-gray-400 font-bold uppercase">Racers Ready</span>
+                        <span id="player-count" class="text-red-500 font-bold">1/4</span>
+                    </div>
+                    <div id="player-list" class="space-y-2">
+                        <!-- Players injected here -->
+                    </div>
+                </div>
+
+                <div id="host-controls" class="hidden">
+                    <button id="btn-start-race" class="btn-primary w-full py-4 rounded-xl shadow-lg shadow-red-900/20 text-lg animate-pulse">
+                        START ENGINE
+                    </button>
+                </div>
+                <div id="guest-controls">
+                    <p class="text-yellow-500 text-sm font-semibold animate-pulse">Waiting for host to start...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- GAME HUD -->
+        <div id="game-hud" class="hidden w-full h-full relative">
+            <!-- Top Bar -->
+            <div class="absolute top-0 left-0 w-full p-4 flex justify-between items-start">
+                <div class="glass-panel px-4 py-2 rounded-full flex items-center gap-2">
+                    <div class="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+                    <span id="position-display" class="text-white font-bold font-mono">POS: 1/1</span>
+                </div>
+                <div class="glass-panel px-4 py-2 rounded-full">
+                    <span id="room-id-hud" class="text-gray-400 text-xs font-mono">ROOM: ----</span>
+                </div>
+            </div>
+
+            <!-- Controls Hint -->
+            <div id="controls-hint" class="absolute bottom-20 left-0 w-full text-center pointer-events-none opacity-50">
+                <p class="text-white text-sm font-bold shadow-black drop-shadow-md">HOLD TO ACCELERATE<br>SLIDE TO STEER</p>
+            </div>
+            
+            <!-- Result Screen (Overlay) -->
+             <div id="result-screen" class="hidden absolute inset-0 flex items-center justify-center bg-black/80 z-50 pointer-events-auto">
+                <div class="glass-panel p-8 rounded-2xl text-center transform scale-110">
+                    <div id="result-title" class="text-4xl font-black text-white italic mb-2">FINISHED!</div>
+                    <div id="result-message" class="text-xl text-gray-300 mb-6">You placed #1</div>
+                    <button onclick="location.reload()" class="btn-primary px-8 py-3 rounded-full">Main Menu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Imports -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot, updateDoc, arrayUnion, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+        // --- Configuration ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'race-master-default';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyB-3kAk-lMT3jTny2YIs2R1_0mG-tJlmJI",
+            authDomain: "puzzlesapp.firebaseapp.com",
+            databaseURL: "https://puzzlesapp-default-rtdb.firebaseio.com",
+            projectId: "puzzlesapp",
+            storageBucket: "puzzlesapp.firebasestorage.app",
+            messagingSenderId: "303461259730",
+            appId: "1:303461259730:web:a1790a976b6d58d71dd00b",
+            measurementId: "G-8YEJEBX0NE"
+        };
+        
+        // --- Firebase Init ---
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- Game State & Globals ---
+        let currentUser = null;
+        let currentRoomId = null;
+        let isHost = false;
+        let gameStatus = 'menu'; // menu, waiting, racing, finished
+        let playerColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+        let playerName = 'Racer' + Math.floor(Math.random() * 1000);
+        let playersMap = {}; // Local state of all players
+        let roomUnsubscribe = null;
+        let lastSyncTime = 0;
+        
+        // --- Three.js Globals ---
+        let scene, camera, renderer;
+        let myCar, opponentCars = {};
+        let trackGroup, obstacles = [];
+        let gameLoopId;
+        
+        // --- Physics/Gameplay Vars ---
+        const TRACK_LENGTH = 10000; // Finish line Z
+        const TRACK_WIDTH = 40;
+        let speed = 0;
+        const MAX_SPEED = 1.2;
+        const ACCEL = 0.02;
+        const DRAG = 0.96; // Friction
+        const TURN_SPEED = 0.8;
+        let inputState = { holding: false, steer: 0 }; // steer: -1 to 1
+
+        // ==========================================
+        // FIREBASE LOGIC
+        // ==========================================
+
+        async function initAuth() {
+            try {
+                // Try provided token first, else anonymous
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (e) {
+                console.error("Auth failed", e);
+                // Fallback
+                if (!auth.currentUser) await signInAnonymously(auth);
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('loading-screen').classList.add('hidden');
+                document.getElementById('lobby-screen').classList.remove('hidden');
+                document.getElementById('player-name-input').value = playerName;
+            }
+        });
+
+        // Create Room
+        async function createRoom() {
+            if (!currentUser) return;
+            playerName = document.getElementById('player-name-input').value || playerName;
+            
+            // Generate 4 digit code
+            const roomCode = Math.floor(1000 + Math.random() * 9000).toString();
+            currentRoomId = roomCode;
+            isHost = true;
+
+            const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
+            
+            const initialData = {
+                host: currentUser.uid,
+                status: 'waiting',
+                created: serverTimestamp(),
+                seed: Math.random(), // For track generation
+                players: {
+                    [currentUser.uid]: {
+                        name: playerName,
+                        color: playerColor,
+                        x: 0,
+                        z: 0,
+                        speed: 0,
+                        finished: false
+                    }
+                }
+            };
+
+            try {
+                await setDoc(roomRef, initialData);
+                enterWaitingRoom();
+            } catch (e) {
+                console.error("Error creating room:", e);
+                alert("Failed to create room. Try again.");
+            }
+        }
+
+        // Join Room
+        async function joinRoom() {
+            if (!currentUser) return;
+            const codeInput = document.getElementById('room-code-input').value;
+            if (codeInput.length !== 4) {
+                alert("Please enter a valid 4-digit code");
+                return;
+            }
+            
+            playerName = document.getElementById('player-name-input').value || playerName;
+            currentRoomId = codeInput;
+            isHost = false;
+
+            const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', currentRoomId);
+            
+            try {
+                const docSnap = await getDoc(roomRef);
+                if (!docSnap.exists()) {
+                    alert("Room not found!");
+                    return;
+                }
+                
+                // Add self to players
+                // Note: We use dot notation for map updates to avoid overwriting entire map
+                await updateDoc(roomRef, {
+                    [`players.${currentUser.uid}`]: {
+                        name: playerName,
+                        color: playerColor,
+                        x: 0,
+                        z: 0,
+                        speed: 0,
+                        finished: false
+                    }
+                });
+                
+                enterWaitingRoom();
+            } catch (e) {
+                console.error("Error joining room:", e);
+                alert("Could not join room.");
+            }
+        }
+
+        function enterWaitingRoom() {
+            document.getElementById('lobby-screen').classList.add('hidden');
+            document.getElementById('waiting-screen').classList.remove('hidden');
+            document.getElementById('display-room-code').innerText = currentRoomId;
+
+            if (isHost) {
+                document.getElementById('host-controls').classList.remove('hidden');
+                document.getElementById('guest-controls').classList.add('hidden');
+            } else {
+                document.getElementById('host-controls').classList.add('hidden');
+                document.getElementById('guest-controls').classList.remove('hidden');
+            }
+
+            // Listen to room updates
+            const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', currentRoomId);
+            roomUnsubscribe = onSnapshot(roomRef, (doc) => {
+                if (!doc.exists()) {
+                    // Room deleted or closed
+                    alert("Room closed by host.");
+                    location.reload();
+                    return;
+                }
+                
+                const data = doc.data();
+                playersMap = data.players || {};
+                
+                // Update Waiting Room UI
+                updateWaitingUI(data);
+
+                // Check Game Start
+                if (gameStatus === 'waiting' && data.status === 'racing') {
+                    startGame(data.seed);
+                }
+            }, (error) => {
+                console.error("Snapshot error:", error);
+            });
+        }
+
+        function updateWaitingUI(data) {
+            const listEl = document.getElementById('player-list');
+            listEl.innerHTML = '';
+            
+            let count = 0;
+            for (const [uid, p] of Object.entries(data.players)) {
+                count++;
+                const isMe = uid === currentUser.uid;
+                const div = document.createElement('div');
+                div.className = "flex items-center justify-between bg-gray-800 p-3 rounded-lg border border-gray-700";
+                div.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 rounded-full shadow" style="background-color: ${p.color}"></div>
+                        <span class="text-white font-bold ${isMe ? 'text-yellow-400' : ''}">${p.name} ${isMe ? '(You)' : ''}</span>
+                    </div>
+                    ${data.host === uid ? '<span class="text-xs bg-red-600 text-white px-2 py-1 rounded">HOST</span>' : ''}
+                `;
+                listEl.appendChild(div);
+            }
+            document.getElementById('player-count').innerText = `${count}`;
+        }
+
+        async function onStartClicked() {
+            if (!isHost) return;
+            const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', currentRoomId);
+            await updateDoc(roomRef, {
+                status: 'racing'
+            });
+        }
+
+        // ==========================================
+        // GAME ENGINE (Three.js)
+        // ==========================================
+
+        function init3D() {
+            const container = document.getElementById('game-container');
+            
+            // Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x1a0b1a); // Dark purple-ish
+            scene.fog = new THREE.FogExp2(0x1a0b1a, 0.002);
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 15, -20);
+            camera.lookAt(0, 0, 20);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(50, 100, 50);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 1024;
+            dirLight.shadow.mapSize.height = 1024;
+            dirLight.shadow.camera.near = 10;
+            dirLight.shadow.camera.far = 200;
+            scene.add(dirLight);
+
+            // Ground/Track Base (Infinite illusion)
+            const gridHelper = new THREE.GridHelper(2000, 200, 0x444444, 0x222222);
+            gridHelper.position.y = -0.1;
+            scene.add(gridHelper);
+
+            // My Car
+            myCar = createCarMesh(playerColor);
+            myCar.position.set(0, 0, 0);
+            scene.add(myCar);
+
+            // Resize Handler
+            window.addEventListener('resize', onWindowResize, false);
+        }
+
+        function createCarMesh(colorHex) {
+            const carGroup = new THREE.Group();
+            
+            // Body
+            const bodyGeo = new THREE.BoxGeometry(2, 1, 4);
+            const bodyMat = new THREE.MeshPhongMaterial({ color: colorHex, shininess: 100 });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.y = 0.75;
+            body.castShadow = true;
+            body.receiveShadow = true;
+            carGroup.add(body);
+
+            // Cabin
+            const cabinGeo = new THREE.BoxGeometry(1.8, 0.6, 2);
+            const cabinMat = new THREE.MeshPhongMaterial({ color: 0x222222 });
+            const cabin = new THREE.Mesh(cabinGeo, cabinMat);
+            cabin.position.y = 1.4;
+            cabin.position.z = -0.2;
+            carGroup.add(cabin);
+
+            // Wheels
+            const wheelGeo = new THREE.CylinderGeometry(0.5, 0.5, 0.4, 16);
+            const wheelMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
+            
+            const positions = [
+                { x: 1.1, z: 1.2 }, { x: -1.1, z: 1.2 },
+                { x: 1.1, z: -1.2 }, { x: -1.1, z: -1.2 }
+            ];
+
+            positions.forEach(pos => {
+                const wheel = new THREE.Mesh(wheelGeo, wheelMat);
+                wheel.rotation.z = Math.PI / 2;
+                wheel.position.set(pos.x, 0.5, pos.z);
+                carGroup.add(wheel);
+            });
+
+            // Headlights
+            const lightGeo = new THREE.BoxGeometry(0.4, 0.2, 0.1);
+            const lightMat = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+            const l1 = new THREE.Mesh(lightGeo, lightMat);
+            l1.position.set(0.6, 0.8, 2.0);
+            carGroup.add(l1);
+            const l2 = l1.clone();
+            l2.position.set(-0.6, 0.8, 2.0);
+            carGroup.add(l2);
+
+            // Tail lights (glow)
+            const tailGeo = new THREE.BoxGeometry(0.4, 0.2, 0.1);
+            const tailMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+            const t1 = new THREE.Mesh(tailGeo, tailMat);
+            t1.position.set(0.6, 0.8, -2.0);
+            carGroup.add(t1);
+            const t2 = t1.clone();
+            t2.position.set(-0.6, 0.8, -2.0);
+            carGroup.add(t2);
+
+            return carGroup;
+        }
+
+        function createTrack(seed) {
+            // Very simple pseudo-random track generation
+            trackGroup = new THREE.Group();
+            
+            // 1. Main Road Plane
+            const roadGeo = new THREE.PlaneGeometry(TRACK_WIDTH, TRACK_LENGTH);
+            const roadMat = new THREE.MeshPhongMaterial({ color: 0x333333 });
+            const road = new THREE.Mesh(roadGeo, roadMat);
+            road.rotation.x = -Math.PI / 2;
+            road.position.z = TRACK_LENGTH / 2;
+            road.receiveShadow = true;
+            trackGroup.add(road);
+
+            // 2. Side Barriers
+            const barrierGeo = new THREE.BoxGeometry(2, 2, TRACK_LENGTH);
+            const barrierMat = new THREE.MeshPhongMaterial({ color: 0x990000, emissive: 0x330000 });
+            
+            const leftWall = new THREE.Mesh(barrierGeo, barrierMat);
+            leftWall.position.set(-(TRACK_WIDTH/2 + 1), 1, TRACK_LENGTH/2);
+            trackGroup.add(leftWall);
+
+            const rightWall = new THREE.Mesh(barrierGeo, barrierMat);
+            rightWall.position.set((TRACK_WIDTH/2 + 1), 1, TRACK_LENGTH/2);
+            trackGroup.add(rightWall);
+
+            // 3. Obstacles
+            // Use seed to make it deterministic (so all players see same obstacles)
+            const rng = mulberry32(Math.floor(seed * 10000));
+            
+            const obsGeo = new THREE.BoxGeometry(4, 4, 4);
+            const obsMat = new THREE.MeshPhongMaterial({ color: 0x4444ff, shininess: 150 });
+
+            for (let z = 100; z < TRACK_LENGTH - 100; z += 80) {
+                // Randomly place blocks
+                if (rng() > 0.3) {
+                    const obs = new THREE.Mesh(obsGeo, obsMat);
+                    // Map random 0-1 to x position between -15 and 15
+                    const xPos = (rng() * (TRACK_WIDTH - 8)) - ((TRACK_WIDTH - 8) / 2);
+                    obs.position.set(xPos, 2, z);
+                    obs.castShadow = true;
+                    obs.receiveShadow = true;
+                    trackGroup.add(obs);
+                    
+                    // Add collision box to array
+                    obstacles.push({
+                        mesh: obs,
+                        box: new THREE.Box3().setFromObject(obs)
+                    });
+                }
+            }
+
+            // Finish Line
+            const finishGeo = new THREE.BoxGeometry(TRACK_WIDTH, 1, 5);
+            const finishMat = new THREE.MeshBasicMaterial({ color: 0xffffff }); // Checkerboard logic is hard in 1 file without textures, simplifying
+            const finishLine = new THREE.Mesh(finishGeo, finishMat);
+            finishLine.position.set(0, 0.1, TRACK_LENGTH);
+            trackGroup.add(finishLine);
+
+            scene.add(trackGroup);
+        }
+
+        // Random Number Generator for deterministic track
+        function mulberry32(a) {
+            return function() {
+                var t = a += 0x6D2B79F5;
+                t = Math.imul(t ^ t >>> 15, t | 1);
+                t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+                return ((t ^ t >>> 14) >>> 0) / 4294967296;
+            }
+        }
+
+        function startGame(seed) {
+            gameStatus = 'racing';
+            
+            // Hide waiting, show HUD
+            document.getElementById('waiting-screen').classList.add('hidden');
+            document.getElementById('game-hud').classList.remove('hidden');
+            document.getElementById('room-id-hud').innerText = `ROOM: ${currentRoomId}`;
+            
+            init3D();
+            createTrack(seed);
+            
+            // Init opponent cars
+            for (const [uid, p] of Object.entries(playersMap)) {
+                if (uid !== currentUser.uid) {
+                    const opCar = createCarMesh(p.color);
+                    scene.add(opCar);
+                    opponentCars[uid] = opCar;
+                }
+            }
+
+            // Start Loop
+            animate();
+        }
+
+        // ==========================================
+        // INPUT & GAME LOOP
+        // ==========================================
+
+        function handleInput() {
+            // Keyboard
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowUp' || e.key === 'w') inputState.holding = true;
+                if (e.key === 'ArrowLeft' || e.key === 'a') inputState.steer = 1;
+                if (e.key === 'ArrowRight' || e.key === 'd') inputState.steer = -1;
+            });
+            window.addEventListener('keyup', (e) => {
+                if (e.key === 'ArrowUp' || e.key === 'w') inputState.holding = false;
+                if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'ArrowRight' || e.key === 'd') inputState.steer = 0;
+            });
+
+            // Touch
+            const touchZone = document.body; // Full screen
+            let touchStartX = 0;
+
+            touchZone.addEventListener('touchstart', (e) => {
+                inputState.holding = true;
+                touchStartX = e.touches[0].clientX;
+            }, {passive: false});
+
+            touchZone.addEventListener('touchmove', (e) => {
+                e.preventDefault(); // Prevent scroll
+                const currentX = e.touches[0].clientX;
+                const diff = touchStartX - currentX;
+                // Sensitive steering
+                inputState.steer = Math.max(-1, Math.min(1, diff / 50)); 
+            }, {passive: false});
+
+            touchZone.addEventListener('touchend', (e) => {
+                inputState.holding = false;
+                inputState.steer = 0;
+            });
+        }
+        handleInput();
+
+        function checkCollisions() {
+            const carBox = new THREE.Box3().setFromObject(myCar);
+            // Shrink box slightly for forgiveness
+            carBox.expandByScalar(-0.5);
+
+            for (let ob of obstacles) {
+                if (carBox.intersectsBox(ob.box)) {
+                    // Crash logic: bounce back and stop
+                    speed = -speed * 0.5;
+                    myCar.position.z -= 5; 
+                    
+                    // Visual shake
+                    camera.position.x += (Math.random() - 0.5) * 2;
+                }
+            }
+        }
+
+        function updatePhysics() {
+            if (gameStatus !== 'racing') return;
+
+            // Acceleration
+            if (inputState.holding) {
+                speed += ACCEL;
+            } else {
+                speed *= DRAG; // Coasting friction
+            }
+            speed = Math.min(speed, MAX_SPEED);
+
+            // Steering
+            if (Math.abs(speed) > 0.01) {
+                myCar.position.x += inputState.steer * TURN_SPEED;
+                // Lean effect
+                myCar.rotation.z = inputState.steer * 0.1;
+                myCar.rotation.y = inputState.steer * 0.1;
+            } else {
+                myCar.rotation.z = 0;
+                myCar.rotation.y = 0;
+            }
+
+            // Boundaries
+            const limit = (TRACK_WIDTH / 2) - 2;
+            if (myCar.position.x > limit) myCar.position.x = limit;
+            if (myCar.position.x < -limit) myCar.position.x = -limit;
+
+            // Forward Movement
+            myCar.position.z += speed * 2; // Scale speed for world units
+
+            // Camera Follow
+            // Smooth lerp camera
+            const targetCamZ = myCar.position.z - 20;
+            const targetCamX = myCar.position.x * 0.3; // Slight follow on X
+            camera.position.z += (targetCamZ - camera.position.z) * 0.1;
+            camera.position.x += (targetCamX - camera.position.x) * 0.1;
+            camera.lookAt(myCar.position.x, 0, myCar.position.z + 20);
+
+            // Check Obstacles
+            checkCollisions();
+
+            // Check Finish
+            if (myCar.position.z >= TRACK_LENGTH && !myCar.userData.finished) {
+                finishRace();
+            }
+        }
+
+        async function finishRace() {
+            myCar.userData.finished = true;
+            gameStatus = 'finished';
+            
+            document.getElementById('result-screen').classList.remove('hidden');
+            
+            // Calculate rank locally based on snapshot
+            // (Imperfect, but sufficient for casual play)
+            let rank = 1;
+            for (const [uid, p] of Object.entries(playersMap)) {
+                if (uid === currentUser.uid) continue;
+                if (p.z > myCar.position.z) rank++;
+            }
+            
+            document.getElementById('result-message').innerText = `You finished #${rank}`;
+
+            // Update DB
+            const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', currentRoomId);
+            await updateDoc(roomRef, {
+                [`players.${currentUser.uid}.finished`]: true,
+                [`players.${currentUser.uid}.z`]: TRACK_LENGTH
+            });
+        }
+
+        function syncNetwork() {
+            if (gameStatus !== 'racing') return;
+
+            const now = Date.now();
+            // Throttle updates to ~5 times per second to save bandwidth/quota
+            if (now - lastSyncTime > 200) {
+                lastSyncTime = now;
+                
+                const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', currentRoomId);
+                // Fire and forget
+                updateDoc(roomRef, {
+                    [`players.${currentUser.uid}.x`]: Number(myCar.position.x.toFixed(2)),
+                    [`players.${currentUser.uid}.z`]: Number(myCar.position.z.toFixed(2)),
+                    [`players.${currentUser.uid}.speed`]: Number(speed.toFixed(2))
+                }).catch(e => {/* ignore benign network lag errors */});
+            }
+
+            // Update opponents from playersMap (updated by onSnapshot)
+            for (const [uid, p] of Object.entries(playersMap)) {
+                if (uid === currentUser.uid) continue;
+
+                // Create mesh if new player appeared late (rare)
+                if (!opponentCars[uid]) {
+                    opponentCars[uid] = createCarMesh(p.color);
+                    scene.add(opponentCars[uid]);
+                }
+
+                // Smoothly interpolate opponent position
+                const car = opponentCars[uid];
+                car.position.x += (p.x - car.position.x) * 0.1;
+                car.position.z += (p.z - car.position.z) * 0.1;
+                
+                // Simple wheel rotation based on speed
+                // car.rotation.y ... (optional polish)
+            }
+            
+            // Update HUD Position Rank
+            let myRank = 1;
+            let total = 0;
+            const myZ = myCar.position.z;
+            for (const [uid, p] of Object.entries(playersMap)) {
+                total++;
+                if (uid !== currentUser.uid) {
+                    // Use local interpolation or remote data, whichever is fresher (remote data here)
+                    if (p.z > myZ) myRank++;
+                }
+            }
+            document.getElementById('position-display').innerText = `POS: ${myRank}/${total}`;
+        }
+
+        function onWindowResize() {
+            if (!camera || !renderer) return;
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            updatePhysics();
+            syncNetwork();
+            
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+            }
+        }
+
+        // ==========================================
+        // UI BINDINGS
+        // ==========================================
+        
+        // Mode Selection
+        const createBtn = document.getElementById('btn-create-mode');
+        const joinBtn = document.getElementById('btn-join-mode');
+        const createUI = document.getElementById('create-ui');
+        const joinUI = document.getElementById('join-ui');
+
+        createBtn.addEventListener('click', () => {
+            createBtn.classList.add('border-red-600', 'text-white');
+            createBtn.classList.remove('border-gray-700', 'text-gray-400');
+            joinBtn.classList.remove('border-red-600', 'text-white');
+            joinBtn.classList.add('border-gray-700', 'text-gray-400');
+            
+            createUI.classList.remove('hidden');
+            joinUI.classList.add('hidden');
+        });
+
+        joinBtn.addEventListener('click', () => {
+            joinBtn.classList.add('border-red-600', 'text-white');
+            joinBtn.classList.remove('border-gray-700', 'text-gray-400');
+            createBtn.classList.remove('border-red-600', 'text-white');
+            createBtn.classList.add('border-gray-700', 'text-gray-400');
+            
+            joinUI.classList.remove('hidden');
+            createUI.classList.add('hidden');
+        });
+
+        document.getElementById('btn-create-room').addEventListener('click', createRoom);
+        document.getElementById('btn-join-room').addEventListener('click', joinRoom);
+        document.getElementById('btn-start-race').addEventListener('click', onStartClicked);
+
+        // --- Start ---
+        initAuth();
+
+    </script>
+</body>
+</html>
