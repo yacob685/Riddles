@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Race Master Pro: Tuner Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; background-color: #050505; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; -webkit-user-select: none; }
+        body { margin: 0; overflow: hidden; background-color: #050505; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; -webkit-user-select: none; touch-action: none; }
         
         /* LAYERS */
         #game-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
@@ -88,7 +88,8 @@
         .level-grid::-webkit-scrollbar-thumb:hover { background: #555; }
 
         /* Pedal Animations */
-        .pedal-active { transform: scale(0.95); filter: brightness(1.2); }
+        .control-btn:active { transform: scale(0.90); filter: brightness(1.3); }
+        .control-btn { touch-action: none; user-select: none; -webkit-user-select: none; }
     </style>
 </head>
 <body>
@@ -101,86 +102,88 @@
     <div id="ui-layer" class="flex flex-col justify-center items-center font-sans">
         
         <!-- TOP BAR (Global) -->
-        <div id="top-bar" class="absolute top-0 left-0 w-full p-4 flex justify-between items-start z-50 pointer-events-none hidden">
-            <div class="glass-panel px-4 py-2 rounded-full flex items-center gap-3 pointer-events-auto">
-                <span class="text-xs text-gray-400 font-bold">DRIVER</span>
-                <span id="top-bar-name" class="text-white font-bold">Guest</span>
+        <div id="top-bar" class="absolute top-0 left-0 w-full p-2 md:p-4 flex justify-between items-start z-50 pointer-events-none hidden">
+            <div class="glass-panel px-3 py-1 md:px-4 md:py-2 rounded-full flex items-center gap-2 md:gap-3 pointer-events-auto">
+                <span class="text-[10px] md:text-xs text-gray-400 font-bold hidden md:inline">DRIVER</span>
+                <span id="top-bar-name" class="text-white text-sm md:text-base font-bold">Guest</span>
             </div>
-            <div class="glass-panel px-4 py-2 rounded-full flex items-center gap-2 pointer-events-auto">
-                <span class="text-yellow-400 text-xl">⚡</span>
-                <span id="top-bar-cash" class="currency-display text-xl font-bold">0</span>
+            <div class="glass-panel px-3 py-1 md:px-4 md:py-2 rounded-full flex items-center gap-2 pointer-events-auto">
+                <span class="text-yellow-400 text-sm md:text-xl">⚡</span>
+                <span id="top-bar-cash" class="currency-display text-sm md:text-xl font-bold">0</span>
             </div>
         </div>
 
         <!-- 1. AUTH / LOADING -->
         <div id="loading-panel" class="absolute inset-0 bg-black flex flex-col items-center justify-center pointer-events-auto z-50">
-            <h1 class="text-6xl font-black text-white italic tracking-tighter transform -skew-x-12 mb-2">RACE<span class="text-red-600">MASTER</span></h1>
-            <h2 class="text-xl text-gray-500 font-light tracking-widest uppercase mb-8">Tuner Edition</h2>
-            <div class="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
-            <p id="loading-text" class="text-gray-500 mt-4 text-sm animate-pulse">Initializing Engine...</p>
+            <h1 class="text-4xl md:text-6xl font-black text-white italic tracking-tighter transform -skew-x-12 mb-2">RACE<span class="text-red-600">MASTER</span></h1>
+            <h2 class="text-sm md:text-xl text-gray-500 font-light tracking-widest uppercase mb-8">Tuner Edition</h2>
+            <div class="w-12 h-12 md:w-16 md:h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+            <p id="loading-text" class="text-gray-500 mt-4 text-xs md:text-sm animate-pulse">Initializing Engine...</p>
         </div>
 
         <!-- 2. MAIN MENU -->
-        <div id="menu-panel" class="hidden-panel absolute inset-0 flex flex-col items-center justify-center pointer-events-auto bg-black/40 backdrop-blur-sm z-40">
-            <div class="w-full max-w-6xl px-6">
-                <div class="text-center mb-10">
-                    <h1 class="text-6xl font-black text-white italic tracking-tighter transform -skew-x-6 drop-shadow-2xl">SELECT <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">MODE</span></h1>
+        <div id="menu-panel" class="hidden-panel absolute inset-0 flex flex-col items-center justify-center pointer-events-auto bg-black/40 backdrop-blur-sm z-40 overflow-y-auto">
+            <div class="w-full max-w-6xl px-4 md:px-6 py-10">
+                <div class="text-center mb-6 md:mb-10">
+                    <h1 class="text-4xl md:text-6xl font-black text-white italic tracking-tighter transform -skew-x-6 drop-shadow-2xl">SELECT <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">MODE</span></h1>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 pb-10">
                     
                     <!-- Tab 1: Solo -->
-                    <button id="btn-mode-solo" class="menu-card group relative h-80 glass-panel rounded-2xl p-6 text-left border border-gray-700 hover:border-blue-500 flex flex-col justify-between overflow-hidden">
+                    <button id="btn-mode-solo" class="menu-card group relative h-48 md:h-80 glass-panel rounded-2xl p-4 md:p-6 text-left border border-gray-700 hover:border-blue-500 flex flex-col justify-between overflow-hidden">
                         <div class="absolute inset-0 bg-blue-900/20 group-hover:bg-blue-900/40 transition-colors z-0"></div>
-                        <div class="relative z-10">
-                            <span class="text-5xl mb-4 block">🏎️</span>
-                            <h2 class="text-3xl font-black text-white italic">SOLO<br>RACE</h2>
-                            <p class="text-gray-400 text-sm mt-2">Versus 4 Bots. 100 Levels.</p>
-                            <div class="mt-4 inline-block bg-black/50 px-3 py-1 rounded text-xs border border-blue-500/30 text-blue-300">
-                                Current Level: <span id="menu-level-display" class="font-bold text-white">1</span>
+                        <div class="relative z-10 flex flex-row md:flex-col items-center md:items-start justify-between">
+                            <span class="text-3xl md:text-5xl md:mb-4 block">🏎️</span>
+                            <div class="text-right md:text-left">
+                                <h2 class="text-2xl md:text-3xl font-black text-white italic">SOLO</h2>
+                                <p class="text-gray-400 text-xs md:text-sm mt-1">100 Levels</p>
                             </div>
                         </div>
-                        <div class="relative z-10 mt-auto">
-                            <span class="text-blue-400 font-bold tracking-widest text-xs uppercase group-hover:underline">Select Level &rarr;</span>
+                        <div class="relative z-10 mt-auto flex justify-between items-end">
+                            <div class="bg-black/50 px-2 py-1 rounded text-[10px] md:text-xs border border-blue-500/30 text-blue-300">
+                                Lvl: <span id="menu-level-display" class="font-bold text-white">1</span>
+                            </div>
+                            <span class="text-blue-400 font-bold tracking-widest text-[10px] md:text-xs uppercase group-hover:underline">Start &rarr;</span>
                         </div>
                     </button>
 
                     <!-- Tab 2: Multiplayer -->
-                    <button id="btn-mode-multi" class="menu-card group relative h-80 glass-panel rounded-2xl p-6 text-left border border-gray-700 hover:border-red-500 flex flex-col justify-between overflow-hidden">
+                    <button id="btn-mode-multi" class="menu-card group relative h-32 md:h-80 glass-panel rounded-2xl p-4 md:p-6 text-left border border-gray-700 hover:border-red-500 flex flex-col justify-between overflow-hidden">
                         <div class="absolute inset-0 bg-red-900/20 group-hover:bg-red-900/40 transition-colors z-0"></div>
-                        <div class="relative z-10">
-                            <span class="text-5xl mb-4 block">🌐</span>
-                            <h2 class="text-3xl font-black text-white italic">ONLINE<br>PVP</h2>
-                            <p class="text-gray-400 text-sm mt-2">Race against real players in real-time lobbies.</p>
+                        <div class="relative z-10 flex flex-row md:flex-col items-center md:items-start justify-between">
+                            <span class="text-3xl md:text-5xl md:mb-4 block">🌐</span>
+                            <h2 class="text-xl md:text-3xl font-black text-white italic">ONLINE PVP</h2>
                         </div>
-                        <div class="relative z-10 mt-auto">
+                        <div class="relative z-10 mt-auto hidden md:block">
+                             <p class="text-gray-400 text-sm mt-2">Real-time lobbies.</p>
                             <span class="text-red-400 font-bold tracking-widest text-xs uppercase group-hover:underline">Enter Lobby &rarr;</span>
                         </div>
                     </button>
 
                     <!-- Tab 3: Garage -->
-                    <button id="btn-mode-garage" class="menu-card group relative h-80 glass-panel rounded-2xl p-6 text-left border border-gray-700 hover:border-yellow-500 flex flex-col justify-between overflow-hidden">
+                    <button id="btn-mode-garage" class="menu-card group relative h-32 md:h-80 glass-panel rounded-2xl p-4 md:p-6 text-left border border-gray-700 hover:border-yellow-500 flex flex-col justify-between overflow-hidden">
                         <div class="absolute inset-0 bg-yellow-900/20 group-hover:bg-yellow-900/40 transition-colors z-0"></div>
-                        <div class="relative z-10">
-                            <span class="text-5xl mb-4 block">🔧</span>
-                            <h2 class="text-3xl font-black text-white italic">MY<br>GARAGE</h2>
-                            <p class="text-gray-400 text-sm mt-2">Upgrade stats and customize your ride.</p>
+                         <div class="relative z-10 flex flex-row md:flex-col items-center md:items-start justify-between">
+                            <span class="text-3xl md:text-5xl md:mb-4 block">🔧</span>
+                            <h2 class="text-xl md:text-3xl font-black text-white italic">GARAGE</h2>
                         </div>
-                        <div class="relative z-10 mt-auto">
+                        <div class="relative z-10 mt-auto hidden md:block">
+                            <p class="text-gray-400 text-sm mt-2">Customize ride.</p>
                             <span class="text-yellow-400 font-bold tracking-widest text-xs uppercase group-hover:underline">Tune Up &rarr;</span>
                         </div>
                     </button>
 
                     <!-- Tab 4: Shop -->
-                    <button id="btn-mode-shop" class="menu-card group relative h-80 glass-panel rounded-2xl p-6 text-left border border-gray-700 hover:border-green-500 flex flex-col justify-between overflow-hidden">
+                    <button id="btn-mode-shop" class="menu-card group relative h-32 md:h-80 glass-panel rounded-2xl p-4 md:p-6 text-left border border-gray-700 hover:border-green-500 flex flex-col justify-between overflow-hidden">
                         <div class="absolute inset-0 bg-green-900/20 group-hover:bg-green-900/40 transition-colors z-0"></div>
-                        <div class="relative z-10">
-                            <span class="text-5xl mb-4 block">💎</span>
-                            <h2 class="text-3xl font-black text-white italic">PREMIUM<br>SHOP</h2>
-                            <p class="text-gray-400 text-sm mt-2">Boost your progress with exclusive packs.</p>
+                        <div class="relative z-10 flex flex-row md:flex-col items-center md:items-start justify-between">
+                            <span class="text-3xl md:text-5xl md:mb-4 block">💎</span>
+                            <h2 class="text-xl md:text-3xl font-black text-white italic">SHOP</h2>
                         </div>
-                        <div class="relative z-10 mt-auto">
-                            <span class="text-green-400 font-bold tracking-widest text-xs uppercase group-hover:underline">Browse Offers &rarr;</span>
+                        <div class="relative z-10 mt-auto hidden md:block">
+                             <p class="text-gray-400 text-sm mt-2">Boost progress.</p>
+                            <span class="text-green-400 font-bold tracking-widest text-xs uppercase group-hover:underline">Browse &rarr;</span>
                         </div>
                     </button>
 
@@ -190,33 +193,33 @@
 
         <!-- 2.5 LEVEL SELECT -->
         <div id="level-select-panel" class="hidden-panel absolute inset-0 flex items-center justify-center bg-black/90 pointer-events-auto z-40">
-            <div class="glass-panel p-8 rounded-2xl w-full max-w-4xl h-[80vh] flex flex-col">
+            <div class="glass-panel p-4 md:p-8 rounded-2xl w-full max-w-4xl h-[90vh] md:h-[80vh] flex flex-col">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-4xl font-black text-white italic">CAMPAIGN MODE</h2>
-                    <button id="btn-level-back" class="btn-secondary px-6 py-2 rounded-lg font-bold">BACK</button>
+                    <h2 class="text-2xl md:text-4xl font-black text-white italic">CAMPAIGN</h2>
+                    <button id="btn-level-back" class="btn-secondary px-4 py-2 rounded-lg font-bold text-xs md:text-sm">BACK</button>
                 </div>
                 
-                <div id="level-grid" class="level-grid grid grid-cols-5 md:grid-cols-8 gap-3 overflow-y-auto p-2 flex-grow">
+                <div id="level-grid" class="level-grid grid grid-cols-5 md:grid-cols-8 gap-2 md:gap-3 overflow-y-auto p-2 flex-grow">
                     <!-- JS Injects Buttons Here -->
                 </div>
             </div>
         </div>
 
         <!-- 3. GARAGE -->
-        <div id="garage-panel" class="hidden-panel absolute inset-0 flex flex-col justify-between p-6 pointer-events-none z-40">
+        <div id="garage-panel" class="hidden-panel absolute inset-0 flex flex-col justify-between p-4 md:p-6 pointer-events-none z-40">
             <!-- Left: Stats -->
-            <div class="glass-panel p-6 rounded-xl w-full max-w-xs pointer-events-auto self-start mt-16 transform -skew-x-2">
-                <h3 class="text-xl font-black text-white italic mb-4 border-b border-gray-700 pb-2">PERFORMANCE</h3>
+            <div class="glass-panel p-4 md:p-6 rounded-xl w-full max-w-xs pointer-events-auto self-start mt-16 transform -skew-x-2">
+                <h3 class="text-lg md:text-xl font-black text-white italic mb-4 border-b border-gray-700 pb-2">PERFORMANCE</h3>
                 
-                <div class="space-y-4">
+                <div class="space-y-3 md:space-y-4">
                     <!-- Speed -->
                     <div>
-                        <div class="flex justify-between text-xs font-bold text-gray-400 uppercase mb-1">
+                        <div class="flex justify-between text-[10px] md:text-xs font-bold text-gray-400 uppercase mb-1">
                             <span>Top Speed</span>
                             <span class="text-white" id="stat-val-speed">100</span>
                         </div>
                         <div class="stat-bar-bg"><div id="bar-speed" class="stat-bar-fill" style="width: 20%"></div></div>
-                        <button id="btn-upg-speed" class="mt-2 w-full py-2 bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white text-xs font-bold rounded flex justify-between px-3">
+                        <button id="btn-upg-speed" class="mt-1 md:mt-2 w-full py-1 md:py-2 bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white text-[10px] md:text-xs font-bold rounded flex justify-between px-3">
                             <span>UPGRADE</span>
                             <span class="text-yellow-400">$<span id="cost-speed">500</span></span>
                         </button>
@@ -224,12 +227,12 @@
 
                     <!-- Accel -->
                     <div>
-                        <div class="flex justify-between text-xs font-bold text-gray-400 uppercase mb-1">
+                        <div class="flex justify-between text-[10px] md:text-xs font-bold text-gray-400 uppercase mb-1">
                             <span>Acceleration</span>
                             <span class="text-white" id="stat-val-accel">100</span>
                         </div>
                         <div class="stat-bar-bg"><div id="bar-accel" class="stat-bar-fill" style="width: 20%"></div></div>
-                        <button id="btn-upg-accel" class="mt-2 w-full py-2 bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white text-xs font-bold rounded flex justify-between px-3">
+                        <button id="btn-upg-accel" class="mt-1 md:mt-2 w-full py-1 md:py-2 bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white text-[10px] md:text-xs font-bold rounded flex justify-between px-3">
                             <span>UPGRADE</span>
                             <span class="text-yellow-400">$<span id="cost-accel">500</span></span>
                         </button>
@@ -237,12 +240,12 @@
 
                     <!-- Handling -->
                     <div>
-                        <div class="flex justify-between text-xs font-bold text-gray-400 uppercase mb-1">
+                        <div class="flex justify-between text-[10px] md:text-xs font-bold text-gray-400 uppercase mb-1">
                             <span>Handling</span>
                             <span class="text-white" id="stat-val-hand">100</span>
                         </div>
                         <div class="stat-bar-bg"><div id="bar-hand" class="stat-bar-fill" style="width: 20%"></div></div>
-                        <button id="btn-upg-hand" class="mt-2 w-full py-2 bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white text-xs font-bold rounded flex justify-between px-3">
+                        <button id="btn-upg-hand" class="mt-1 md:mt-2 w-full py-1 md:py-2 bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white text-[10px] md:text-xs font-bold rounded flex justify-between px-3">
                             <span>UPGRADE</span>
                             <span class="text-yellow-400">$<span id="cost-hand">500</span></span>
                         </button>
@@ -251,18 +254,18 @@
             </div>
 
             <!-- Bottom: Paint & Back -->
-            <div class="flex justify-between items-end w-full pointer-events-auto">
-                <div class="glass-panel p-4 rounded-xl flex gap-2">
-                    <button class="w-10 h-10 rounded-full border-2 border-white/20 hover:scale-110 transition-transform bg-red-600" onclick="setCarColor('#ff0000')"></button>
-                    <button class="w-10 h-10 rounded-full border-2 border-white/20 hover:scale-110 transition-transform bg-blue-600" onclick="setCarColor('#0066ff')"></button>
-                    <button class="w-10 h-10 rounded-full border-2 border-white/20 hover:scale-110 transition-transform bg-green-500" onclick="setCarColor('#00ff44')"></button>
-                    <button class="w-10 h-10 rounded-full border-2 border-white/20 hover:scale-110 transition-transform bg-yellow-400" onclick="setCarColor('#ffcc00')"></button>
-                    <button class="w-10 h-10 rounded-full border-2 border-white/20 hover:scale-110 transition-transform bg-purple-600" onclick="setCarColor('#9900ff')"></button>
-                    <button class="w-10 h-10 rounded-full border-2 border-white/20 hover:scale-110 transition-transform bg-white" onclick="setCarColor('#ffffff')"></button>
-                    <button class="w-10 h-10 rounded-full border-2 border-white/20 hover:scale-110 transition-transform bg-gray-900" onclick="setCarColor('#111111')"></button>
+            <div class="flex flex-wrap justify-between items-end w-full pointer-events-auto gap-4">
+                <div class="glass-panel p-2 md:p-4 rounded-xl flex gap-2 flex-wrap justify-center">
+                    <button class="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-white/20 hover:scale-110 transition-transform bg-red-600" onclick="setCarColor('#ff0000')"></button>
+                    <button class="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-white/20 hover:scale-110 transition-transform bg-blue-600" onclick="setCarColor('#0066ff')"></button>
+                    <button class="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-white/20 hover:scale-110 transition-transform bg-green-500" onclick="setCarColor('#00ff44')"></button>
+                    <button class="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-white/20 hover:scale-110 transition-transform bg-yellow-400" onclick="setCarColor('#ffcc00')"></button>
+                    <button class="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-white/20 hover:scale-110 transition-transform bg-purple-600" onclick="setCarColor('#9900ff')"></button>
+                    <button class="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-white/20 hover:scale-110 transition-transform bg-white" onclick="setCarColor('#ffffff')"></button>
+                    <button class="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-white/20 hover:scale-110 transition-transform bg-gray-900" onclick="setCarColor('#111111')"></button>
                 </div>
 
-                <button id="btn-exit-garage" class="btn-secondary px-8 py-3 rounded-xl font-bold uppercase tracking-wider">
+                <button id="btn-exit-garage" class="btn-secondary px-6 py-2 md:px-8 md:py-3 rounded-xl font-bold uppercase tracking-wider text-sm md:text-base">
                     Save & Back
                 </button>
             </div>
@@ -270,18 +273,18 @@
 
         <!-- 4. LOBBY -->
         <div id="lobby-panel" class="hidden-panel absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur pointer-events-auto z-40">
-            <div class="glass-panel p-8 rounded-2xl w-full max-w-md text-center border border-gray-700">
-                <h2 class="text-3xl font-black text-white italic mb-6">MULTIPLAYER LOBBY</h2>
+            <div class="glass-panel p-6 md:p-8 rounded-2xl w-full max-w-md text-center border border-gray-700 m-4">
+                <h2 class="text-2xl md:text-3xl font-black text-white italic mb-6">MULTIPLAYER LOBBY</h2>
                 
                 <div class="grid grid-cols-2 gap-4 mb-6">
-                    <button id="tab-create" class="p-4 rounded-xl bg-gray-800 border-2 border-red-600 text-white">Create Room</button>
-                    <button id="tab-join" class="p-4 rounded-xl bg-gray-900 border border-gray-700 text-gray-400">Join Room</button>
+                    <button id="tab-create" class="p-3 md:p-4 rounded-xl bg-gray-800 border-2 border-red-600 text-white text-sm md:text-base">Create</button>
+                    <button id="tab-join" class="p-3 md:p-4 rounded-xl bg-gray-900 border border-gray-700 text-gray-400 text-sm md:text-base">Join</button>
                 </div>
 
                 <!-- Create Mode -->
                 <div id="view-create" class="space-y-4">
-                    <p class="text-gray-400 text-sm">Host a private race for your friends.</p>
-                    <button id="btn-create-room" class="btn-action w-full py-3 rounded-xl">Generate Room Code</button>
+                    <p class="text-gray-400 text-sm">Host a private race.</p>
+                    <button id="btn-create-room" class="btn-action w-full py-3 rounded-xl">Generate Code</button>
                 </div>
 
                 <!-- Join Mode -->
@@ -296,9 +299,9 @@
 
         <!-- 5. WAITING ROOM -->
         <div id="waiting-panel" class="hidden-panel absolute inset-0 flex items-center justify-center bg-black/90 pointer-events-auto z-40">
-            <div class="glass-panel p-8 rounded-2xl w-full max-w-lg text-center">
+            <div class="glass-panel p-6 md:p-8 rounded-2xl w-full max-w-lg text-center m-4">
                 <div class="text-xs text-gray-400 font-bold uppercase mb-1">Room Code</div>
-                <div id="display-room-code" class="text-6xl font-mono font-bold text-white mb-8 tracking-wider select-all cursor-pointer">????</div>
+                <div id="display-room-code" class="text-4xl md:text-6xl font-mono font-bold text-white mb-6 md:mb-8 tracking-wider select-all cursor-pointer">????</div>
                 
                 <div class="text-left mb-8">
                     <h4 class="text-xs font-bold text-gray-500 uppercase mb-3">Racers</h4>
@@ -308,7 +311,7 @@
                 </div>
 
                 <div id="host-controls" class="hidden">
-                    <button id="btn-start-race" class="btn-action w-full py-4 rounded-xl text-lg animate-pulse">START ENGINE</button>
+                    <button id="btn-start-race" class="btn-action w-full py-3 md:py-4 rounded-xl text-lg animate-pulse">START ENGINE</button>
                 </div>
                 <div id="guest-controls">
                     <p class="text-yellow-500 font-mono text-sm">WAITING FOR HOST...</p>
@@ -318,62 +321,75 @@
 
         <!-- HUD -->
         <div id="hud-panel" class="hidden-panel w-full h-full relative pointer-events-none z-30">
-            <!-- Speedometer -->
-            <div class="absolute bottom-6 right-6 glass-panel rounded-full w-32 h-32 flex flex-col items-center justify-center border-4 border-gray-800">
-                <span id="hud-speed" class="text-4xl font-black text-white italic">0</span>
-                <span class="text-xs text-gray-400 font-bold">KM/H</span>
-            </div>
             
-            <!-- Boost Button/Meter -->
-            <div class="absolute bottom-6 right-44 pointer-events-auto">
-                <button id="btn-boost" class="glass-panel rounded-xl px-6 py-4 w-48 hover:bg-white/10 active:scale-95 transition-all group border-red-500/50">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="text-xs text-gray-400 font-bold uppercase group-hover:text-white">NITRO</span>
-                        <span id="boost-status" class="text-xs font-bold text-yellow-500">CHECKING</span>
-                    </div>
-
-                    <div class="w-full h-4 bg-gray-800 rounded-full overflow-hidden border border-gray-700 relative">
-                        <div id="boost-bar" class="h-full bg-gradient-to-r from-red-500 to-yellow-500 w-full animate-pulse"></div>
-                    </div>
-                    <div class="text-center mt-2 text-[10px] text-gray-500 font-mono uppercase">SPACE to ACTIVATE</div>
-                </button>
-            </div>
-
-            <!-- ADDED: Reverse/Brake Button -->
-            <div class="absolute bottom-6 left-6 pointer-events-auto">
-                <button id="btn-reverse" class="glass-panel rounded-xl px-6 py-6 w-32 flex flex-col items-center justify-center border-gray-600/50 hover:bg-white/10 active:scale-95 transition-all">
-                    <span class="text-3xl mb-1">🛑</span>
-                    <span class="text-xs text-gray-400 font-bold uppercase">BRAKE/REV</span>
-                </button>
-            </div>
-
-            <!-- Pos -->
-            <div class="absolute top-20 left-4 glass-panel px-4 py-2 rounded-lg">
-                <span class="text-gray-400 text-xs font-bold block">POS</span>
-                <span id="hud-pos" class="text-2xl font-black text-white">1/5</span>
+            <!-- Pos Info -->
+            <div class="absolute top-16 md:top-20 left-4 glass-panel px-3 py-1 md:px-4 md:py-2 rounded-lg">
+                <span class="text-gray-400 text-[10px] md:text-xs font-bold block">POS</span>
+                <span id="hud-pos" class="text-xl md:text-2xl font-black text-white">1/5</span>
             </div>
 
             <!-- Level (Solo Only) -->
-            <div id="hud-level-display" class="absolute top-20 right-4 glass-panel px-4 py-2 rounded-lg text-right hidden">
-                <span class="text-gray-400 text-xs font-bold block">LEVEL</span>
-                <span id="current-level-hud" class="text-2xl font-black text-blue-400">1</span>
+            <div id="hud-level-display" class="absolute top-16 md:top-20 right-4 glass-panel px-3 py-1 md:px-4 md:py-2 rounded-lg text-right hidden">
+                <span class="text-gray-400 text-[10px] md:text-xs font-bold block">LEVEL</span>
+                <span id="current-level-hud" class="text-xl md:text-2xl font-black text-blue-400">1</span>
             </div>
-            
-            <!-- Controls Hint -->
-            <div class="absolute bottom-10 left-0 w-full text-center opacity-40">
-                <p class="text-white text-sm font-bold shadow-black drop-shadow-md">HOLD TO GAS • SLIDE TO STEER</p>
+
+            <!-- MOBILE CONTROLS OVERLAY -->
+            <div id="mobile-controls" class="absolute inset-0 z-50">
+                <!-- Left Side: Steering -->
+                <div class="absolute bottom-4 left-4 flex gap-4 pointer-events-auto">
+                    <button id="btn-left" class="control-btn w-20 h-20 bg-white/10 backdrop-blur rounded-full border border-white/20 flex items-center justify-center shadow-lg">
+                        <span class="text-4xl text-white/80">◀</span>
+                    </button>
+                    <button id="btn-right" class="control-btn w-20 h-20 bg-white/10 backdrop-blur rounded-full border border-white/20 flex items-center justify-center shadow-lg">
+                        <span class="text-4xl text-white/80">▶</span>
+                    </button>
+                </div>
+
+                <!-- Right Side: Pedals & Nitro -->
+                <div class="absolute bottom-4 right-4 flex flex-col items-end gap-3 pointer-events-auto">
+                     <!-- Boost -->
+                     <button id="btn-nitro-mobile" class="control-btn w-16 h-16 mb-2 bg-yellow-500/80 backdrop-blur rounded-full border-2 border-yellow-300 flex flex-col items-center justify-center shadow-lg shadow-yellow-500/30">
+                        <span class="text-sm font-black italic text-black">NITRO</span>
+                        <span id="boost-counter-mobile" class="text-[10px] text-black font-bold">0</span>
+                    </button>
+                    
+                    <div class="flex gap-4 items-end">
+                        <!-- Brake -->
+                        <button id="btn-brake-mobile" class="control-btn w-20 h-20 bg-red-600/60 backdrop-blur rounded-2xl border border-red-400 flex items-center justify-center shadow-lg">
+                            <span class="text-2xl text-white">🛑</span>
+                        </button>
+                        
+                        <!-- Gas -->
+                        <button id="btn-gas-mobile" class="control-btn w-24 h-36 bg-green-600/60 backdrop-blur rounded-2xl border border-green-400 flex items-col items-center justify-center shadow-lg">
+                            <span class="text-2xl text-white font-black">GO</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Speedometer (Smaller and centered for mobile visibility) -->
+            <div class="absolute top-4 left-1/2 transform -translate-x-1/2 md:translate-x-0 md:left-auto md:bottom-6 md:right-auto md:top-auto pointer-events-none opacity-80 md:opacity-100">
+                <div class="md:hidden glass-panel rounded-lg px-4 py-2 text-center">
+                    <span id="hud-speed-mobile" class="text-3xl font-black text-white italic">0</span> <span class="text-xs text-gray-400 font-bold">KM/H</span>
+                </div>
+                <!-- Desktop style speedometer kept hidden on mobile to declutter -->
+                <div class="hidden md:flex glass-panel rounded-full w-32 h-32 flex-col items-center justify-center border-4 border-gray-800 absolute right-6 bottom-6">
+                    <span id="hud-speed" class="text-4xl font-black text-white italic">0</span>
+                    <span class="text-xs text-gray-400 font-bold">KM/H</span>
+                </div>
             </div>
 
             <!-- Countdown -->
-            <div id="countdown-overlay" class="absolute inset-0 flex items-center justify-center hidden">
+            <div id="countdown-overlay" class="absolute inset-0 flex items-center justify-center hidden z-[60]">
                 <span id="countdown-text" class="text-9xl font-black text-white italic drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)]">3</span>
             </div>
         </div>
 
         <!-- AD / MONEY OVERLAY -->
         <div id="ad-overlay" class="hidden-panel absolute inset-0 bg-black/80 flex items-center justify-center z-[100] pointer-events-auto">
-            <div class="glass-panel p-8 rounded-2xl max-w-sm text-center border-2 border-yellow-500">
-                <h3 class="text-3xl font-black text-white italic mb-2">OUT OF CASH!</h3>
+            <div class="glass-panel p-6 md:p-8 rounded-2xl max-w-sm text-center border-2 border-yellow-500 m-4">
+                <h3 class="text-2xl md:text-3xl font-black text-white italic mb-2">OUT OF CASH!</h3>
                 <p class="text-gray-300 mb-6">You need <span class="text-yellow-400 font-bold">$500</span> for Nitro.</p>
                 
                 <div id="ad-content">
@@ -392,21 +408,21 @@
         </div>
 
         <!-- PREMIUM SHOP OVERLAY -->
-        <div id="shop-overlay" class="hidden-panel absolute inset-0 bg-black/90 flex items-center justify-center z-[100] pointer-events-auto">
-            <div class="glass-panel p-8 rounded-2xl max-w-2xl w-full border-2 border-yellow-500">
-                <h2 class="text-4xl font-black text-white italic mb-6 text-center">
+        <div id="shop-overlay" class="hidden-panel absolute inset-0 bg-black/90 flex items-center justify-center z-[100] pointer-events-auto overflow-y-auto">
+            <div class="glass-panel p-6 md:p-8 rounded-2xl max-w-2xl w-full border-2 border-yellow-500 m-4">
+                <h2 class="text-3xl md:text-4xl font-black text-white italic mb-6 text-center">
                     PREMIUM <span class="text-yellow-400">SHOP</span>
                 </h2>
                 
-                <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <!-- Starter Pack -->
                     <div class="bg-gradient-to-br from-blue-900 to-blue-700 p-6 rounded-xl border-2 border-blue-400">
                         <div class="text-center mb-4">
-                            <div class="text-5xl mb-2">💎</div>
-                            <h3 class="text-xl font-bold text-white">Starter Pack</h3>
+                            <div class="text-4xl md:text-5xl mb-2">💎</div>
+                            <h3 class="text-lg md:text-xl font-bold text-white">Starter Pack</h3>
                         </div>
                         <div class="text-center mb-4">
-                            <div class="text-3xl font-black text-yellow-400">$5,000</div>
+                            <div class="text-2xl md:text-3xl font-black text-yellow-400">$5,000</div>
                             <div class="text-sm text-gray-300">In-Game Cash</div>
                             <div class="text-xs text-blue-300 mt-2">+ 10 Nitro Boosts</div>
                         </div>
@@ -418,11 +434,11 @@
                     <!-- Pro Pack -->
                     <div class="bg-gradient-to-br from-purple-900 to-purple-700 p-6 rounded-xl border-2 border-purple-400">
                         <div class="text-center mb-4">
-                            <div class="text-5xl mb-2">🏆</div>
-                            <h3 class="text-xl font-bold text-white">Pro Pack</h3>
+                            <div class="text-4xl md:text-5xl mb-2">🏆</div>
+                            <h3 class="text-lg md:text-xl font-bold text-white">Pro Pack</h3>
                         </div>
                         <div class="text-center mb-4">
-                            <div class="text-3xl font-black text-yellow-400">$15,000</div>
+                            <div class="text-2xl md:text-3xl font-black text-yellow-400">$15,000</div>
                             <div class="text-sm text-gray-300">In-Game Cash</div>
                             <div class="text-xs text-purple-300 mt-2">+ 30 Nitro</div>
                         </div>
@@ -432,13 +448,13 @@
                     </div>
                     
                     <!-- Ultimate Pack -->
-                    <div class="bg-gradient-to-br from-red-900 to-orange-700 p-6 rounded-xl border-2 border-red-400 col-span-2">
+                    <div class="bg-gradient-to-br from-red-900 to-orange-700 p-6 rounded-xl border-2 border-red-400 md:col-span-2">
                         <div class="text-center mb-4">
-                            <div class="text-5xl mb-2">👑</div>
-                            <h3 class="text-2xl font-bold text-white">Ultimate Champion</h3>
+                            <div class="text-4xl md:text-5xl mb-2">👑</div>
+                            <h3 class="text-xl md:text-2xl font-bold text-white">Ultimate Champion</h3>
                         </div>
                         <div class="text-center mb-4">
-                            <div class="text-4xl font-black text-yellow-400">$50,000</div>
+                            <div class="text-3xl md:text-4xl font-black text-yellow-400">$50,000</div>
                             <div class="text-sm text-gray-300">In-Game Cash</div>
                             <div class="text-xs text-orange-300 mt-2">+ 100 Nitro + All Upgrades + Skip to Level 50</div>
                         </div>
@@ -448,13 +464,13 @@
                     </div>
                     
                     <!-- Nitro Only -->
-                    <div class="bg-gray-800 p-4 rounded-xl border border-gray-600 col-span-2">
+                    <div class="bg-gray-800 p-4 rounded-xl border border-gray-600 md:col-span-2">
                         <div class="flex justify-between items-center">
                             <div>
-                                <h4 class="text-white font-bold">Quick Nitro Refill</h4>
+                                <h4 class="text-white font-bold text-sm md:text-base">Quick Nitro Refill</h4>
                                 <p class="text-xs text-gray-400">50 Nitro Boosts</p>
                             </div>
-                            <button class="bg-yellow-600 hover:bg-yellow-500 px-6 py-2 rounded font-bold" onclick="purchaseOffer('nitro')">
+                            <button class="bg-yellow-600 hover:bg-yellow-500 px-4 py-2 md:px-6 md:py-2 rounded font-bold text-sm" onclick="purchaseOffer('nitro')">
                                 $1.99
                             </button>
                         </div>
@@ -469,14 +485,14 @@
 
         <!-- RESULTS -->
         <div id="result-panel" class="hidden-panel absolute inset-0 flex items-center justify-center bg-black/80 z-50 pointer-events-auto">
-            <div class="glass-panel p-10 rounded-2xl text-center transform scale-110 border-t-4 border-yellow-500">
-                <div id="result-title" class="text-5xl font-black text-white italic mb-2">FINISH!</div>
-                <div class="text-2xl text-gray-300 mb-4">Position: <span id="result-pos" class="text-white font-bold">#1</span></div>
+            <div class="glass-panel p-8 md:p-10 rounded-2xl text-center transform scale-100 md:scale-110 border-t-4 border-yellow-500 m-4">
+                <div id="result-title" class="text-4xl md:text-5xl font-black text-white italic mb-2">FINISH!</div>
+                <div class="text-xl md:text-2xl text-gray-300 mb-4">Position: <span id="result-pos" class="text-white font-bold">#1</span></div>
                 <div class="bg-yellow-500/20 text-yellow-400 p-4 rounded-lg mb-6 border border-yellow-500/50">
                     <div class="text-xs font-bold uppercase">Prize Money</div>
                     <div class="text-3xl font-bold font-mono">+$<span id="result-money">0</span></div>
                 </div>
-                <div id="level-up-msg" class="hidden text-blue-400 font-bold mb-4 text-xl animate-bounce">LEVEL COMPLETED!</div>
+                <div id="level-up-msg" class="hidden text-blue-400 font-bold mb-4 text-lg md:text-xl animate-bounce">LEVEL COMPLETED!</div>
                 <button onclick="location.reload()" class="btn-secondary px-8 py-3 rounded-full">Return to Garage</button>
             </div>
         </div>
@@ -831,18 +847,20 @@
                 }
             });
 
-            const boostStatus = document.getElementById('boost-status');
-            const boostBtn = document.getElementById('btn-boost');
-            if (userProfile.nitroStock > 0) {
-                boostStatus.innerText = `READY x${userProfile.nitroStock}`;
-                boostStatus.className = "text-xs font-bold text-green-400";
-                boostBtn.classList.remove("border-red-500/50");
-                boostBtn.classList.add("border-green-500/50");
-            } else {
-                boostStatus.innerText = `BUY 3: -$500`;
-                boostStatus.className = "text-xs font-bold text-yellow-500";
-                boostBtn.classList.add("border-red-500/50");
-                boostBtn.classList.remove("border-green-500/50");
+            // Update Boost Visuals
+            const boostCount = document.getElementById('boost-counter-mobile');
+            if (boostCount) boostCount.innerText = `x${userProfile.nitroStock}`;
+
+            // Sync legacy check for ad overlay trigger (still used for buying)
+            const boostStatus = document.getElementById('boost-status'); // Likely removed from DOM but check
+            if (boostStatus) {
+                if (userProfile.nitroStock > 0) {
+                    boostStatus.innerText = `READY x${userProfile.nitroStock}`;
+                    boostStatus.className = "text-xs font-bold text-green-400";
+                } else {
+                    boostStatus.innerText = `BUY 3: -$500`;
+                    boostStatus.className = "text-xs font-bold text-yellow-500";
+                }
             }
         }
         
@@ -932,7 +950,10 @@
         document.getElementById('btn-upg-accel').onclick = () => buyUpgrade('accel');
         document.getElementById('btn-upg-hand').onclick = () => buyUpgrade('handling');
 
-        document.getElementById('btn-boost').onclick = tryActivateBoost;
+        // Legacy boost btn hook if exists
+        const oldBoost = document.getElementById('btn-boost');
+        if(oldBoost) oldBoost.onclick = tryActivateBoost;
+
         document.getElementById('btn-watch-ad').onclick = async () => {
             document.getElementById('ad-content').classList.add('hidden');
             document.getElementById('ad-loading').classList.remove('hidden');
@@ -1328,14 +1349,11 @@
             });
         }
 
-        let keydownHandler, keyupHandler, touchstartHandler, touchendHandler, touchmoveHandler;
+        let keydownHandler, keyupHandler;
 
         function removeInputListeners() {
             if (keydownHandler) window.removeEventListener('keydown', keydownHandler);
             if (keyupHandler) window.removeEventListener('keyup', keyupHandler);
-            if (touchstartHandler) document.body.removeEventListener('touchstart', touchstartHandler);
-            if (touchendHandler) document.body.removeEventListener('touchend', touchendHandler);
-            if (touchmoveHandler) document.body.removeEventListener('touchmove', touchmoveHandler);
         }
         
         // Revised Input Handling Logic
@@ -1350,6 +1368,42 @@
                 inputState.steer = -1;
             } else {
                 inputState.steer = 0;
+            }
+        }
+        
+        function setupMobileControls() {
+            const bindBtn = (id, key) => {
+                const btn = document.getElementById(id);
+                if(!btn) return;
+                
+                const press = (e) => { 
+                    if(e.cancelable) e.preventDefault(); 
+                    keysPressed[key] = true; 
+                    updateInputState(); 
+                };
+                const release = (e) => { 
+                    if(e.cancelable) e.preventDefault(); 
+                    keysPressed[key] = false; 
+                    updateInputState(); 
+                };
+                
+                btn.addEventListener('touchstart', press, {passive: false});
+                btn.addEventListener('touchend', release, {passive: false});
+                btn.addEventListener('mousedown', press);
+                btn.addEventListener('mouseup', release);
+                btn.addEventListener('mouseleave', release);
+            };
+
+            bindBtn('btn-left', 'left');
+            bindBtn('btn-right', 'right');
+            bindBtn('btn-gas-mobile', 'up');
+            bindBtn('btn-brake-mobile', 'down');
+            
+            const nitroBtn = document.getElementById('btn-nitro-mobile');
+            if(nitroBtn) {
+                const boost = (e) => { if(e.cancelable) e.preventDefault(); tryActivateBoost(); };
+                nitroBtn.addEventListener('touchstart', boost, {passive: false});
+                nitroBtn.addEventListener('mousedown', boost);
             }
         }
 
@@ -1406,8 +1460,9 @@
             }
 
             removeInputListeners();
+            setupMobileControls();
             
-            // NEW KEY HANDLERS with persistent state
+            // KEYBOARD HANDLERS
             keydownHandler = (e) => {
                 if(e.key==='w' || e.key==='ArrowUp') keysPressed.up = true;
                 if(e.key==='s' || e.key==='ArrowDown') keysPressed.down = true;
@@ -1427,53 +1482,6 @@
             
             window.addEventListener('keydown', keydownHandler);
             window.addEventListener('keyup', keyupHandler);
-
-            // Reverse Button Setup
-            const reverseBtn = document.getElementById('btn-reverse');
-            if (reverseBtn) {
-                reverseBtn.onpointerdown = (e) => {
-                    e.preventDefault();
-                    reverseBtn.classList.add('pedal-active');
-                    keysPressed.down = true;
-                    updateInputState();
-                };
-                reverseBtn.onpointerup = (e) => {
-                    e.preventDefault();
-                    reverseBtn.classList.remove('pedal-active');
-                    keysPressed.down = false;
-                    updateInputState();
-                };
-                reverseBtn.onpointerleave = () => {
-                    reverseBtn.classList.remove('pedal-active');
-                    keysPressed.down = false;
-                    updateInputState();
-                };
-            }
-
-            // TOUCH HANDLERS
-            touchstartHandler = (e) => { 
-                // Only count taps not on buttons as acceleration
-                if (e.target.tagName !== 'BUTTON' && !e.target.closest('button')) {
-                    inputState.holding = true;
-                    if (e.touches.length === 2) tryActivateBoost();
-                }
-            };
-
-            touchendHandler = (e) => { 
-                inputState.holding = false; 
-            };
-            
-            touchmoveHandler = (e) => {
-                const x = e.touches[0].clientX;
-                const mid = window.innerWidth / 2;
-                inputState.steer = (mid - x) / (mid/2);
-                if (inputState.steer > 1) inputState.steer = 1;
-                if (inputState.steer < -1) inputState.steer = -1;
-            };
-            
-            document.body.addEventListener('touchstart', touchstartHandler);
-            document.body.addEventListener('touchend', touchendHandler);
-            document.body.addEventListener('touchmove', touchmoveHandler);
 
             window.addEventListener('resize', () => {
                 camera.aspect = window.innerWidth/window.innerHeight;
@@ -1508,57 +1516,18 @@
             boostCooldown = BOOST_DURATION;
             currentSpeed = Math.min(currentSpeed * 1.5, phys.maxSpeed * BOOST_MULTIPLIER);
             
-            const bar = document.getElementById('boost-bar');
-            bar.classList.remove('from-red-500');
-            bar.classList.add('from-cyan-400', 'to-white');
-        }
-
-        function updateBots() {
-            bots.forEach(bot => {
-                // Bots accelerate
-                if (bot.speed < bot.maxSpeed) {
-                    bot.speed += bot.accel;
-                }
-                
-                const trackInfo = getTrackInfo(bot.z);
-                const idealX = trackInfo.x + bot.laneOffset;
-                
-                // Steer towards ideal lane
-                const diff = idealX - bot.x;
-                if(Math.abs(diff) > 0.5) {
-                    bot.x += Math.sign(diff) * 0.3;
-                }
-                
-                // Obstacle avoidance
-                for(let obs of obstacles) {
-                    const dx = bot.x - obs.position.x;
-                    const dz = bot.z - obs.position.z;
-                    const dist = Math.sqrt(dx*dx + dz*dz);
-                    
-                    if(dz > -15 && dz < 20 && dist < obs.radius + 4) {
-                        bot.x += Math.sign(dx) * 0.6;
-                    }
-                }
-                
-                // Boundary checks relative to track center
-                const boundary = (TRACK_W/2) - 2;
-                const offsetFromTrack = bot.x - trackInfo.x;
-                
-                if(offsetFromTrack > boundary) bot.x = trackInfo.x + boundary;
-                if(offsetFromTrack < -boundary) bot.x = trackInfo.x - boundary;
-                
-                bot.z += bot.speed * 2.5;
-                
-                // Update Mesh Position & Rotation
-                if (opponentCars[bot.id]) {
-                    opponentCars[bot.id].position.set(bot.x, 0, bot.z);
-                    opponentCars[bot.id].rotation.y = -trackInfo.angle; 
-                }
-                
-                if(playersMap[bot.id]) {
-                    playersMap[bot.id].z = bot.z;
-                }
-            });
+            const bar = document.getElementById('boost-bar'); // May not exist in new UI, handle gracefully
+            if(bar) {
+                bar.classList.remove('from-red-500');
+                bar.classList.add('from-cyan-400', 'to-white');
+            }
+            
+            // Visual feedback on mobile btn
+            const mobBtn = document.getElementById('btn-nitro-mobile');
+            if(mobBtn) {
+                mobBtn.classList.add('ring-4', 'ring-cyan-400');
+                setTimeout(()=>mobBtn.classList.remove('ring-4', 'ring-cyan-400'), 500);
+            }
         }
 
         function startGameLoop() {
@@ -1786,7 +1755,9 @@
                 // HUD
                 const speedKmh = Math.floor(currentSpeed * 120);
                 const speedEl = document.getElementById('hud-speed');
+                const speedMob = document.getElementById('hud-speed-mobile');
                 if(speedEl) speedEl.innerText = speedKmh;
+                if(speedMob) speedMob.innerText = speedKmh;
                 
                 if (isSinglePlayer) {
                     updateBots();
