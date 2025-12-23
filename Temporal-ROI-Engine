@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chronos Artifact | Temporal ROI Engine</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chronos Artifact | Omega Protocol</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
         
@@ -27,39 +27,42 @@
             background-color: var(--bg);
             color: var(--text-main);
             overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .mono { font-family: 'JetBrains Mono', monospace; }
 
         /* --- UI Components --- */
         .artifact-card {
-            background: linear-gradient(145deg, rgba(20,20,20,0.9) 0%, rgba(5,5,5,0.9) 100%);
+            background: linear-gradient(145deg, rgba(20,20,20,0.95) 0%, rgba(5,5,5,0.95) 100%);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(5px);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
         }
 
         .artifact-card:hover {
-            border-color: var(--accent);
-            box-shadow: 0 0 20px rgba(0, 242, 255, 0.1);
+            border-color: rgba(0, 242, 255, 0.3);
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.05);
+            transform: translateY(-2px);
         }
 
         .glow-text { text-shadow: 0 0 10px rgba(0, 242, 255, 0.5); }
         .glow-danger { text-shadow: 0 0 10px rgba(255, 0, 85, 0.5); }
-        .glow-warning { text-shadow: 0 0 10px rgba(255, 183, 0, 0.5); }
         .glow-success { text-shadow: 0 0 10px rgba(0, 255, 157, 0.5); }
 
         .input-glow:focus {
-            box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.15);
             border-color: var(--accent);
         }
 
         /* --- Decay Bars --- */
         .decay-bar {
-            height: 2px;
+            height: 3px;
             background: #1a1a1a;
             position: relative;
             overflow: hidden;
+            border-radius: 2px;
         }
 
         .decay-progress {
@@ -71,17 +74,23 @@
 
         /* --- Animations --- */
         @keyframes pulse-danger {
-            0%, 100% { opacity: 1; text-shadow: 0 0 15px var(--danger); }
-            50% { opacity: 0.5; text-shadow: none; }
+            0%, 100% { opacity: 1; box-shadow: 0 0 5px var(--danger); }
+            50% { opacity: 0.6; box-shadow: none; }
         }
 
         .critical-decay {
             animation: pulse-danger 1.5s infinite;
-            color: var(--danger) !important;
+            border-color: var(--danger) !important;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .bg-danger { background-color: var(--danger); }
-        .bg-warning { background-color: var(--warning); }
+        .task-enter {
+            animation: slideIn 0.3s forwards;
+        }
 
         /* --- Page Transitions --- */
         .page-section {
@@ -97,15 +106,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
-        /* --- Grid Background Effect --- */
+        /* --- Background --- */
         .bg-grid {
             background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
             linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
+            background-size: 40px 40px;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             z-index: -1;
@@ -113,55 +122,69 @@
         }
 
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
         
         /* Modal Backdrop */
         .modal-backdrop {
             background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(8px);
         }
 
         /* Toggle Switch */
-        .toggle-checkbox:checked {
-            right: 0;
-            border-color: #68D391;
-        }
-        .toggle-checkbox:checked + .toggle-label {
-            background-color: #68D391;
-        }
+        .toggle-checkbox:checked { right: 0; border-color: #68D391; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #68D391; }
         
         /* Subject Badge */
         .subject-badge {
             font-size: 0.65rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            padding: 2px 6px;
+            padding: 3px 8px;
             border-radius: 4px;
-            font-weight: bold;
+            font-weight: 700;
+        }
+
+        /* Confetti Canvas */
+        #confetti-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Checklist Item */
+        .checklist-item.completed span {
+            text-decoration: line-through;
+            color: var(--text-dim);
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col selection:bg-cyan-500/30 selection:text-white">
 
     <div class="bg-grid"></div>
+    <canvas id="confetti-canvas"></canvas>
 
     <!-- Navigation -->
     <nav class="w-full border-b border-white/5 bg-black/80 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <div class="max-w-7xl mx-auto px-4 md:px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-3 cursor-pointer group" onclick="router('landing')">
-                <i class="fa-solid fa-stopwatch text-cyan-400 text-xl group-hover:rotate-180 transition-transform duration-700"></i>
+                <div class="relative">
+                    <i class="fa-solid fa-cube text-cyan-400 text-xl group-hover:rotate-90 transition-transform duration-500"></i>
+                    <div class="absolute inset-0 bg-cyan-400 blur-lg opacity-20"></div>
+                </div>
                 <div>
-                    <h1 class="font-bold tracking-tight text-lg leading-none">CHRONOS <span class="text-cyan-400">ARTIFACT</span></h1>
-                    <span class="text-[10px] text-slate-500 mono uppercase tracking-widest">Entropy Management</span>
+                    <h1 class="font-bold tracking-tight text-lg leading-none">CHRONOS <span class="text-cyan-400">OMEGA</span></h1>
+                    <span class="text-[10px] text-slate-500 mono uppercase tracking-widest">Protocol v4.0</span>
                 </div>
             </div>
 
             <!-- Auth State: Shown when logged in -->
-            <div id="nav-auth-display" class="hidden items-center gap-6">
-                <!-- Status Indicators -->
+            <div id="nav-auth-display" class="hidden items-center gap-4 md:gap-6">
+                <!-- Status Indicators (Desktop) -->
                 <div class="hidden md:flex items-center gap-4 text-xs mono">
                     <div class="flex flex-col items-end">
                         <span id="navTime" class="text-cyan-400 font-bold">00:00:00</span>
@@ -172,191 +195,183 @@
                         <span id="navEnergy" class="text-white font-bold">0%</span>
                         <span class="text-slate-600">BIO.CAP</span>
                     </div>
-                    <div class="h-6 w-[1px] bg-white/10"></div>
-                     <div class="flex flex-col items-end cursor-pointer hover:text-cyan-400 transition" onclick="toggleModal('modal-settings')">
-                        <span id="navScore" class="text-yellow-400 font-bold">0</span>
+                     <div class="h-6 w-[1px] bg-white/10"></div>
+                    <div class="flex flex-col items-end cursor-pointer group" onclick="toggleModal('modal-settings')">
+                        <span id="navScore" class="text-yellow-400 font-bold group-hover:text-yellow-300 transition">0</span>
                         <span class="text-slate-600">UNITS</span>
                     </div>
                 </div>
 
                 <!-- Action Buttons -->
                 <div class="flex items-center gap-2">
-                    <button onclick="toggleModal('modal-schedule')" class="w-8 h-8 rounded border border-white/10 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-400 transition relative" title="Temporal Constraints">
+                    <button onclick="toggleModal('modal-schedule')" class="nav-btn w-9 h-9 rounded border border-white/10 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-400 transition relative bg-black/50" title="Schedule">
                         <i class="fa-solid fa-calendar-alt"></i>
-                        <span id="schedule-dot" class="absolute top-1 right-1 w-1.5 h-1.5 bg-red-500 rounded-full hidden"></span>
                     </button>
-                    <button onclick="toggleModal('modal-manual')" class="w-8 h-8 rounded border border-white/10 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-400 transition" title="Field Manual">
-                        <i class="fa-solid fa-book-medical"></i>
+                    <button onclick="toggleModal('modal-trash')" class="nav-btn w-9 h-9 rounded border border-white/10 flex items-center justify-center text-slate-400 hover:text-red-400 hover:border-red-400 transition bg-black/50" title="Void (Trash)">
+                        <i class="fa-solid fa-trash-alt"></i>
                     </button>
-                     <button onclick="toggleModal('modal-log')" class="w-8 h-8 rounded border border-white/10 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-400 transition" title="Mission Log">
+                     <button onclick="toggleModal('modal-log')" class="nav-btn w-9 h-9 rounded border border-white/10 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-400 transition bg-black/50" title="Log">
                         <i class="fa-solid fa-list-check"></i>
                     </button>
-                    <button onclick="toggleModal('modal-settings')" class="w-8 h-8 rounded border border-white/10 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-400 transition" title="Settings">
-                        <i class="fa-solid fa-cog"></i>
-                    </button>
-                    <button onclick="logout()" class="ml-2 text-xs text-red-400 hover:text-red-300 transition uppercase tracking-widest border border-red-900/30 px-3 py-2 rounded hover:bg-red-900/20">
-                        Exit
+                    <button onclick="toggleModal('modal-settings')" class="nav-btn w-9 h-9 rounded border border-white/10 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-400 transition bg-black/50" title="Settings">
+                        <i class="fa-solid fa-sliders"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- Guest State: Shown on Landing/Auth -->
+            <!-- Guest State -->
             <div id="nav-guest-display" class="flex items-center gap-4">
-                <button onclick="router('auth')" class="text-sm font-bold text-cyan-400 hover:text-cyan-300 transition uppercase tracking-wider">
-                    Access Terminal <i class="fa-solid fa-chevron-right ml-1 text-xs"></i>
+                <button onclick="router('auth')" class="text-sm font-bold text-cyan-400 hover:text-cyan-300 transition uppercase tracking-wider border border-cyan-500/30 px-4 py-2 rounded bg-cyan-500/10">
+                    Initialize <i class="fa-solid fa-chevron-right ml-1 text-xs"></i>
                 </button>
             </div>
         </div>
     </nav>
 
-    <!-- PAGE 1: LANDING / EXPLANATION -->
-    <section id="page-landing" class="page-section active flex-grow">
-        <div class="max-w-7xl mx-auto px-6 py-16 lg:py-24">
-            
-            <!-- Hero -->
-            <div class="max-w-3xl mb-24">
-                <div class="inline-block px-3 py-1 border border-cyan-500/30 bg-cyan-500/10 rounded-full text-cyan-400 text-xs mono mb-6 uppercase tracking-widest">
-                    Psychological Productivity Protocol v3.2
+    <!-- PAGE 1: LANDING -->
+    <section id="page-landing" class="page-section active flex-grow flex flex-col justify-center">
+        <div class="max-w-7xl mx-auto px-6 py-16 text-center lg:text-left">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="order-2 lg:order-1">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 border border-cyan-500/30 bg-cyan-500/10 rounded-full text-cyan-400 text-xs mono mb-6 uppercase tracking-widest">
+                        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                        System Online: v4.0.2
+                    </div>
+                    <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-none tracking-tight">
+                        Entropy is<br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">Inevitable.</span>
+                    </h1>
+                    <p class="text-xl text-slate-400 leading-relaxed mb-10 max-w-xl mx-auto lg:mx-0">
+                        The ultimate academic and professional task engine. Treat tasks as decaying matter. Manage energy, not just time. Now with full data persistence and checklists.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                        <button onclick="router('auth')" class="px-8 py-4 bg-cyan-400 text-black font-bold text-lg rounded hover:bg-cyan-300 transition-all shadow-[0_0_20px_rgba(0,242,255,0.3)]">
+                            ENTER SYSTEM
+                        </button>
+                        <button onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})" class="px-8 py-4 border border-white/20 text-white font-bold text-lg rounded hover:bg-white/5 transition-all">
+                            VIEW PROTOCOLS
+                        </button>
+                    </div>
                 </div>
-                <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-                    Tasks do not wait.<br>
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">They rot.</span>
-                </h1>
-                <p class="text-xl text-slate-400 max-w-2xl leading-relaxed mb-10">
-                    Chronos Artifact treats tasks as decaying matter. 
-                    Now featuring <strong>Contextual Awareness</strong>: The system prioritizes tasks based on your upcoming tests and chosen priority subjects.
-                </p>
-                <div class="flex gap-4">
-                    <button onclick="router('auth')" class="group relative px-8 py-4 bg-cyan-400 text-black font-bold text-lg rounded-sm hover:bg-cyan-300 transition-all">
-                        INITIALIZE SYSTEM
-                        <div class="absolute inset-0 border border-cyan-400 translate-x-1 translate-y-1 group-hover:translate-x-2 group-hover:translate-y-2 transition-transform -z-10"></div>
-                    </button>
-                    <button onclick="document.getElementById('explanation-section').scrollIntoView({behavior: 'smooth'})" class="px-8 py-4 border border-white/20 text-white font-bold text-lg rounded-sm hover:bg-white/5 transition-all">
-                        READ PROTOCOL
-                    </button>
+                <div class="order-1 lg:order-2 flex justify-center">
+                    <div class="w-64 h-64 md:w-96 md:h-96 relative">
+                        <div class="absolute inset-0 border-2 border-dashed border-cyan-500/30 rounded-full animate-[spin_10s_linear_infinite]"></div>
+                        <div class="absolute inset-4 border border-white/10 rounded-full animate-[spin_15s_linear_infinite_reverse]"></div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <i class="fa-solid fa-stopwatch text-6xl md:text-8xl text-cyan-400 drop-shadow-[0_0_15px_rgba(0,242,255,0.5)]"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- The 3 Pillars (Explanation) -->
-            <div id="explanation-section" class="grid md:grid-cols-3 gap-8 mb-24">
-                <div class="artifact-card p-8 rounded-xl">
-                    <div class="w-12 h-12 bg-white/5 rounded-lg flex items-center justify-center mb-6 text-cyan-400 text-xl">
-                        <i class="fa-solid fa-hourglass-half"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3">1. Temporal Integrity</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">
-                        A progress bar shows lifespan remaining. If it hits zero, the artifact is lost. Procrastination has a visible cost.
-                    </p>
+            <div id="features" class="grid md:grid-cols-3 gap-6 mt-24">
+                <div class="artifact-card p-6 rounded-xl border-t-2 border-t-cyan-400">
+                    <i class="fa-solid fa-biohazard text-cyan-400 text-2xl mb-4"></i>
+                    <h3 class="text-lg font-bold mb-2">Temporal Decay</h3>
+                    <p class="text-sm text-slate-400">Tasks lose value over time. Visual alerts and browser notifications ensure nothing rots.</p>
                 </div>
-
-                <div class="artifact-card p-8 rounded-xl">
-                    <div class="w-12 h-12 bg-white/5 rounded-lg flex items-center justify-center mb-6 text-cyan-400 text-xl">
-                        <i class="fa-solid fa-robot"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3">2. Subject Priority</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">
-                        Tag your tasks (e.g., Chemistry, Math). The system will check your upcoming tests and prioritize the right subjects automatically.
-                    </p>
+                <div class="artifact-card p-6 rounded-xl border-t-2 border-t-yellow-400">
+                    <i class="fa-solid fa-bolt text-yellow-400 text-2xl mb-4"></i>
+                    <h3 class="text-lg font-bold mb-2">Bio-Rhythm Logic</h3>
+                    <p class="text-sm text-slate-400">The engine calculates your cognitive capacity based on time of day to suggest optimal tasks.</p>
                 </div>
-
-                <div class="artifact-card p-8 rounded-xl">
-                    <div class="w-12 h-12 bg-white/5 rounded-lg flex items-center justify-center mb-6 text-cyan-400 text-xl">
-                        <i class="fa-solid fa-chart-line"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3">3. Biological ROI</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">
-                        The engine simulates your energy levels. High complexity tasks yield more points but require high energy to attempt efficiently.
-                    </p>
+                <div class="artifact-card p-6 rounded-xl border-t-2 border-t-purple-400">
+                    <i class="fa-solid fa-shield-halved text-purple-400 text-2xl mb-4"></i>
+                    <h3 class="text-lg font-bold mb-2">Data Integrity</h3>
+                    <p class="text-sm text-slate-400">Full JSON export/import. Trash recovery. Your academic mission data is secure.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- PAGE 2: AUTHENTICATION -->
-    <section id="page-auth" class="page-section flex-grow">
-        <div class="min-h-[80vh] flex items-center justify-center px-4">
-            <div class="artifact-card w-full max-w-md p-8 rounded-2xl relative overflow-hidden">
-                <!-- Decorative Elements -->
-                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-50"></div>
-                
+    <section id="page-auth" class="page-section flex-grow flex flex-col justify-center">
+        <div class="max-w-md mx-auto w-full px-4">
+            <div class="artifact-card p-8 rounded-2xl relative overflow-hidden">
                 <div class="text-center mb-8">
-                    <i class="fa-solid fa-fingerprint text-4xl text-cyan-400 mb-4 animate-pulse"></i>
-                    <h2 class="text-2xl font-bold glow-text" id="auth-title">IDENTITY VERIFICATION</h2>
-                    <p class="text-xs mono text-slate-500 mt-2">SECURE CONNECTION REQUIRED</p>
+                    <h2 class="text-2xl font-bold glow-text">IDENTIFICATION</h2>
+                    <p class="text-xs mono text-slate-500 mt-2">OMEGA SECURITY CLEARANCE</p>
                 </div>
-
-                <div class="space-y-4" id="auth-form">
+                <div class="space-y-4">
                     <div>
-                        <label class="block text-[10px] uppercase tracking-widest text-slate-500 mb-1">Agent Identifier</label>
-                        <input type="text" id="auth-username" value="Chronos_User_01" class="w-full bg-black/50 border border-slate-700 rounded p-3 text-sm mono text-cyan-400 focus:outline-none focus:border-cyan-400 transition-colors">
+                        <label class="block text-[10px] uppercase tracking-widest text-slate-500 mb-1">Operative Name</label>
+                        <input type="text" id="auth-username" class="w-full bg-black/50 border border-slate-700 rounded p-3 text-sm mono text-cyan-400 focus:outline-none focus:border-cyan-400 transition-colors placeholder-slate-800" placeholder="e.g. CMDR. SHEPARD">
                     </div>
-                </div>
-
-                <div class="mt-8 flex gap-4">
-                    <button id="btn-login" onclick="login()" class="flex-1 bg-cyan-900/30 border border-cyan-500/30 text-cyan-400 py-3 rounded hover:bg-cyan-400 hover:text-black font-bold transition-all uppercase tracking-widest text-xs">
-                        Establish Link
+                    <button onclick="login()" class="w-full bg-cyan-900/30 border border-cyan-500/30 text-cyan-400 py-3 rounded hover:bg-cyan-400 hover:text-black font-bold transition-all uppercase tracking-widest text-xs">
+                        Establish Uplink
                     </button>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- PAGE 3: THE APP (ARTIFACT ENGINE) -->
+    <!-- PAGE 3: MAIN APP -->
     <section id="page-app" class="page-section flex-grow">
-        <div class="max-w-7xl mx-auto px-4 md:px-6 py-8">
+        <div class="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
             
-            <!-- AI COMMAND DIRECTIVE BANNER -->
-            <div id="ai-suggestion-panel" class="mb-8 artifact-card p-6 rounded-xl border-l-4 border-l-cyan-400 relative overflow-hidden transition-all duration-500">
-                <div class="absolute top-0 right-0 p-4 opacity-10 text-6xl text-cyan-400">
-                    <i class="fa-solid fa-robot"></i>
+            <!-- AI COMMAND BANNER -->
+            <div id="ai-suggestion-panel" class="mb-8 artifact-card p-6 rounded-xl border-l-4 border-l-cyan-400 relative overflow-hidden transition-all duration-500 group">
+                <div class="absolute -right-4 -top-4 opacity-5 text-8xl text-white group-hover:scale-110 transition-transform duration-700">
+                    <i class="fa-solid fa-brain"></i>
                 </div>
                 <div class="relative z-10">
-                    <div class="flex items-center gap-2 mb-2">
-                        <div class="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
-                        <span class="text-[10px] uppercase tracking-[0.2em] text-cyan-400 font-bold">System Command Directive</span>
+                    <div class="flex flex-wrap items-center justify-between gap-4 mb-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+                            <span class="text-[10px] uppercase tracking-[0.2em] text-cyan-400 font-bold">Command Directive</span>
+                        </div>
+                        <div class="text-[10px] mono text-slate-500" id="schedule-status-display">CALCULATING...</div>
                     </div>
-                    <h2 id="suggestion-headline" class="text-2xl md:text-3xl font-bold text-white mb-2 leading-tight">
-                        ANALYZING TEMPORAL VECTORS...
+                    <h2 id="suggestion-headline" class="text-xl md:text-3xl font-bold text-white mb-2 leading-tight">
+                        SYSTEM INITIALIZED
                     </h2>
-                    <p id="suggestion-reason" class="text-slate-400 mono text-sm max-w-2xl">
-                        Calibrating biological capacity and schedule constraints.
+                    <p id="suggestion-reason" class="text-slate-400 mono text-xs md:text-sm max-w-2xl">
+                        Awaiting task input for entropy calculation.
                     </p>
-                    <div id="suggestion-action-area" class="mt-4 hidden">
-                         <button id="suggestion-btn" class="px-6 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded text-xs uppercase tracking-widest transition">
-                            Execute Recommendation
-                         </button>
-                    </div>
                 </div>
             </div>
 
-            <!-- Dashboard Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8">
-                <div class="md:col-span-8 grid grid-cols-2 gap-4">
-                    <div class="artifact-card p-5 rounded-xl flex items-center justify-between">
-                        <div>
-                            <div class="text-[10px] text-slate-500 uppercase tracking-widest">Focus Capacity</div>
-                            <div class="text-3xl mono font-bold text-white mt-1" id="appEnergyDisplay">--%</div>
-                        </div>
-                        <i class="fa-solid fa-bolt text-yellow-400/80 text-2xl"></i>
+            <!-- Stats & Tools -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Energy -->
+                <div class="artifact-card p-5 rounded-xl flex items-center justify-between">
+                    <div>
+                        <div class="text-[10px] text-slate-500 uppercase tracking-widest">Bio-Capacity</div>
+                        <div class="text-3xl mono font-bold text-white mt-1" id="appEnergyDisplay">--%</div>
                     </div>
-                    <div class="artifact-card p-5 rounded-xl flex items-center justify-between">
-                        <div>
-                            <div class="text-[10px] text-slate-500 uppercase tracking-widest">Active Entropy</div>
-                            <div class="text-3xl mono font-bold text-cyan-400 mt-1" id="activeTaskCount">0</div>
-                        </div>
-                        <i class="fa-solid fa-layer-group text-cyan-400/80 text-2xl"></i>
-                    </div>
+                    <i class="fa-solid fa-battery-half text-yellow-400/80 text-2xl"></i>
                 </div>
-                <!-- Mini Schedule Preview -->
-                <div class="md:col-span-4 artifact-card p-5 rounded-xl flex flex-col justify-center bg-cyan-900/10 border-cyan-500/20">
-                    <div class="text-[10px] text-cyan-400 uppercase tracking-widest mb-1">Current Status</div>
-                    <div class="text-lg font-bold text-white mb-1" id="schedule-status-display">Normal Operations</div>
-                    <div class="text-xs text-slate-400 mono" id="next-event-display">No impending events detected.</div>
+                <!-- Active Tasks -->
+                <div class="artifact-card p-5 rounded-xl flex items-center justify-between">
+                    <div>
+                        <div class="text-[10px] text-slate-500 uppercase tracking-widest">Active Artifacts</div>
+                        <div class="text-3xl mono font-bold text-cyan-400 mt-1" id="activeTaskCount">0</div>
+                    </div>
+                    <i class="fa-solid fa-layer-group text-cyan-400/80 text-2xl"></i>
+                </div>
+                <!-- Search Tool -->
+                <div class="artifact-card p-5 rounded-xl flex flex-col justify-center">
+                    <div class="relative">
+                        <i class="fa-solid fa-search absolute left-3 top-3 text-slate-500 text-sm"></i>
+                        <input type="text" id="searchBar" placeholder="Search Database (Ctrl+K)" onkeyup="renderArtifacts()"
+                               class="w-full bg-black/50 border border-slate-700 rounded pl-10 pr-3 py-2 text-sm text-white focus:border-cyan-400 outline-none transition-colors">
+                    </div>
+                    <div class="flex gap-2 mt-2">
+                        <select id="filterSubject" onchange="renderArtifacts()" class="flex-1 bg-black/50 border border-slate-700 rounded px-2 py-1 text-xs text-slate-300 focus:border-cyan-400 outline-none">
+                            <option value="all">All Subjects</option>
+                            <!-- Injected JS -->
+                        </select>
+                        <select id="filterStatus" onchange="renderArtifacts()" class="flex-1 bg-black/50 border border-slate-700 rounded px-2 py-1 text-xs text-slate-300 focus:border-cyan-400 outline-none">
+                            <option value="all">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="decayed">Decayed</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                <!-- Input Control -->
+                <!-- Task Creation -->
                 <div class="lg:col-span-4 space-y-6">
                     <div class="artifact-card p-6 rounded-2xl sticky top-24">
                         <h2 class="text-lg font-bold mb-6 flex items-center gap-2 border-b border-white/10 pb-4">
@@ -364,27 +379,16 @@
                             Seal New Artifact
                         </h2>
                         
-                        <div class="space-y-5">
-                            <div>
-                                <label class="text-[10px] text-slate-500 uppercase mb-1 block">Artifact Name</label>
-                                <input id="taskName" type="text" placeholder="e.g. Chapter 4 Revision" 
-                                       class="w-full bg-black/50 border border-slate-700 rounded-lg p-3 text-sm outline-none input-glow transition text-white placeholder-slate-600">
-                            </div>
+                        <div class="space-y-4">
+                            <input id="taskName" type="text" placeholder="Artifact Designation (Required)" 
+                                   class="w-full bg-black/50 border border-slate-700 rounded-lg p-3 text-sm outline-none input-glow transition text-white placeholder-slate-600">
                             
-                             <div>
-                                <label class="text-[10px] text-slate-500 uppercase mb-1 block">Subject / Category</label>
-                                <select id="taskSubject" class="w-full bg-black/50 border border-slate-700 rounded-lg p-3 text-sm outline-none input-glow transition text-white">
-                                    <option value="General">General</option>
-                                    <option value="Maths">Mathematics</option>
-                                    <option value="Biology">Biology</option>
-                                    <option value="Chemistry">Chemistry</option>
-                                    <option value="Physics">Physics</option>
-                                    <option value="History">History</option>
-                                    <option value="Literature">Literature</option>
-                                    <option value="SLR">SLR</option>
-                                    <option value="Coding">Coding</option>
-                                </select>
-                            </div>
+                            <textarea id="taskDesc" rows="2" placeholder="Description / Mission Notes (Optional)" 
+                                    class="w-full bg-black/50 border border-slate-700 rounded-lg p-3 text-sm outline-none input-glow transition text-white placeholder-slate-600 resize-none"></textarea>
+
+                            <select id="taskSubject" class="w-full bg-black/50 border border-slate-700 rounded-lg p-3 text-sm outline-none input-glow transition text-white">
+                                <!-- JS Injected -->
+                            </select>
 
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
@@ -398,9 +402,15 @@
                                            class="w-full bg-black/50 border border-slate-700 rounded-lg p-3 text-sm outline-none input-glow transition text-center text-white">
                                 </div>
                             </div>
+                            
+                            <div class="pt-2">
+                                <label class="text-[10px] text-slate-500 uppercase mb-1 block">Sub-tasks (One per line)</label>
+                                <textarea id="taskSubtasks" rows="3" placeholder="- Research topic&#10;- Write outline" 
+                                        class="w-full bg-black/50 border border-slate-700 rounded-lg p-3 text-sm outline-none input-glow transition text-white placeholder-slate-600 resize-none"></textarea>
+                            </div>
 
-                            <button onclick="createArtifact()" class="w-full py-4 rounded-xl font-bold bg-white text-black hover:bg-cyan-400 hover:scale-[1.02] transition-all duration-300 shadow-lg shadow-cyan-500/20">
-                                INITIALIZE DECAY SEQUENCE
+                            <button onclick="createArtifact()" class="w-full py-4 rounded-xl font-bold bg-white text-black hover:bg-cyan-400 hover:scale-[1.02] transition-all duration-300 shadow-lg shadow-cyan-500/20 text-sm uppercase tracking-widest">
+                                Initialize Decay
                             </button>
                         </div>
                     </div>
@@ -410,14 +420,14 @@
                 <div class="lg:col-span-8">
                     <div class="flex justify-between items-end mb-6 border-b border-white/5 pb-2">
                         <h2 class="text-xl font-bold italic uppercase tracking-widest text-slate-300">Artifact Grid</h2>
-                        <span class="text-[10px] text-slate-500 mono uppercase">Priority Sort</span>
+                        <span class="text-[10px] text-slate-500 mono uppercase" id="grid-status">Priority Sort</span>
                     </div>
                     
                     <div id="artifactGrid" class="grid grid-cols-1 gap-4">
                         <!-- Artifacts inject here -->
                     </div>
 
-                    <div id="emptyState" class="text-center py-20 border-2 border-dashed border-slate-800 rounded-3xl opacity-50 flex flex-col items-center justify-center">
+                    <div id="emptyState" class="hidden text-center py-20 border-2 border-dashed border-slate-800 rounded-3xl opacity-50 flex flex-col items-center justify-center">
                         <i class="fa-solid fa-check-circle text-4xl mb-4 text-slate-700"></i>
                         <p class="mono text-sm uppercase text-slate-500">No active temporal pressure</p>
                     </div>
@@ -426,235 +436,205 @@
         </div>
     </section>
 
-    <!-- MODAL: SCHEDULE & CONSTRAINTS -->
-    <div id="modal-schedule" class="fixed inset-0 z-[100] hidden items-center justify-center modal-backdrop p-4 transition-opacity">
-        <div class="artifact-card p-0 rounded-2xl max-w-2xl w-full flex flex-col max-h-[90vh] overflow-hidden">
-            <div class="p-6 border-b border-white/10 flex justify-between items-center bg-black/40">
-                <h2 class="text-xl font-bold text-cyan-400 tracking-wider flex items-center gap-2"><i class="fa-solid fa-calendar-alt"></i> TEMPORAL CONSTRAINTS</h2>
-                <button onclick="toggleModal('modal-schedule')" class="text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
-            </div>
-            
-            <div class="flex border-b border-white/10">
-                <button onclick="switchTab('tab-week')" id="btn-tab-week" class="flex-1 py-3 text-xs uppercase tracking-widest border-b-2 border-cyan-400 text-cyan-400 font-bold bg-white/5">Weekly Routine</button>
-                <button onclick="switchTab('tab-events')" id="btn-tab-events" class="flex-1 py-3 text-xs uppercase tracking-widest border-b-2 border-transparent text-slate-500 hover:text-white">Events (Holidays/Tests)</button>
-            </div>
-
-            <div class="overflow-y-auto p-6 flex-grow custom-scroll">
-                
-                <!-- TAB: WEEKLY ROUTINE -->
-                <div id="tab-week" class="space-y-6">
-                    <p class="text-sm text-slate-400 mb-4">Define your standard operational hours. The system will suggest "Recharge" during off-hours unless critical overrides exist.</p>
-                    <div id="weekly-schedule-container" class="space-y-2">
-                        <!-- Generated via JS -->
-                    </div>
-                </div>
-
-                <!-- TAB: EVENTS -->
-                <div id="tab-events" class="hidden space-y-6">
-                    <div class="bg-black/30 p-4 rounded-lg border border-white/10">
-                        <h4 class="text-xs uppercase text-slate-400 mb-3 font-bold">Register New Event</h4>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-                            <input type="date" id="event-date" class="bg-black border border-slate-700 text-white text-sm rounded p-2 focus:border-cyan-400 outline-none">
-                            <input type="text" id="event-name" placeholder="Event Name (e.g. Maths Final)" class="bg-black border border-slate-700 text-white text-sm rounded p-2 focus:border-cyan-400 outline-none">
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-                             <select id="event-type" class="bg-black border border-slate-700 text-white text-sm rounded p-2 focus:border-cyan-400 outline-none">
-                                <option value="test">Test/Deadline (Critical)</option>
-                                <option value="holiday">Holiday (Rest)</option>
-                            </select>
-                            <select id="event-subject" class="bg-black border border-slate-700 text-white text-sm rounded p-2 focus:border-cyan-400 outline-none">
-                                <option value="">No Specific Subject</option>
-                                <option value="Maths">Mathematics</option>
-                                <option value="Biology">Biology</option>
-                                <option value="Chemistry">Chemistry</option>
-                                <option value="Physics">Physics</option>
-                                <option value="History">History</option>
-                                <option value="Literature">Literature</option>
-                                <option value="SLR">SLR</option>
-                                <option value="Coding">Coding</option>
-                            </select>
-                        </div>
-                        <button onclick="addEvent()" class="w-full py-2 bg-cyan-900/30 border border-cyan-500/30 text-cyan-400 text-xs font-bold uppercase rounded hover:bg-cyan-400 hover:text-black transition">
-                            Log Temporal Marker
-                        </button>
-                    </div>
-
-                    <div>
-                        <h4 class="text-xs uppercase text-slate-400 mb-3 font-bold">Upcoming Markers</h4>
-                        <div id="event-list" class="space-y-2">
-                            <!-- Events injected here -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="p-6 border-t border-white/10 bg-black/40 text-right">
-                <button onclick="saveScheduleSettings()" class="px-6 py-2 bg-white text-black font-bold rounded uppercase text-xs tracking-widest hover:bg-cyan-400">Sync Data</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL: MANUAL (HELP) -->
-    <div id="modal-manual" class="fixed inset-0 z-[100] hidden items-center justify-center modal-backdrop p-4 transition-opacity">
-        <div class="artifact-card p-0 rounded-2xl max-w-2xl w-full flex flex-col max-h-[85vh] overflow-hidden">
-            <div class="p-6 border-b border-white/10 flex justify-between items-center bg-black/40">
-                <h2 class="text-xl font-bold text-cyan-400 tracking-wider flex items-center gap-2"><i class="fa-solid fa-book-medical"></i> FIELD MANUAL</h2>
-                <button onclick="toggleModal('modal-manual')" class="text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
-            </div>
-            <div class="p-8 overflow-y-auto space-y-8">
-                <div>
-                    <h3 class="font-bold text-white mb-2 text-lg">1. The Concept</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed">
-                        Chronos Artifact creates "Healthy Anxiety" by visualizing tasks as decaying matter.
-                    </p>
-                </div>
-                 <div>
-                    <h3 class="font-bold text-white mb-2 text-lg">2. AI Command Directive</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed">
-                        The banner at the top of your dashboard is your commander. It checks your schedule (are you working?), your energy (are you tired?), and your environment (is there a test?). Follow its orders for maximum efficiency.
-                    </p>
-                </div>
-                <div>
-                    <h3 class="font-bold text-white mb-2 text-lg">3. Operational Logic</h3>
-                    <ul class="space-y-3 text-sm text-slate-400">
-                        <li class="flex gap-3">
-                            <i class="fa-solid fa-calendar-alt text-cyan-400 mt-1"></i>
-                            <div>
-                                <strong class="text-white">Context Awareness:</strong> If you have a "Chemistry" test soon, the system will prioritize "Chemistry" tasks over everything else. You can also manually set "Priority Subjects" in settings.
-                            </div>
-                        </li>
-                        <li class="flex gap-3">
-                            <i class="fa-solid fa-battery-half text-cyan-400 mt-1"></i>
-                            <div>
-                                <strong class="text-white">Bio-Capacity:</strong> The system lowers your expected output during low-energy hours.
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL: LOG (HISTORY) -->
-    <div id="modal-log" class="fixed inset-0 z-[100] hidden items-center justify-center modal-backdrop p-4 transition-opacity">
-        <div class="artifact-card p-0 rounded-2xl max-w-2xl w-full flex flex-col max-h-[85vh] overflow-hidden">
-            <div class="p-6 border-b border-white/10 flex justify-between items-center bg-black/40">
-                <h2 class="text-xl font-bold text-cyan-400 tracking-wider flex items-center gap-2"><i class="fa-solid fa-list-check"></i> MISSION LOG</h2>
-                <button onclick="toggleModal('modal-log')" class="text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
-            </div>
-            <div class="flex-grow overflow-y-auto p-0">
-                <table class="w-full text-left border-collapse">
-                    <thead class="bg-white/5 text-xs uppercase text-slate-500 sticky top-0 backdrop-blur-md">
-                        <tr>
-                            <th class="p-4 font-normal tracking-widest">Artifact</th>
-                            <th class="p-4 font-normal tracking-widest">Result</th>
-                            <th class="p-4 font-normal tracking-widest text-right">Profit</th>
-                        </tr>
-                    </thead>
-                    <tbody id="log-table-body" class="text-sm mono">
-                        <!-- Logs injected here -->
-                    </tbody>
-                </table>
-                <div id="empty-log" class="p-12 text-center text-slate-500 hidden">
-                    NO MISSION DATA RECORDED
-                </div>
-            </div>
-            <div class="p-6 border-t border-white/10 bg-black/40 flex justify-between items-center">
-                <div class="text-xs text-slate-500 uppercase tracking-widest">Total Focus Units Acquired</div>
-                <div class="text-2xl font-bold text-yellow-400 mono" id="log-total-score">0</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL: SETTINGS -->
-    <div id="modal-settings" class="fixed inset-0 z-[100] hidden items-center justify-center modal-backdrop p-4 transition-opacity">
-        <div class="artifact-card p-0 rounded-2xl max-w-md w-full flex flex-col overflow-hidden max-h-[90vh]">
-            <div class="p-6 border-b border-white/10 flex justify-between items-center bg-black/40">
-                <h2 class="text-xl font-bold text-cyan-400 tracking-wider flex items-center gap-2"><i class="fa-solid fa-cog"></i> SETTINGS</h2>
+    <!-- MODAL: SETTINGS (Now with Import/Export/Audio/Subjects) -->
+    <div id="modal-settings" class="fixed inset-0 z-[100] hidden items-center justify-center modal-backdrop p-4">
+        <div class="artifact-card p-0 rounded-2xl max-w-lg w-full flex flex-col max-h-[90vh] overflow-hidden">
+            <div class="p-5 border-b border-white/10 flex justify-between items-center bg-black/40">
+                <h2 class="font-bold text-cyan-400 tracking-wider flex items-center gap-2"><i class="fa-solid fa-cog"></i> SETTINGS</h2>
                 <button onclick="toggleModal('modal-settings')" class="text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
             </div>
-            <div class="p-8 space-y-6 overflow-y-auto">
-                <div>
-                    <label class="block text-[10px] uppercase tracking-widest text-slate-500 mb-2">Biological Peak Hour (24h)</label>
-                    <div class="flex items-center gap-4">
-                        <input type="range" id="setting-peak" min="0" max="23" value="10" class="flex-grow h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400">
-                        <span id="setting-peak-display" class="mono text-xl font-bold text-white w-12 text-center">10</span>
+            <div class="p-6 space-y-6 overflow-y-auto custom-scroll">
+                
+                <!-- Audio Section -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-sm font-bold text-white">Audio Feedback</div>
+                        <div class="text-xs text-slate-500">System sounds & alerts</div>
                     </div>
-                    <p class="text-xs text-slate-600 mt-2">The hour when your cognitive function is highest. Affects BIO.CAP calculation.</p>
+                    <div class="relative inline-block w-10 h-5">
+                        <input type="checkbox" id="setting-sound" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 border-slate-700 appearance-none cursor-pointer transition-all duration-300" checked onchange="saveSettingsLocal()">
+                        <label for="setting-sound" class="toggle-label block overflow-hidden h-5 rounded-full bg-slate-700 cursor-pointer"></label>
+                    </div>
                 </div>
                 
-                <div class="border-t border-white/10 pt-4">
-                    <label class="block text-[10px] uppercase tracking-widest text-slate-500 mb-2">Priority Subjects</label>
-                    <p class="text-xs text-slate-600 mb-3">Select subjects you want to prioritize regardless of urgency.</p>
-                    <div id="priority-subjects-container" class="space-y-2">
-                        <!-- Injected JS -->
+                <!-- Notification Section -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-sm font-bold text-white">Critical Alerts</div>
+                        <div class="text-xs text-slate-500">Browser notifications</div>
+                    </div>
+                    <div class="relative inline-block w-10 h-5">
+                        <input type="checkbox" id="setting-notifs" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 border-slate-700 appearance-none cursor-pointer transition-all duration-300" onchange="requestNotifs(this)">
+                        <label for="setting-notifs" class="toggle-label block overflow-hidden h-5 rounded-full bg-slate-700 cursor-pointer"></label>
                     </div>
                 </div>
 
-                 <div class="border-t border-white/10 pt-4">
-                    <label class="block text-[10px] uppercase tracking-widest text-slate-500 mb-2">Data Management</label>
-                    <button onclick="clearData()" class="w-full border border-red-900/50 text-red-500 hover:bg-red-900/20 py-2 rounded text-xs uppercase tracking-widest transition">
-                        Purge All System Data
+                <div class="h-px bg-white/10"></div>
+
+                <!-- Custom Subjects -->
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-slate-500 mb-2">Custom Subjects</label>
+                    <div class="flex gap-2 mb-2">
+                        <input type="text" id="newSubjectInput" placeholder="New Subject Name" class="flex-grow bg-black border border-slate-700 rounded px-3 text-xs text-white focus:border-cyan-400 outline-none">
+                        <button onclick="addCustomSubject()" class="bg-white/10 hover:bg-cyan-400 hover:text-black text-cyan-400 px-3 rounded text-xs font-bold transition"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                    <div id="settings-subject-list" class="flex flex-wrap gap-2">
+                        <!-- JS injected -->
+                    </div>
+                </div>
+
+                <div class="h-px bg-white/10"></div>
+
+                <!-- Data Management -->
+                <div>
+                    <div class="text-sm font-bold text-white mb-3">Data Integrity</div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="exportData()" class="py-2 border border-white/20 rounded hover:bg-white/5 text-xs uppercase tracking-widest text-slate-300 transition">
+                            <i class="fa-solid fa-download mr-1"></i> Backup JSON
+                        </button>
+                        <button onclick="document.getElementById('importFile').click()" class="py-2 border border-white/20 rounded hover:bg-white/5 text-xs uppercase tracking-widest text-slate-300 transition">
+                            <i class="fa-solid fa-upload mr-1"></i> Restore JSON
+                        </button>
+                        <input type="file" id="importFile" class="hidden" accept=".json" onchange="importData(this)">
+                    </div>
+                    <button onclick="wipeData()" class="w-full mt-3 py-2 border border-red-900/50 text-red-500 hover:bg-red-900/20 rounded text-xs uppercase tracking-widest transition">
+                        Factory Reset
                     </button>
                 </div>
             </div>
-            <div class="p-6 border-t border-white/10 bg-black/40 text-right">
-                <button onclick="saveSettings()" class="px-6 py-2 bg-cyan-900/30 text-cyan-400 border border-cyan-500/30 font-bold rounded uppercase text-xs tracking-widest hover:bg-cyan-400 hover:text-black">Save Configuration</button>
+        </div>
+    </div>
+
+    <!-- MODAL: SCHEDULE (Simplified View) -->
+    <div id="modal-schedule" class="fixed inset-0 z-[100] hidden items-center justify-center modal-backdrop p-4">
+        <div class="artifact-card p-0 rounded-2xl max-w-2xl w-full flex flex-col max-h-[90vh]">
+            <div class="p-5 border-b border-white/10 flex justify-between items-center bg-black/40">
+                <h2 class="font-bold text-cyan-400 tracking-wider flex items-center gap-2"><i class="fa-solid fa-calendar-alt"></i> SCHEDULE</h2>
+                <button onclick="toggleModal('modal-schedule')" class="text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto">
+                <p class="text-xs text-slate-400 mb-4">Set operational hours. The engine reduces pressure outside these times.</p>
+                <div id="schedule-container" class="space-y-2"></div>
             </div>
         </div>
     </div>
 
-    <!-- ROI Modal (Popup) -->
-    <div id="roiModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 p-4 backdrop-blur-sm transition-opacity duration-300">
-        <div class="artifact-card p-8 md:p-12 rounded-3xl text-center max-w-md w-full border-cyan-500 shadow-[0_0_50px_rgba(0,242,255,0.2)] transform scale-95 transition-transform duration-300" id="roiContent">
-            <div class="text-cyan-400 text-6xl mb-6 animate-bounce"><i class="fa-solid fa-gem"></i></div>
-            <h2 class="text-3xl font-bold mb-2 italic tracking-tighter text-white">ARTIFACT RESOLVED</h2>
-            <div class="h-px w-24 bg-cyan-500 mx-auto my-6"></div>
-            <div class="grid grid-cols-2 gap-4 mb-8 text-left">
-                <div class="bg-black/30 p-3 rounded">
-                    <div class="text-[10px] uppercase text-slate-500">Speed Bonus</div>
-                    <div class="font-bold text-cyan-400 mono" id="modalSpeed">0%</div>
-                </div>
-                <div class="bg-black/30 p-3 rounded">
-                    <div class="text-[10px] uppercase text-slate-500">Complexity</div>
-                    <div class="font-bold text-white mono" id="modalCpx">0</div>
-                </div>
+    <!-- MODAL: TRASH / VOID -->
+    <div id="modal-trash" class="fixed inset-0 z-[100] hidden items-center justify-center modal-backdrop p-4">
+        <div class="artifact-card p-0 rounded-2xl max-w-2xl w-full flex flex-col max-h-[80vh]">
+             <div class="p-5 border-b border-white/10 flex justify-between items-center bg-black/40">
+                <h2 class="font-bold text-red-400 tracking-wider flex items-center gap-2"><i class="fa-solid fa-trash-alt"></i> THE VOID</h2>
+                <button onclick="toggleModal('modal-trash')" class="text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
             </div>
+            <div class="flex-grow overflow-y-auto p-0 bg-black/20" id="trash-container">
+                <!-- JS Injected -->
+            </div>
+            <div class="p-4 border-t border-white/10 text-center">
+                <button onclick="emptyTrash()" class="text-xs text-red-500 hover:text-red-400 uppercase tracking-widest">Empty Void Permanently</button>
+            </div>
+        </div>
+    </div>
+    
+     <!-- MODAL: LOG -->
+    <div id="modal-log" class="fixed inset-0 z-[100] hidden items-center justify-center modal-backdrop p-4">
+        <div class="artifact-card p-0 rounded-2xl max-w-2xl w-full flex flex-col max-h-[80vh]">
+             <div class="p-5 border-b border-white/10 flex justify-between items-center bg-black/40">
+                <h2 class="font-bold text-cyan-400 tracking-wider flex items-center gap-2"><i class="fa-solid fa-list-check"></i> MISSION LOG</h2>
+                <button onclick="toggleModal('modal-log')" class="text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div class="flex-grow overflow-y-auto p-0">
+                <table class="w-full text-left">
+                    <thead class="bg-white/5 text-xs uppercase text-slate-500 sticky top-0 backdrop-blur-md">
+                        <tr><th class="p-4">Artifact</th><th class="p-4">Time</th><th class="p-4 text-right">Profit</th></tr>
+                    </thead>
+                    <tbody id="log-table-body" class="text-sm mono text-slate-300"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ROI SUCCESS POPUP -->
+    <div id="roiModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 p-4 backdrop-blur-sm transition-opacity duration-300">
+        <div class="artifact-card p-8 md:p-12 rounded-3xl text-center max-w-md w-full shadow-[0_0_50px_rgba(0,242,255,0.2)] transform scale-95 transition-transform duration-300" id="roiContent">
+            <div class="text-cyan-400 text-6xl mb-6 animate-bounce"><i class="fa-solid fa-trophy"></i></div>
+            <h2 class="text-3xl font-bold mb-2 italic tracking-tighter text-white">ARTIFACT SECURED</h2>
+            <div class="h-px w-24 bg-cyan-500 mx-auto my-6"></div>
             <div class="text-4xl font-bold text-white mb-2 mono glow-text" id="modalPoints">+0</div>
             <p class="mono text-slate-400 text-xs uppercase tracking-widest mb-8">Focus Units Acquired</p>
             <button onclick="closeModal()" class="w-full px-8 py-4 bg-white text-black font-bold rounded-xl hover:bg-cyan-400 transition-colors uppercase tracking-widest">
-                Continue Mission
+                Resume Operations
             </button>
         </div>
     </div>
 
-    <!-- Scripts -->
     <script>
-        // --- ROUTER SYSTEM ---
-        const pages = ['landing', 'auth', 'app'];
+        /* --- CORE SYSTEM VARIABLES --- */
+        const APP_VERSION = "4.0.2";
+        const DEFAULT_SUBJECTS = ["General", "Maths", "Biology", "Chemistry", "Physics", "History", "Literature", "Coding"];
         
+        // State
+        let user = null;
+        let artifacts = [];
+        let trashBin = [];
+        let historyLog = [];
+        let customSubjects = [];
+        let weeklySchedule = [
+            { id: 0, day: 'Sunday', active: false, start: '09:00', end: '17:00' },
+            { id: 1, day: 'Monday', active: true, start: '09:00', end: '17:00' },
+            { id: 2, day: 'Tuesday', active: true, start: '09:00', end: '17:00' },
+            { id: 3, day: 'Wednesday', active: true, start: '09:00', end: '17:00' },
+            { id: 4, day: 'Thursday', active: true, start: '09:00', end: '17:00' },
+            { id: 5, day: 'Friday', active: true, start: '09:00', end: '17:00' },
+            { id: 6, day: 'Saturday', active: false, start: '09:00', end: '17:00' }
+        ];
+        let settings = { 
+            sound: true, 
+            notifications: false,
+            peakHour: 10 
+        };
+        let totalScore = 0;
+        let engineInterval;
+        let audioCtx = null; // Audio Context for synths
+
+        /* --- INITIALIZATION --- */
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            
+            // Router check
+            if (user) {
+                router('app');
+                initEngine();
+            } else {
+                router('landing');
+            }
+
+            // Keyboard Shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key === 'k') {
+                    e.preventDefault();
+                    document.getElementById('searchBar').focus();
+                }
+                if (e.ctrlKey && e.key === 'n') {
+                    e.preventDefault();
+                    document.getElementById('taskName').focus();
+                }
+            });
+        });
+
+        /* --- ROUTER & UI --- */
         function router(pageId) {
-            // Hide all pages
-            pages.forEach(p => {
-                document.getElementById(`page-${p}`).classList.remove('active');
-                setTimeout(() => {
-                   if(!document.getElementById(`page-${p}`).classList.contains('active')) {
-                       document.getElementById(`page-${p}`).style.display = 'none';
-                   }
-                }, 400); 
+            document.querySelectorAll('.page-section').forEach(el => {
+                el.classList.remove('active');
+                setTimeout(() => { if(!el.classList.contains('active')) el.style.display = 'none'; }, 300);
             });
 
-            // Show target page
             const target = document.getElementById(`page-${pageId}`);
-            target.style.display = 'block';
-            setTimeout(() => {
-                target.classList.add('active');
-            }, 10);
+            target.style.display = (pageId === 'landing' || pageId === 'auth') ? 'flex' : 'block';
+            setTimeout(() => target.classList.add('active'), 10);
 
-            // Nav State Logic
             const authNav = document.getElementById('nav-auth-display');
             const guestNav = document.getElementById('nav-guest-display');
-
+            
             if (pageId === 'app') {
                 authNav.classList.remove('hidden');
                 authNav.classList.add('flex');
@@ -666,358 +646,260 @@
             }
         }
 
-        // --- AUTH SYSTEM ---
-        let isSignup = false;
+        function toggleModal(id) {
+            const el = document.getElementById(id);
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+                el.classList.add('flex');
+                playSound('hover');
+            } else {
+                el.classList.add('hidden');
+                el.classList.remove('flex');
+            }
+        }
 
+        /* --- AUDIO ENGINE --- */
+        function initAudio() {
+            if (!settings.sound) return;
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function playSound(type) {
+            if (!settings.sound) return;
+            if (!audioCtx) initAudio();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'hover') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(600, now + 0.05);
+                gain.gain.setValueAtTime(0.02, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            } else if (type === 'success') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.setValueAtTime(554, now + 0.1); // C#
+                osc.frequency.setValueAtTime(659, now + 0.2); // E
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.4);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            } else if (type === 'delete') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(100, now);
+                osc.frequency.exponentialRampToValueAtTime(50, now + 0.2);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.2);
+                osc.start(now);
+                osc.stop(now + 0.2);
+            } else if (type === 'alert') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(800, now);
+                osc.frequency.setValueAtTime(400, now + 0.1);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.2);
+                osc.start(now);
+                osc.stop(now + 0.2);
+            }
+        }
+
+        /* --- AUTH --- */
         function login() {
-            const btn = document.getElementById('btn-login');
-            const originalText = btn.innerText;
-            const username = document.getElementById('auth-username').value;
-            
-            // UI Feedback
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> PROCESSING...';
-            btn.classList.add('bg-cyan-400', 'text-black');
-            
-            setTimeout(() => {
-                btn.innerText = originalText;
-                btn.classList.remove('bg-cyan-400', 'text-black');
-                
-                // Save user and init
-                localStorage.setItem('chronos_user', username);
-                router('app');
+            const input = document.getElementById('auth-username');
+            if (input.value.trim().length > 0) {
+                user = input.value;
+                localStorage.setItem('chronos_user', user);
+                playSound('success');
                 initEngine();
-            }, 1000);
+                router('app');
+            }
         }
 
-        function logout() {
-            router('landing');
-        }
-
-        // --- DATA & STATE ---
-        let artifacts = [];
-        let historyLog = [];
-        let events = []; // { date: "YYYY-MM-DD", type: "holiday"|"test", name: "", subject: "" }
-        let weeklySchedule = [
-            { id: 0, day: 'Sunday', active: false, start: '09:00', end: '17:00' },
-            { id: 1, day: 'Monday', active: true, start: '09:00', end: '17:00' },
-            { id: 2, day: 'Tuesday', active: true, start: '09:00', end: '17:00' },
-            { id: 3, day: 'Wednesday', active: true, start: '09:00', end: '17:00' },
-            { id: 4, day: 'Thursday', active: true, start: '09:00', end: '17:00' },
-            { id: 5, day: 'Friday', active: true, start: '09:00', end: '17:00' },
-            { id: 6, day: 'Saturday', active: false, start: '09:00', end: '17:00' }
-        ];
-
-        let totalScore = 0;
-        let settings = { peakHour: 10, prioritySubjects: [] };
-        let engineInterval;
-        let currentEnergy = 0;
-
-        const availableSubjects = ["Maths", "Biology", "Chemistry", "Physics", "History", "Literature", "SLR", "Coding"];
-
+        /* --- ENGINE CORE --- */
         function initEngine() {
-            loadData();
-            renderArtifacts();
-            renderLog();
-            renderScheduleInputs();
-            renderEventList();
-            renderSettingsPriority();
-            
             if (engineInterval) clearInterval(engineInterval);
+            renderSubjectOptions();
+            renderArtifacts();
+            renderSchedule();
+            // updateStats(); // Removed as it was undefined
+            
             engineInterval = setInterval(tick, 1000);
-            tick();
-        }
-
-        function loadData() {
-            const savedArtifacts = localStorage.getItem('chronos_artifacts');
-            if (savedArtifacts) {
-                artifacts = JSON.parse(savedArtifacts);
-                artifacts.forEach(a => a.created = new Date(a.created));
-            }
-
-            const savedHistory = localStorage.getItem('chronos_history');
-            if (savedHistory) {
-                historyLog = JSON.parse(savedHistory);
-                historyLog.forEach(h => h.date = new Date(h.date));
-            }
-
-            const savedScore = localStorage.getItem('chronos_score');
-            if (savedScore) totalScore = parseInt(savedScore);
-            document.getElementById('navScore').innerText = totalScore;
-            document.getElementById('log-total-score').innerText = totalScore;
-
-            const savedSettings = localStorage.getItem('chronos_settings');
-            if (savedSettings) settings = JSON.parse(savedSettings);
-            document.getElementById('setting-peak').value = settings.peakHour;
-            document.getElementById('setting-peak-display').innerText = settings.peakHour;
-
-            const savedSchedule = localStorage.getItem('chronos_schedule');
-            if (savedSchedule) weeklySchedule = JSON.parse(savedSchedule);
-
-            const savedEvents = localStorage.getItem('chronos_events');
-            if (savedEvents) events = JSON.parse(savedEvents);
-        }
-
-        function saveData() {
-            localStorage.setItem('chronos_artifacts', JSON.stringify(artifacts));
-            localStorage.setItem('chronos_history', JSON.stringify(historyLog));
-            localStorage.setItem('chronos_score', totalScore);
-            localStorage.setItem('chronos_settings', JSON.stringify(settings));
-            localStorage.setItem('chronos_schedule', JSON.stringify(weeklySchedule));
-            localStorage.setItem('chronos_events', JSON.stringify(events));
-        }
-
-        function clearData() {
-            if(confirm("WARNING: This will wipe all mission data. Proceed?")) {
-                localStorage.clear();
-                location.reload();
+            tick(); // Run immediately to initialize UI
+            
+            // Request Notification Permission if previously enabled
+            if (settings.notifications && Notification.permission !== "granted") {
+                Notification.requestPermission();
             }
         }
 
-        // --- ENGINE LOGIC ---
         function tick() {
             const now = new Date();
             
-            // 1. Clock Update
+            // Clock
             document.getElementById('navTime').innerText = now.toLocaleTimeString('en-GB', { hour12: false });
 
-            // 2. Biological Energy
-            const hour = now.getHours();
-            const minute = now.getMinutes();
-            const decimalHour = hour + (minute / 60);
-            const peak = parseInt(settings.peakHour);
-            const distFromPeak = Math.abs(decimalHour - peak);
+            // Bio-Capacity
+            const hour = now.getHours() + (now.getMinutes() / 60);
+            const peak = settings.peakHour;
+            const dist = Math.abs(hour - peak);
+            let energy = dist < 4 ? 100 - (dist * 10) : 60 - ((dist - 4) * 5);
+            energy = Math.max(10, Math.min(100, Math.round(energy)));
             
-            let energy = distFromPeak < 4 ? 100 - (distFromPeak * 10) : 60 - ((distFromPeak - 4) * 5);
-            currentEnergy = Math.max(5, Math.min(100, Math.round(energy)));
+            document.getElementById('navEnergy').innerText = `${energy}%`;
+            document.getElementById('appEnergyDisplay').innerText = `${energy}%`;
             
-            document.getElementById('navEnergy').innerText = `${currentEnergy}%`;
-            const appEnergyEl = document.getElementById('appEnergyDisplay');
-            if(appEnergyEl) {
-                appEnergyEl.innerText = `${currentEnergy}%`;
-                appEnergyEl.className = `text-3xl mono font-bold mt-1 ${currentEnergy > 70 ? 'text-green-400' : (currentEnergy > 30 ? 'text-yellow-400' : 'text-red-500')}`;
-            }
+            // Task Decay & Tracking
+            const isWorkingHours = checkWorkingHours(now);
+            let needsRender = false;
 
-            // 3. Artifact Decay (Only if scheduled to work!)
-            const workingStatus = checkWorkingStatus(now);
-            
-            if (workingStatus.shouldWork) {
-                let hasChanges = false;
-                artifacts.forEach(art => {
-                    if (art.status === 'active') {
-                        art.timeLeft--;
-                        if (art.timeLeft <= 0) {
-                            art.timeLeft = 0;
-                            art.status = 'decayed';
-                        }
-                        hasChanges = true;
+            artifacts.forEach(art => {
+                // Tracking Time
+                if (art.isTracking) {
+                    art.actualTime = (art.actualTime || 0) + 1;
+                    needsRender = true; // Update stopwatch display
+                }
+
+                // Decay Logic
+                if (art.status === 'active' && isWorkingHours) {
+                    art.timeLeft--;
+                    
+                    // Notification Trigger (once per task)
+                    if (settings.notifications && !art.notified && (art.timeLeft / art.totalTime) < 0.2) {
+                        new Notification(`CRITICAL DECAY: ${art.name}`, { body: "Artifact integrity below 20%. Immediate action required." });
+                        playSound('alert');
+                        art.notified = true;
                     }
-                });
-                if (hasChanges) {
-                    renderArtifacts();
-                    if(now.getSeconds() % 5 === 0) saveData(); 
-                }
-            }
 
-            // 4. Update Suggestion Engine
-            updateSuggestionEngine(now, workingStatus);
-        }
-
-        // --- INTELLIGENT SUGGESTION ENGINE ---
-        function checkWorkingStatus(date) {
-            const todayStr = date.toISOString().split('T')[0];
-            const dayId = date.getDay(); // 0 = Sunday
-            const daySchedule = weeklySchedule.find(d => d.id === dayId);
-            
-            // 1. Check Events
-            const todayEvent = events.find(e => e.date === todayStr);
-            if (todayEvent) {
-                if (todayEvent.type === 'holiday') return { shouldWork: false, reason: 'Holiday', event: todayEvent };
-                if (todayEvent.type === 'test') return { shouldWork: true, reason: 'Test Day', event: todayEvent, critical: true };
-            }
-
-            // 2. Check Weekly Schedule
-            if (!daySchedule.active) return { shouldWork: false, reason: 'Rest Day', event: null };
-
-            // 3. Check Hours
-            const nowMins = date.getHours() * 60 + date.getMinutes();
-            const [startH, startM] = daySchedule.start.split(':').map(Number);
-            const [endH, endM] = daySchedule.end.split(':').map(Number);
-            const startMins = startH * 60 + startM;
-            const endMins = endH * 60 + endM;
-
-            if (nowMins >= startMins && nowMins < endMins) {
-                return { shouldWork: true, reason: 'Operational Hours', event: null };
-            } else {
-                return { shouldWork: false, reason: 'Off-Hours', event: null };
-            }
-        }
-
-        function updateSuggestionEngine(now, status) {
-            const panel = document.getElementById('ai-suggestion-panel');
-            const headline = document.getElementById('suggestion-headline');
-            const sub = document.getElementById('suggestion-reason');
-            const actionArea = document.getElementById('suggestion-action-area');
-            const statusDisplay = document.getElementById('schedule-status-display');
-            const nextEventDisplay = document.getElementById('next-event-display');
-
-            // Find next event
-            const todayStr = now.toISOString().split('T')[0];
-            const upcomingEvent = events
-                .filter(e => e.date > todayStr)
-                .sort((a,b) => a.date.localeCompare(b.date))[0];
-            
-            let context = { testUpcoming: false, testSubject: null };
-
-            if (upcomingEvent) {
-                const daysUntil = Math.ceil((new Date(upcomingEvent.date) - now) / (1000 * 60 * 60 * 24));
-                nextEventDisplay.innerText = `${daysUntil} days until ${upcomingEvent.name} (${upcomingEvent.type.toUpperCase()})`;
-                if (daysUntil <= 3 && upcomingEvent.type === 'test') {
-                    context.testUpcoming = true;
-                    context.testSubject = upcomingEvent.subject;
-                }
-            } else {
-                nextEventDisplay.innerText = "No impending events detected.";
-            }
-
-            statusDisplay.innerText = status.reason;
-
-            // Logic Tree
-            if (status.reason === 'Holiday') {
-                panel.className = "mb-8 artifact-card p-6 rounded-xl border-l-4 border-l-green-500 relative overflow-hidden";
-                headline.innerText = "SYSTEM PAUSED: HOLIDAY DETECTED";
-                sub.innerText = `Event: ${status.event.name}. Recovery protocols active. Decay paused.`;
-                actionArea.classList.add('hidden');
-                return;
-            }
-
-            if (!status.shouldWork) {
-                 panel.className = "mb-8 artifact-card p-6 rounded-xl border-l-4 border-l-slate-500 relative overflow-hidden";
-                headline.innerText = "STANDBY: OFF-HOURS";
-                sub.innerText = "Outside operational window. Decay paused. Recharge bio-batteries.";
-                actionArea.classList.add('hidden');
-                return;
-            }
-
-            if (context.testUpcoming) {
-                panel.className = "mb-8 artifact-card p-6 rounded-xl border-l-4 border-l-red-500 relative overflow-hidden bg-red-900/10";
-                headline.innerText = "CRITICAL ALERT: TEST APPROACHING";
-                sub.innerText = `Target: ${upcomingEvent.name}. Prioritize ${context.testSubject || "relevant"} artifacts.`;
-                recommendTask(true, context.testSubject);
-                return;
-            }
-
-            // Normal Operation
-            panel.className = "mb-8 artifact-card p-6 rounded-xl border-l-4 border-l-cyan-400 relative overflow-hidden";
-            recommendTask(false, null);
-        }
-
-        function recommendTask(isCriticalMode, targetSubject) {
-            const headline = document.getElementById('suggestion-headline');
-            const sub = document.getElementById('suggestion-reason');
-            const actionArea = document.getElementById('suggestion-action-area');
-            const btn = document.getElementById('suggestion-action-area').querySelector('button');
-
-            const activeArtifacts = artifacts.filter(a => a.status === 'active');
-
-            if (activeArtifacts.length === 0) {
-                headline.innerText = "IDLE: AWAITING INPUT";
-                sub.innerText = "No artifacts in queue. Initialize new tasks to begin.";
-                actionArea.classList.add('hidden');
-                return;
-            }
-
-            // Scoring Algorithm
-            let bestTask = null;
-            let highestScore = -1000;
-
-            activeArtifacts.forEach(task => {
-                let score = 0;
-                
-                // 1. Urgency (Decay state)
-                const percentLeft = task.timeLeft / task.totalTime;
-                score += (1 - percentLeft) * 50; 
-
-                // 2. Bio Match
-                const energyRatio = currentEnergy / 100; // 0.0 - 1.0
-                const complexityRatio = task.complexity / 10; // 0.1 - 1.0
-                const synergy = 1 - Math.abs(energyRatio - complexityRatio);
-                score += synergy * 30;
-
-                // 3. User Priority (Settings)
-                if (settings.prioritySubjects && settings.prioritySubjects.includes(task.subject)) {
-                    score += 60; // Significant boost for prioritized subjects
-                }
-
-                // 4. Context Priority (Upcoming Test)
-                if (isCriticalMode && targetSubject && task.subject === targetSubject) {
-                    score += 200; // Massive boost for matching test subject
-                } else if (isCriticalMode && !targetSubject && (task.name.toLowerCase().includes('study') || task.name.toLowerCase().includes('rev'))) {
-                    score += 100; // Fallback if no subject defined but keyword match
-                }
-
-                if (score > highestScore) {
-                    highestScore = score;
-                    bestTask = task;
+                    if (art.timeLeft <= 0) {
+                        art.timeLeft = 0;
+                        art.status = 'decayed';
+                        playSound('delete');
+                        needsRender = true;
+                    } else if (now.getSeconds() % 10 === 0) {
+                        needsRender = true; // Update bars occasionally
+                    }
                 }
             });
 
-            if (bestTask) {
-                let reason = 'Optimal Energy/Urgency Synergy';
-                if(isCriticalMode && targetSubject && bestTask.subject === targetSubject) reason = 'CRITICAL: Matches Upcoming Test Subject';
-                else if (settings.prioritySubjects && settings.prioritySubjects.includes(bestTask.subject)) reason = 'High Priority Subject Setting';
-                
-                headline.innerHTML = `DIRECTIVE: ENGAGE <span class="text-cyan-400">${bestTask.name}</span>`;
-                sub.innerText = `Reason: ${reason}. Subject: ${bestTask.subject || 'General'}`;
-                actionArea.classList.remove('hidden');
+            if (needsRender || now.getSeconds() % 60 === 0) {
+                saveData(); // Auto-save
+                if(needsRender) renderArtifacts(false); // False = don't hard redraw if only updating time/bars (simplified here)
             }
+            
+            updateAI(energy, isWorkingHours);
         }
 
-        // --- ARTIFACT MANAGEMENT ---
+        function checkWorkingHours(date) {
+            const dayId = date.getDay();
+            const sched = weeklySchedule.find(d => d.id === dayId);
+            if (!sched.active) return false;
+            
+            const nowMins = date.getHours() * 60 + date.getMinutes();
+            const [sH, sM] = sched.start.split(':').map(Number);
+            const [eH, eM] = sched.end.split(':').map(Number);
+            
+            return nowMins >= (sH * 60 + sM) && nowMins < (eH * 60 + eM);
+        }
+
+        /* --- ARTIFACT MANAGEMENT --- */
         function createArtifact() {
             const name = document.getElementById('taskName').value;
+            if (!name) return alert("Artifact Designation Required");
+
+            const desc = document.getElementById('taskDesc').value;
+            const subtext = document.getElementById('taskSubtasks').value;
             const subject = document.getElementById('taskSubject').value;
-            
-            if (!name) return;
             const complexity = parseInt(document.getElementById('taskComplexity').value);
             const duration = parseInt(document.getElementById('taskDuration').value);
 
-            const newArtifact = {
+            let subtasks = [];
+            if(subtext.trim()) {
+                subtasks = subtext.split('\n').filter(l => l.trim()).map(txt => ({ text: txt.replace(/^- /, ''), done: false }));
+            }
+
+            const newArt = {
                 id: Date.now(),
-                name: name,
-                subject: subject,
-                complexity: complexity,
+                name,
+                desc,
+                subject,
+                complexity,
                 totalTime: duration * 60,
                 timeLeft: duration * 60,
+                actualTime: 0,
                 status: 'active',
-                created: new Date()
+                created: new Date(),
+                subtasks,
+                isTracking: false,
+                notified: false
             };
 
-            artifacts.push(newArtifact);
+            artifacts.push(newArt);
             document.getElementById('taskName').value = '';
+            document.getElementById('taskDesc').value = '';
+            document.getElementById('taskSubtasks').value = '';
+            
+            playSound('success');
             saveData();
             renderArtifacts();
         }
 
-        function removeArtifact(id) {
+        function toggleTrack(id) {
             const art = artifacts.find(a => a.id === id);
-            if (art && art.status === 'decayed') {
-                addToLog(art, 0, 'dissolved');
+            if(art) {
+                // Pause all others
+                artifacts.forEach(a => { if(a.id !== id) a.isTracking = false; });
+                art.isTracking = !art.isTracking;
+                renderArtifacts();
             }
-            artifacts = artifacts.filter(a => a.id !== id);
-            saveData();
-            renderArtifacts();
+        }
+
+        function toggleSubtask(artId, idx) {
+            const art = artifacts.find(a => a.id === artId);
+            if(art && art.subtasks[idx]) {
+                art.subtasks[idx].done = !art.subtasks[idx].done;
+                saveData();
+                renderArtifacts();
+            }
+        }
+
+        function deleteArtifact(id) {
+            const art = artifacts.find(a => a.id === id);
+            if(art) {
+                if(confirm("Move artifact to Void?")) {
+                    trashBin.push(art);
+                    artifacts = artifacts.filter(a => a.id !== id);
+                    playSound('delete');
+                    saveData();
+                    renderArtifacts();
+                }
+            }
         }
 
         function completeArtifact(id) {
             const art = artifacts.find(a => a.id === id);
-            if (art) {
-                const timeRatio = art.timeLeft / art.totalTime;
-                const points = Math.round((timeRatio * art.complexity) * 100);
+            if(art) {
+                playSound('success');
+                fireConfetti();
+                
+                const ratio = art.timeLeft / art.totalTime;
+                const points = Math.round((ratio * art.complexity * 100) + (art.complexity * 50));
                 
                 totalScore += points;
-                addToLog(art, points, 'resolved');
+                document.getElementById('navScore').innerText = totalScore;
                 
-                showROIModal(points, art.complexity, Math.round(timeRatio * 100));
+                // Add to log
+                historyLog.unshift({ name: art.name, date: new Date(), points });
+                
+                showROI(points);
                 
                 artifacts = artifacts.filter(a => a.id !== id);
                 saveData();
@@ -1025,294 +907,310 @@
             }
         }
 
+        /* --- UI RENDERING --- */
         function renderArtifacts() {
             const grid = document.getElementById('artifactGrid');
-            const empty = document.getElementById('emptyState');
-            const countDisplay = document.getElementById('activeTaskCount');
-
-            if (artifacts.length === 0) {
-                grid.innerHTML = '';
-                empty.classList.remove('hidden');
-                countDisplay.innerText = '0';
-                return;
-            }
-
-            empty.classList.add('hidden');
-            countDisplay.innerText = artifacts.filter(a => a.status === 'active').length;
-
-            // Sort logic: decayed last, then priority score
-            const sorted = [...artifacts].sort((a, b) => {
-                if(a.status === 'decayed' && b.status !== 'decayed') return 1;
-                if(b.status === 'decayed' && a.status !== 'decayed') return -1;
-
-                // Basic pressure
-                let pressureA = (a.totalTime - a.timeLeft) * a.complexity;
-                let pressureB = (b.totalTime - b.timeLeft) * b.complexity;
-                
-                // Boost for priority subjects
-                if(settings.prioritySubjects && settings.prioritySubjects.includes(a.subject)) pressureA += 10000;
-                if(settings.prioritySubjects && settings.prioritySubjects.includes(b.subject)) pressureB += 10000;
-
-                return pressureB - pressureA;
+            const search = document.getElementById('searchBar').value.toLowerCase();
+            const subjectFilter = document.getElementById('filterSubject').value;
+            const statusFilter = document.getElementById('filterStatus').value;
+            
+            let filtered = artifacts.filter(a => {
+                if (search && !a.name.toLowerCase().includes(search)) return false;
+                if (subjectFilter !== 'all' && a.subject !== subjectFilter) return false;
+                if (statusFilter !== 'all' && a.status !== statusFilter) return false;
+                return true;
             });
 
-            grid.innerHTML = sorted.map(art => {
-                const percentage = (art.timeLeft / art.totalTime) * 100;
-                const isCritical = percentage < 20 && art.status === 'active';
-                const isDecayed = art.status === 'decayed';
-                
-                const cardOpacity = isDecayed ? 'opacity-50 grayscale' : 'opacity-100';
-                const barColor = isCritical ? 'bg-danger' : 'bg-cyan-400';
-                const textColor = isCritical ? 'text-red-500' : 'text-cyan-400';
-                const pulseClass = isCritical ? 'critical-decay' : '';
-                
-                const isPriority = settings.prioritySubjects && settings.prioritySubjects.includes(art.subject);
+            // Sort: Tracking first, then Decayed last, then by urgency
+            filtered.sort((a,b) => {
+                if (a.isTracking) return -1;
+                if (b.isTracking) return 1;
+                if (a.status === 'decayed') return 1;
+                if (b.status === 'decayed') return -1;
+                return (a.timeLeft/a.totalTime) - (b.timeLeft/b.totalTime);
+            });
 
-                return `
-                    <div class="artifact-card p-6 rounded-xl relative overflow-hidden ${cardOpacity}">
-                        ${isPriority ? '<div class="absolute top-0 right-0 bg-yellow-400 text-black text-[10px] font-bold px-2 py-1 z-20">PRIORITY</div>' : ''}
-                        
-                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-2">
-                            <div>
-                                <div class="flex items-center gap-2">
-                                    <span class="subject-badge bg-white/10 text-slate-300 border border-white/10">${art.subject || 'Gen'}</span>
-                                    <h3 class="font-bold text-lg leading-tight ${isDecayed ? 'line-through text-slate-500' : 'text-white'}">${art.name}</h3>
-                                </div>
-                                <div class="flex gap-2 mt-1">
-                                    <span class="text-[10px] px-2 py-0.5 rounded border border-white/10 bg-white/5 mono text-slate-400">CPX: ${art.complexity}</span>
-                                    <span class="text-[10px] px-2 py-0.5 rounded border border-cyan-500/20 bg-cyan-500/10 ${textColor} mono">INTEGRITY: ${Math.round(percentage)}%</span>
-                                </div>
-                            </div>
-                            <div class="flex gap-3">
-                                ${!isDecayed ? `
-                                <button onclick="completeArtifact(${art.id})" class="text-xs font-bold uppercase tracking-widest bg-white text-black px-4 py-2 rounded hover:bg-cyan-400 transition-colors">
-                                    Resolve
-                                </button>
-                                ` : ''}
-                                <button onclick="removeArtifact(${art.id})" class="text-slate-600 hover:text-red-500 transition px-2">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="mb-2">
-                            <div class="flex justify-between text-[10px] uppercase text-slate-500 mb-1 mono">
-                                <span>Time To Dissolution</span>
-                                <span class="${pulseClass}">${formatTime(art.timeLeft)}</span>
-                            </div>
-                            <div class="decay-bar rounded-full bg-slate-800">
-                                <div class="decay-progress ${barColor}" style="width: ${percentage}%"></div>
-                            </div>
-                        </div>
-                        ${isDecayed ? `
-                        <div class="absolute inset-0 flex items-center justify-center bg-black/80 z-10 backdrop-blur-sm">
-                            <div class="text-red-600 font-bold uppercase tracking-[0.5em] border-2 border-red-600 px-6 py-2 rotate-[-5deg] glow-danger">DISSOLVED</div>
-                        </div>
-                        ` : ''}
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // --- SCHEDULE & EVENTS MANAGEMENT ---
-        function switchTab(tabId) {
-            document.getElementById('tab-week').classList.add('hidden');
-            document.getElementById('tab-events').classList.add('hidden');
-            document.getElementById('btn-tab-week').classList.remove('text-cyan-400', 'border-cyan-400', 'bg-white/5');
-            document.getElementById('btn-tab-events').classList.remove('text-cyan-400', 'border-cyan-400', 'bg-white/5');
+            document.getElementById('activeTaskCount').innerText = artifacts.filter(a=>a.status==='active').length;
             
-            document.getElementById(tabId).classList.remove('hidden');
-            document.getElementById('btn-' + tabId).classList.add('text-cyan-400', 'border-cyan-400', 'bg-white/5');
-        }
-
-        function renderScheduleInputs() {
-            const container = document.getElementById('weekly-schedule-container');
-            container.innerHTML = weeklySchedule.map(day => `
-                <div class="flex items-center justify-between bg-black/30 p-3 rounded border border-white/5">
-                    <div class="flex items-center gap-3">
-                         <div class="relative inline-block w-10 h-5 align-middle select-none transition duration-200 ease-in">
-                            <input type="checkbox" name="toggle" id="toggle-${day.id}" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 border-slate-700 appearance-none cursor-pointer transition-all duration-300" ${day.active ? 'checked' : ''} onchange="updateScheduleLocal(${day.id}, 'active', this.checked)">
-                            <label for="toggle-${day.id}" class="toggle-label block overflow-hidden h-5 rounded-full bg-slate-700 cursor-pointer"></label>
-                        </div>
-                        <span class="text-sm font-bold w-24">${day.day}</span>
-                    </div>
-                    <div class="flex gap-2 ${day.active ? 'opacity-100' : 'opacity-20 pointer-events-none'} transition-opacity">
-                        <input type="time" value="${day.start}" onchange="updateScheduleLocal(${day.id}, 'start', this.value)" class="bg-black border border-slate-700 text-white text-xs rounded p-1 focus:border-cyan-400 outline-none">
-                        <span class="text-slate-500 self-center">-</span>
-                        <input type="time" value="${day.end}" onchange="updateScheduleLocal(${day.id}, 'end', this.value)" class="bg-black border border-slate-700 text-white text-xs rounded p-1 focus:border-cyan-400 outline-none">
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function updateScheduleLocal(id, field, value) {
-            const day = weeklySchedule.find(d => d.id === id);
-            if (day) day[field] = value;
-            renderScheduleInputs();
-        }
-
-        function addEvent() {
-            const date = document.getElementById('event-date').value;
-            const name = document.getElementById('event-name').value;
-            const type = document.getElementById('event-type').value;
-            const subject = document.getElementById('event-subject').value;
-
-            if (date && name) {
-                events.push({ date, name, type, subject });
-                document.getElementById('event-name').value = '';
-                saveData();
-                renderEventList();
-                tick(); // force engine update
-            }
-        }
-
-        function removeEvent(index) {
-            events.splice(index, 1);
-            saveData();
-            renderEventList();
-            tick();
-        }
-
-        function renderEventList() {
-            const list = document.getElementById('event-list');
-            list.innerHTML = events
-                .sort((a,b) => a.date.localeCompare(b.date))
-                .map((e, index) => `
-                <div class="flex justify-between items-center bg-white/5 p-3 rounded border border-white/5 hover:border-cyan-500/30 transition">
-                    <div>
-                        <div class="text-[10px] text-cyan-400 mono">${e.date} ${e.subject ? `• ${e.subject}` : ''}</div>
-                        <div class="font-bold text-white text-sm">${e.name}</div>
-                        <div class="text-[10px] text-slate-500 uppercase tracking-widest">${e.type}</div>
-                    </div>
-                    <button onclick="removeEvent(${index})" class="text-slate-600 hover:text-red-500"><i class="fa-solid fa-times"></i></button>
-                </div>
-            `).join('');
-        }
-
-        // --- SETTINGS: PRIORITY SUBJECTS ---
-        function renderSettingsPriority() {
-            const container = document.getElementById('priority-subjects-container');
-            const currentPriorities = settings.prioritySubjects || [];
-
-            container.innerHTML = availableSubjects.map(subj => {
-                const isActive = currentPriorities.includes(subj);
-                return `
-                    <div class="flex items-center justify-between p-2 rounded bg-black/30 border ${isActive ? 'border-yellow-500/50' : 'border-white/5'} cursor-pointer hover:bg-white/5 transition" onclick="togglePrioritySubject('${subj}')">
-                        <span class="text-sm ${isActive ? 'text-yellow-400 font-bold' : 'text-slate-400'}">${subj}</span>
-                        <div class="w-3 h-3 rounded-full border ${isActive ? 'bg-yellow-400 border-yellow-400' : 'border-slate-600'}"></div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function togglePrioritySubject(subj) {
-            if (!settings.prioritySubjects) settings.prioritySubjects = [];
-            
-            if (settings.prioritySubjects.includes(subj)) {
-                settings.prioritySubjects = settings.prioritySubjects.filter(s => s !== subj);
-            } else {
-                settings.prioritySubjects.push(subj);
-            }
-            renderSettingsPriority();
-        }
-
-        // --- LOGIC UTILS ---
-        function addToLog(artifact, points, result) {
-            const logEntry = {
-                id: artifact.id,
-                name: artifact.name,
-                complexity: artifact.complexity,
-                points: points,
-                result: result, 
-                date: new Date()
-            };
-            historyLog.unshift(logEntry);
-            renderLog();
-        }
-
-        function renderLog() {
-            const tbody = document.getElementById('log-table-body');
-            const empty = document.getElementById('empty-log');
-            
-            if(historyLog.length === 0) {
-                tbody.innerHTML = '';
-                empty.classList.remove('hidden');
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                document.getElementById('emptyState').classList.remove('hidden');
                 return;
             }
+            document.getElementById('emptyState').classList.add('hidden');
+
+            grid.innerHTML = filtered.map(art => {
+                const pct = (art.timeLeft / art.totalTime) * 100;
+                const isCritical = pct < 20 && art.status === 'active';
+                const isDecayed = art.status === 'decayed';
+                
+                let subtaskHTML = '';
+                if(art.subtasks && art.subtasks.length > 0) {
+                    const doneCount = art.subtasks.filter(s=>s.done).length;
+                    subtaskHTML = `
+                        <div class="mt-3 bg-black/40 p-2 rounded border border-white/5">
+                            <div class="text-[10px] uppercase text-slate-500 mb-1">Checklist (${doneCount}/${art.subtasks.length})</div>
+                            <div class="space-y-1">
+                                ${art.subtasks.map((s, i) => `
+                                    <div class="checklist-item flex items-center gap-2 cursor-pointer ${s.done ? 'completed' : ''}" onclick="toggleSubtask(${art.id}, ${i})">
+                                        <div class="w-3 h-3 rounded-sm border ${s.done ? 'bg-cyan-400 border-cyan-400' : 'border-slate-600'}"></div>
+                                        <span class="text-xs text-slate-300 truncate">${s.text}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                return `
+                <div class="artifact-card p-5 rounded-xl ${isDecayed ? 'opacity-50 grayscale' : ''} ${art.isTracking ? 'border-cyan-400 shadow-[0_0_15px_rgba(0,242,255,0.1)]' : ''}">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex flex-col gap-1">
+                            <span class="subject-badge bg-white/10 text-slate-300 w-max">${art.subject}</span>
+                            <h3 class="font-bold text-lg leading-tight text-white">${art.name}</h3>
+                            ${art.desc ? `<p class="text-xs text-slate-400 line-clamp-2">${art.desc}</p>` : ''}
+                        </div>
+                        <div class="flex gap-2">
+                             ${!isDecayed ? `
+                             <button onclick="toggleTrack(${art.id})" class="w-8 h-8 rounded-full border flex items-center justify-center transition ${art.isTracking ? 'bg-red-500 border-red-500 text-white animate-pulse' : 'border-white/20 text-slate-400 hover:text-white hover:border-white'}">
+                                <i class="fa-solid ${art.isTracking ? 'fa-pause' : 'fa-play'}"></i>
+                             </button>
+                             <button onclick="completeArtifact(${art.id})" class="w-8 h-8 rounded-full border border-green-500/30 text-green-500 hover:bg-green-500 hover:text-black transition flex items-center justify-center">
+                                <i class="fa-solid fa-check"></i>
+                             </button>` : ''}
+                             <button onclick="deleteArtifact(${art.id})" class="w-8 h-8 rounded-full border border-white/10 text-slate-500 hover:text-red-500 transition flex items-center justify-center">
+                                <i class="fa-solid fa-times"></i>
+                             </button>
+                        </div>
+                    </div>
+                    
+                    ${subtaskHTML}
+
+                    <div class="mt-4">
+                        <div class="flex justify-between text-[10px] uppercase text-slate-500 mb-1 mono">
+                            <span class="${isCritical ? 'text-red-500 animate-pulse' : ''}">${isDecayed ? 'DISSOLVED' : formatTime(art.timeLeft)} Remaining</span>
+                            <span>Tracked: ${formatTime(art.actualTime)}</span>
+                        </div>
+                        <div class="decay-bar bg-slate-800">
+                            <div class="decay-progress ${isCritical ? 'bg-red-500 critical-decay' : 'bg-cyan-400'}" style="width: ${pct}%"></div>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function renderSubjectOptions() {
+            const allSubs = [...DEFAULT_SUBJECTS, ...customSubjects];
+            const opts = allSubs.map(s => `<option value="${s}">${s}</option>`).join('');
             
-            empty.classList.add('hidden');
-            tbody.innerHTML = historyLog.map(entry => `
-                <tr class="border-b border-white/5 hover:bg-white/5 transition">
-                    <td class="p-4">
-                        <div class="font-bold text-white">${entry.name}</div>
-                        <div class="text-[10px] text-slate-500">${entry.date.toLocaleDateString()} ${entry.date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
-                    </td>
-                    <td class="p-4 uppercase text-xs font-bold ${entry.result === 'resolved' ? 'text-cyan-400' : 'text-red-500'}">
-                        ${entry.result}
-                    </td>
-                    <td class="p-4 text-right font-bold ${entry.points > 0 ? 'text-yellow-400' : 'text-slate-600'}">
-                        ${entry.points > 0 ? '+' : ''}${entry.points}
-                    </td>
-                </tr>
+            document.getElementById('taskSubject').innerHTML = opts;
+            document.getElementById('filterSubject').innerHTML = `<option value="all">All Subjects</option>` + opts;
+            
+            // Settings list
+            const setList = document.getElementById('settings-subject-list');
+            setList.innerHTML = customSubjects.map(s => `
+                <div class="bg-white/10 px-2 py-1 rounded text-xs text-white flex gap-2 items-center">
+                    ${s} <i class="fa-solid fa-times cursor-pointer hover:text-red-500" onclick="removeSubject('${s}')"></i>
+                </div>
             `).join('');
         }
+        
+        /* --- AI & LOGIC --- */
+        function updateAI(energy, isWorking) {
+            const h = document.getElementById('suggestion-headline');
+            const r = document.getElementById('suggestion-reason');
+            const stat = document.getElementById('schedule-status-display');
+            
+            stat.innerText = isWorking ? "SYSTEM ACTIVE" : "SYSTEM STANDBY";
+            stat.className = isWorking ? "text-[10px] mono text-cyan-400 animate-pulse" : "text-[10px] mono text-slate-500";
 
-        function formatTime(seconds) {
-            if (seconds <= 0) return "00:00";
-            const m = Math.floor(seconds / 60);
-            const s = seconds % 60;
-            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        }
+            if (!isWorking) {
+                h.innerText = "STANDBY MODE";
+                r.innerText = "Outside operational hours. Recover biological resources.";
+                return;
+            }
 
-        // --- UI UTILS ---
-        function toggleModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal.classList.contains('hidden')) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
+            if (artifacts.length === 0) {
+                h.innerText = "AWAITING INPUT";
+                r.innerText = "No artifacts detected. Initialize new protocols.";
+                return;
+            }
+
+            // Simple Priority Algorithm
+            const active = artifacts.filter(a => a.status === 'active');
+            if (active.length > 0) {
+                const best = active.sort((a,b) => (a.timeLeft/a.totalTime) - (b.timeLeft/b.totalTime))[0];
+                h.innerHTML = `FOCUS: <span class="text-cyan-400">${best.name}</span>`;
+                r.innerText = `Highest decay rate detected. Immediate attention recommended.`;
             } else {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
+                h.innerText = "ALL CLEAR";
+                r.innerText = "All active artifacts resolved.";
             }
         }
-        
-        // Settings Listeners
-        document.getElementById('setting-peak').addEventListener('input', (e) => {
-            document.getElementById('setting-peak-display').innerText = e.target.value;
-        });
 
-        function saveScheduleSettings() {
-             saveData();
-             tick();
-             toggleModal('modal-schedule');
+        /* --- DATA PERSISTENCE --- */
+        function saveData() {
+            const data = {
+                user, artifacts, trashBin, historyLog, customSubjects, weeklySchedule, settings, totalScore
+            };
+            localStorage.setItem('chronos_omega_data', JSON.stringify(data));
         }
 
-        function saveSettings() {
-            settings.peakHour = parseInt(document.getElementById('setting-peak').value);
-            // priorities are already in settings.prioritySubjects via toggle function
+        function loadData() {
+            const raw = localStorage.getItem('chronos_omega_data');
+            if(raw) {
+                const data = JSON.parse(raw);
+                user = data.user;
+                artifacts = data.artifacts || [];
+                trashBin = data.trashBin || [];
+                historyLog = data.historyLog || [];
+                customSubjects = data.customSubjects || [];
+                weeklySchedule = data.weeklySchedule || weeklySchedule;
+                settings = data.settings || settings;
+                totalScore = data.totalScore || 0;
+                
+                // Hydrate dates not needed for simple math but good practice
+                document.getElementById('navScore').innerText = totalScore;
+                document.getElementById('setting-sound').checked = settings.sound;
+                document.getElementById('setting-notifs').checked = settings.notifications;
+            } else {
+                // Check legacy
+                if(localStorage.getItem('chronos_user')) {
+                   user = localStorage.getItem('chronos_user');
+                }
+            }
+        }
+
+        function exportData() {
             saveData();
-            tick(); 
-            renderArtifacts(); // Re-sort grid based on new priorities
-            toggleModal('modal-settings');
+            const dataStr = localStorage.getItem('chronos_omega_data');
+            const blob = new Blob([dataStr], {type: "application/json"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `chronos_backup_${new Date().toISOString().slice(0,10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         }
 
-        // --- ROI POPUP ---
-        function showROIModal(points, cpx, speed) {
-            const modal = document.getElementById('roiModal');
-            const content = document.getElementById('roiContent');
-            
-            document.getElementById('modalPoints').innerText = `+${points}`;
-            document.getElementById('modalCpx').innerText = cpx;
-            document.getElementById('modalSpeed').innerText = `${speed}%`;
+        function importData(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.user && data.artifacts) { // Simple validation
+                        localStorage.setItem('chronos_omega_data', JSON.stringify(data));
+                        location.reload();
+                    } else {
+                        alert("Invalid Chronos file.");
+                    }
+                } catch(err) { alert("Corrupt file."); }
+            };
+            reader.readAsText(file);
+        }
 
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
+        function wipeData() {
+            if(confirm("CRITICAL WARNING: This will permanently erase all local data. Continue?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        /* --- TRASH & RECOVERY --- */
+        function updateTrashView() {
+            const div = document.getElementById('trash-container');
+            if (trashBin.length === 0) {
+                div.innerHTML = '<div class="p-8 text-center text-slate-500 text-xs uppercase tracking-widest">Void is empty</div>';
+                return;
+            }
+            div.innerHTML = trashBin.map((art, idx) => `
+                <div class="flex justify-between items-center p-3 border-b border-white/5 hover:bg-white/5">
+                    <span class="text-sm text-slate-300">${art.name}</span>
+                    <button onclick="restoreArtifact(${idx})" class="text-xs text-cyan-400 hover:text-white uppercase">Restore</button>
+                </div>
+            `).join('');
+        }
+        
+        function restoreArtifact(idx) {
+            const art = trashBin.splice(idx, 1)[0];
+            art.status = 'active'; // Reset status if it was decayed
+            artifacts.push(art);
+            saveData();
+            renderArtifacts();
+            updateTrashView();
+            toggleModal('modal-trash'); // Close to show result
+        }
+
+        function emptyTrash() {
+            if(confirm("Permanently delete items in Void?")) {
+                trashBin = [];
+                saveData();
+                updateTrashView();
+            }
+        }
+
+        // Hook trash view update
+        document.querySelector('button[onclick="toggleModal(\'modal-trash\')"]').addEventListener('click', updateTrashView);
+
+        /* --- SETTINGS LOGIC --- */
+        function saveSettingsLocal() {
+            settings.sound = document.getElementById('setting-sound').checked;
+            saveData();
+        }
+
+        function requestNotifs(cb) {
+            if (cb.checked) {
+                Notification.requestPermission().then(perm => {
+                    if (perm === 'granted') {
+                        settings.notifications = true;
+                        new Notification("Chronos System", { body: "Notifications Active" });
+                    } else {
+                        cb.checked = false;
+                        alert("Permission denied by browser.");
+                    }
+                    saveData();
+                });
+            } else {
+                settings.notifications = false;
+                saveData();
+            }
+        }
+
+        function addCustomSubject() {
+            const inp = document.getElementById('newSubjectInput');
+            const val = inp.value.trim();
+            if(val && !customSubjects.includes(val) && !DEFAULT_SUBJECTS.includes(val)) {
+                customSubjects.push(val);
+                inp.value = '';
+                saveData();
+                renderSubjectOptions();
+            }
+        }
+
+        function removeSubject(sub) {
+            customSubjects = customSubjects.filter(s => s !== sub);
+            saveData();
+            renderSubjectOptions();
+        }
+
+        /* --- VISUALS --- */
+        function showROI(points) {
+            document.getElementById('modalPoints').innerText = `+${points}`;
+            document.getElementById('roiModal').classList.remove('hidden');
+            document.getElementById('roiModal').classList.add('flex');
             
-            content.classList.remove('scale-100');
-            content.classList.add('scale-95');
-            setTimeout(() => {
-                content.classList.remove('scale-95');
-                content.classList.add('scale-100');
-            }, 10);
+            const logs = document.getElementById('log-table-body');
+            logs.innerHTML = historyLog.map(h => `
+                <tr class="border-b border-white/5">
+                    <td class="p-3 text-white">${h.name}</td>
+                    <td class="p-3 text-slate-500 text-xs">${new Date(h.date).toLocaleTimeString()}</td>
+                    <td class="p-3 text-right text-yellow-400 font-bold">+${h.points}</td>
+                </tr>
+            `).join('');
         }
 
         function closeModal() {
@@ -1320,9 +1218,72 @@
             document.getElementById('roiModal').classList.remove('flex');
         }
 
-        // Init
-        router('landing');
+        function formatTime(sec) {
+            if(isNaN(sec) || sec < 0) return "00:00";
+            const m = Math.floor(sec / 60);
+            const s = Math.floor(sec % 60);
+            return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+        
+        function renderSchedule() {
+            const cont = document.getElementById('schedule-container');
+            cont.innerHTML = weeklySchedule.map(d => `
+                <div class="flex items-center justify-between bg-black/30 p-2 rounded mb-2 border border-white/5">
+                    <span class="w-24 text-sm font-bold ${d.active ? 'text-white' : 'text-slate-600'}">${d.day}</span>
+                    <input type="checkbox" ${d.active ? 'checked' : ''} onchange="updateDay(${d.id}, 'active', this.checked)" class="accent-cyan-400">
+                    <div class="${d.active ? '' : 'opacity-20 pointer-events-none'}">
+                        <input type="time" value="${d.start}" onchange="updateDay(${d.id}, 'start', this.value)" class="bg-black text-white text-xs border border-slate-700 rounded p-1">
+                        <input type="time" value="${d.end}" onchange="updateDay(${d.id}, 'end', this.value)" class="bg-black text-white text-xs border border-slate-700 rounded p-1">
+                    </div>
+                </div>
+            `).join('');
+        }
 
+        function updateDay(id, field, val) {
+            const d = weeklySchedule.find(x => x.id === id);
+            if(d) d[field] = val;
+            saveData();
+            renderSchedule();
+        }
+
+        /* --- CONFETTI --- */
+        function fireConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const particles = [];
+            for(let i=0; i<100; i++) {
+                particles.push({
+                    x: window.innerWidth / 2,
+                    y: window.innerHeight / 2,
+                    vx: (Math.random() - 0.5) * 15,
+                    vy: (Math.random() - 0.5) * 15,
+                    color: `hsl(${Math.random()*360}, 100%, 50%)`,
+                    life: 100
+                });
+            }
+            
+            function anim() {
+                ctx.clearRect(0,0,canvas.width, canvas.height);
+                let active = false;
+                particles.forEach(p => {
+                    if(p.life > 0) {
+                        active = true;
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        p.life--;
+                        ctx.fillStyle = p.color;
+                        ctx.globalAlpha = p.life / 100;
+                        ctx.fillRect(p.x, p.y, 4, 4);
+                    }
+                });
+                if(active) requestAnimationFrame(anim);
+                else ctx.clearRect(0,0,canvas.width, canvas.height);
+            }
+            anim();
+        }
     </script>
 </body>
 </html>
