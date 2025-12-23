@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chronos Artifact | Omega Protocol</title>
+    <title>Chronos Artifact v5.0 | Omega Protocol</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
         
@@ -83,16 +84,6 @@
             border-color: var(--danger) !important;
         }
         
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .task-enter {
-            animation: slideIn 0.3s forwards;
-        }
-
-        /* --- Page Transitions --- */
         .page-section {
             display: none;
             opacity: 0;
@@ -161,6 +152,11 @@
             text-decoration: line-through;
             color: var(--text-dim);
         }
+
+        /* Focus Mode Overlay */
+        #focus-overlay {
+            background: radial-gradient(circle at center, rgba(10,10,10,0.95), #000);
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col selection:bg-cyan-500/30 selection:text-white">
@@ -178,7 +174,7 @@
                 </div>
                 <div>
                     <h1 class="font-bold tracking-tight text-lg leading-none">CHRONOS <span class="text-cyan-400">OMEGA</span></h1>
-                    <span class="text-[10px] text-slate-500 mono uppercase tracking-widest">Protocol v4.0</span>
+                    <span class="text-[10px] text-slate-500 mono uppercase tracking-widest">Protocol v5.0</span>
                 </div>
             </div>
 
@@ -204,14 +200,17 @@
 
                 <!-- Action Buttons -->
                 <div class="flex items-center gap-2">
+                    <button onclick="toggleModal('modal-focus')" class="nav-btn w-9 h-9 rounded border border-white/10 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-400 transition bg-black/50" title="Deep Dive (Focus Mode)">
+                        <i class="fa-solid fa-bullseye"></i>
+                    </button>
+                    <button onclick="toggleModal('modal-stats')" class="nav-btn w-9 h-9 rounded border border-white/10 flex items-center justify-center text-slate-400 hover:text-purple-400 hover:border-purple-400 transition bg-black/50" title="Intel (Stats)">
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </button>
                     <button onclick="toggleModal('modal-schedule')" class="nav-btn w-9 h-9 rounded border border-white/10 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-400 transition relative bg-black/50" title="Schedule">
                         <i class="fa-solid fa-calendar-alt"></i>
                     </button>
                     <button onclick="toggleModal('modal-trash')" class="nav-btn w-9 h-9 rounded border border-white/10 flex items-center justify-center text-slate-400 hover:text-red-400 hover:border-red-400 transition bg-black/50" title="Void (Trash)">
                         <i class="fa-solid fa-trash-alt"></i>
-                    </button>
-                     <button onclick="toggleModal('modal-log')" class="nav-btn w-9 h-9 rounded border border-white/10 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-400 transition bg-black/50" title="Log">
-                        <i class="fa-solid fa-list-check"></i>
                     </button>
                     <button onclick="toggleModal('modal-settings')" class="nav-btn w-9 h-9 rounded border border-white/10 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-400 transition bg-black/50" title="Settings">
                         <i class="fa-solid fa-sliders"></i>
@@ -235,14 +234,14 @@
                 <div class="order-2 lg:order-1">
                     <div class="inline-flex items-center gap-2 px-3 py-1 border border-cyan-500/30 bg-cyan-500/10 rounded-full text-cyan-400 text-xs mono mb-6 uppercase tracking-widest">
                         <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-                        System Online: v4.0.2
+                        System Online: v5.0
                     </div>
                     <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-none tracking-tight">
                         Entropy is<br>
                         <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">Inevitable.</span>
                     </h1>
                     <p class="text-xl text-slate-400 leading-relaxed mb-10 max-w-xl mx-auto lg:mx-0">
-                        The ultimate academic and professional task engine. Treat tasks as decaying matter. Manage energy, not just time. Now with full data persistence and checklists.
+                        The ultimate academic and professional task engine. Manage deadlines, calculate ROI, and enter deep focus states. Now optimized for students and researchers.
                     </p>
                     <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                         <button onclick="router('auth')" class="px-8 py-4 bg-cyan-400 text-black font-bold text-lg rounded hover:bg-cyan-300 transition-all shadow-[0_0_20px_rgba(0,242,255,0.3)]">
@@ -258,7 +257,7 @@
                         <div class="absolute inset-0 border-2 border-dashed border-cyan-500/30 rounded-full animate-[spin_10s_linear_infinite]"></div>
                         <div class="absolute inset-4 border border-white/10 rounded-full animate-[spin_15s_linear_infinite_reverse]"></div>
                         <div class="absolute inset-0 flex items-center justify-center">
-                            <i class="fa-solid fa-stopwatch text-6xl md:text-8xl text-cyan-400 drop-shadow-[0_0_15px_rgba(0,242,255,0.5)]"></i>
+                            <i class="fa-solid fa-atom text-6xl md:text-8xl text-cyan-400 drop-shadow-[0_0_15px_rgba(0,242,255,0.5)]"></i>
                         </div>
                     </div>
                 </div>
@@ -266,19 +265,19 @@
 
             <div id="features" class="grid md:grid-cols-3 gap-6 mt-24">
                 <div class="artifact-card p-6 rounded-xl border-t-2 border-t-cyan-400">
-                    <i class="fa-solid fa-biohazard text-cyan-400 text-2xl mb-4"></i>
-                    <h3 class="text-lg font-bold mb-2">Temporal Decay</h3>
-                    <p class="text-sm text-slate-400">Tasks lose value over time. Visual alerts and browser notifications ensure nothing rots.</p>
-                </div>
-                <div class="artifact-card p-6 rounded-xl border-t-2 border-t-yellow-400">
-                    <i class="fa-solid fa-bolt text-yellow-400 text-2xl mb-4"></i>
-                    <h3 class="text-lg font-bold mb-2">Bio-Rhythm Logic</h3>
-                    <p class="text-sm text-slate-400">The engine calculates your cognitive capacity based on time of day to suggest optimal tasks.</p>
+                    <i class="fa-solid fa-hourglass-half text-cyan-400 text-2xl mb-4"></i>
+                    <h3 class="text-lg font-bold mb-2">Deadline Decay</h3>
+                    <p class="text-sm text-slate-400">Visual pressure systems for assignments and projects. Don't let your grade rot.</p>
                 </div>
                 <div class="artifact-card p-6 rounded-xl border-t-2 border-t-purple-400">
-                    <i class="fa-solid fa-shield-halved text-purple-400 text-2xl mb-4"></i>
-                    <h3 class="text-lg font-bold mb-2">Data Integrity</h3>
-                    <p class="text-sm text-slate-400">Full JSON export/import. Trash recovery. Your academic mission data is secure.</p>
+                    <i class="fa-solid fa-bullseye text-purple-400 text-2xl mb-4"></i>
+                    <h3 class="text-lg font-bold mb-2">Deep Dive</h3>
+                    <p class="text-sm text-slate-400">Integrated focus timer (Pomodoro style) with distraction blocking interface.</p>
+                </div>
+                <div class="artifact-card p-6 rounded-xl border-t-2 border-t-yellow-400">
+                    <i class="fa-solid fa-chart-line text-yellow-400 text-2xl mb-4"></i>
+                    <h3 class="text-lg font-bold mb-2">Academic Intel</h3>
+                    <p class="text-sm text-slate-400">Analyze performance by subject. Export data to CSV/JSON for external reporting.</p>
                 </div>
             </div>
         </div>
@@ -364,7 +363,7 @@
                         <select id="filterStatus" onchange="renderArtifacts()" class="flex-1 bg-black/50 border border-slate-700 rounded px-2 py-1 text-xs text-slate-300 focus:border-cyan-400 outline-none">
                             <option value="all">All Status</option>
                             <option value="active">Active</option>
-                            <option value="decayed">Decayed</option>
+                            <option value="decayed">Decayed/Expired</option>
                         </select>
                     </div>
                 </div>
@@ -397,14 +396,35 @@
                                            class="w-full bg-black/50 border border-slate-700 rounded-lg p-3 text-sm outline-none input-glow transition text-center text-white">
                                 </div>
                                 <div>
-                                    <label class="text-[10px] text-slate-500 uppercase mb-1 block">Lifespan (Mins)</label>
-                                    <input id="taskDuration" type="number" value="45" 
-                                           class="w-full bg-black/50 border border-slate-700 rounded-lg p-3 text-sm outline-none input-glow transition text-center text-white">
+                                    <label class="text-[10px] text-slate-500 uppercase mb-1 block">Recurrence</label>
+                                    <select id="taskRecur" class="w-full bg-black/50 border border-slate-700 rounded-lg p-3 text-sm outline-none input-glow transition text-white">
+                                        <option value="none">One-off</option>
+                                        <option value="daily">Daily Loop</option>
+                                        <option value="weekly">Weekly Loop</option>
+                                    </select>
                                 </div>
                             </div>
                             
+                            <!-- New Date Toggle -->
+                            <div class="bg-black/40 p-3 rounded border border-white/5">
+                                <label class="flex items-center gap-2 text-xs text-slate-300 mb-2">
+                                    <input type="checkbox" id="useDeadlineToggle" class="accent-cyan-400" onchange="toggleDateInput(this)">
+                                    Use Hard Deadline
+                                </label>
+                                <div id="lifespanInput">
+                                    <label class="text-[10px] text-slate-500 uppercase mb-1 block">Session Lifespan (Mins)</label>
+                                    <input id="taskDuration" type="number" value="45" 
+                                           class="w-full bg-black/50 border border-slate-700 rounded-lg p-2 text-sm outline-none input-glow transition text-center text-white">
+                                </div>
+                                <div id="deadlineInput" class="hidden">
+                                    <label class="text-[10px] text-slate-500 uppercase mb-1 block">Target Date & Time</label>
+                                    <input id="taskDeadline" type="datetime-local" 
+                                           class="w-full bg-black/50 border border-slate-700 rounded-lg p-2 text-sm outline-none input-glow transition text-white [color-scheme:dark]">
+                                </div>
+                            </div>
+
                             <div class="pt-2">
-                                <label class="text-[10px] text-slate-500 uppercase mb-1 block">Sub-tasks (One per line)</label>
+                                <label class="text-[10px] text-slate-500 uppercase mb-1 block">Checklist (One per line)</label>
                                 <textarea id="taskSubtasks" rows="3" placeholder="- Research topic&#10;- Write outline" 
                                         class="w-full bg-black/50 border border-slate-700 rounded-lg p-3 text-sm outline-none input-glow transition text-white placeholder-slate-600 resize-none"></textarea>
                             </div>
@@ -436,7 +456,7 @@
         </div>
     </section>
 
-    <!-- MODAL: SETTINGS (Now with Import/Export/Audio/Subjects) -->
+    <!-- MODAL: SETTINGS -->
     <div id="modal-settings" class="fixed inset-0 z-[100] hidden items-center justify-center modal-backdrop p-4">
         <div class="artifact-card p-0 rounded-2xl max-w-lg w-full flex flex-col max-h-[90vh] overflow-hidden">
             <div class="p-5 border-b border-white/10 flex justify-between items-center bg-black/40">
@@ -461,7 +481,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <div class="text-sm font-bold text-white">Critical Alerts</div>
-                        <div class="text-xs text-slate-500">Browser notifications</div>
+                        <div class="text-xs text-slate-500">Browser notifications for decay</div>
                     </div>
                     <div class="relative inline-block w-10 h-5">
                         <input type="checkbox" id="setting-notifs" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 border-slate-700 appearance-none cursor-pointer transition-all duration-300" onchange="requestNotifs(this)">
@@ -473,9 +493,9 @@
 
                 <!-- Custom Subjects -->
                 <div>
-                    <label class="block text-[10px] uppercase tracking-widest text-slate-500 mb-2">Custom Subjects</label>
+                    <label class="block text-[10px] uppercase tracking-widest text-slate-500 mb-2">Academic Subjects</label>
                     <div class="flex gap-2 mb-2">
-                        <input type="text" id="newSubjectInput" placeholder="New Subject Name" class="flex-grow bg-black border border-slate-700 rounded px-3 text-xs text-white focus:border-cyan-400 outline-none">
+                        <input type="text" id="newSubjectInput" placeholder="New Subject (e.g. Physics)" class="flex-grow bg-black border border-slate-700 rounded px-3 text-xs text-white focus:border-cyan-400 outline-none">
                         <button onclick="addCustomSubject()" class="bg-white/10 hover:bg-cyan-400 hover:text-black text-cyan-400 px-3 rounded text-xs font-bold transition"><i class="fa-solid fa-plus"></i></button>
                     </div>
                     <div id="settings-subject-list" class="flex flex-wrap gap-2">
@@ -488,11 +508,16 @@
                 <!-- Data Management -->
                 <div>
                     <div class="text-sm font-bold text-white mb-3">Data Integrity</div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <button onclick="exportData()" class="py-2 border border-white/20 rounded hover:bg-white/5 text-xs uppercase tracking-widest text-slate-300 transition">
-                            <i class="fa-solid fa-download mr-1"></i> Backup JSON
+                    <div class="grid grid-cols-2 gap-3 mb-2">
+                        <button onclick="exportData('json')" class="py-2 border border-white/20 rounded hover:bg-white/5 text-xs uppercase tracking-widest text-slate-300 transition">
+                            <i class="fa-solid fa-code mr-1"></i> JSON Backup
                         </button>
-                        <button onclick="document.getElementById('importFile').click()" class="py-2 border border-white/20 rounded hover:bg-white/5 text-xs uppercase tracking-widest text-slate-300 transition">
+                        <button onclick="exportData('csv')" class="py-2 border border-white/20 rounded hover:bg-white/5 text-xs uppercase tracking-widest text-slate-300 transition">
+                            <i class="fa-solid fa-table mr-1"></i> Export CSV
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 gap-3">
+                         <button onclick="document.getElementById('importFile').click()" class="py-2 border border-white/20 rounded hover:bg-white/5 text-xs uppercase tracking-widest text-slate-300 transition">
                             <i class="fa-solid fa-upload mr-1"></i> Restore JSON
                         </button>
                         <input type="file" id="importFile" class="hidden" accept=".json" onchange="importData(this)">
@@ -505,7 +530,7 @@
         </div>
     </div>
 
-    <!-- MODAL: SCHEDULE (Simplified View) -->
+    <!-- MODAL: SCHEDULE -->
     <div id="modal-schedule" class="fixed inset-0 z-[100] hidden items-center justify-center modal-backdrop p-4">
         <div class="artifact-card p-0 rounded-2xl max-w-2xl w-full flex flex-col max-h-[90vh]">
             <div class="p-5 border-b border-white/10 flex justify-between items-center bg-black/40">
@@ -519,36 +544,74 @@
         </div>
     </div>
 
-    <!-- MODAL: TRASH / VOID -->
+    <!-- MODAL: TRASH -->
     <div id="modal-trash" class="fixed inset-0 z-[100] hidden items-center justify-center modal-backdrop p-4">
         <div class="artifact-card p-0 rounded-2xl max-w-2xl w-full flex flex-col max-h-[80vh]">
              <div class="p-5 border-b border-white/10 flex justify-between items-center bg-black/40">
                 <h2 class="font-bold text-red-400 tracking-wider flex items-center gap-2"><i class="fa-solid fa-trash-alt"></i> THE VOID</h2>
                 <button onclick="toggleModal('modal-trash')" class="text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
             </div>
-            <div class="flex-grow overflow-y-auto p-0 bg-black/20" id="trash-container">
-                <!-- JS Injected -->
-            </div>
+            <div class="flex-grow overflow-y-auto p-0 bg-black/20" id="trash-container"></div>
             <div class="p-4 border-t border-white/10 text-center">
                 <button onclick="emptyTrash()" class="text-xs text-red-500 hover:text-red-400 uppercase tracking-widest">Empty Void Permanently</button>
             </div>
         </div>
     </div>
     
-     <!-- MODAL: LOG -->
-    <div id="modal-log" class="fixed inset-0 z-[100] hidden items-center justify-center modal-backdrop p-4">
-        <div class="artifact-card p-0 rounded-2xl max-w-2xl w-full flex flex-col max-h-[80vh]">
+     <!-- MODAL: STATS (NEW) -->
+    <div id="modal-stats" class="fixed inset-0 z-[100] hidden items-center justify-center modal-backdrop p-4">
+        <div class="artifact-card p-0 rounded-2xl max-w-4xl w-full flex flex-col max-h-[90vh]">
              <div class="p-5 border-b border-white/10 flex justify-between items-center bg-black/40">
-                <h2 class="font-bold text-cyan-400 tracking-wider flex items-center gap-2"><i class="fa-solid fa-list-check"></i> MISSION LOG</h2>
-                <button onclick="toggleModal('modal-log')" class="text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
+                <h2 class="font-bold text-purple-400 tracking-wider flex items-center gap-2"><i class="fa-solid fa-chart-pie"></i> INTEL DASHBOARD</h2>
+                <button onclick="toggleModal('modal-stats')" class="text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
             </div>
-            <div class="flex-grow overflow-y-auto p-0">
-                <table class="w-full text-left">
-                    <thead class="bg-white/5 text-xs uppercase text-slate-500 sticky top-0 backdrop-blur-md">
-                        <tr><th class="p-4">Artifact</th><th class="p-4">Time</th><th class="p-4 text-right">Profit</th></tr>
-                    </thead>
-                    <tbody id="log-table-body" class="text-sm mono text-slate-300"></tbody>
-                </table>
+            <div class="flex-grow overflow-y-auto p-6 bg-black/20">
+                <div class="grid md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-white/5 p-4 rounded-xl">
+                        <h3 class="text-xs uppercase text-slate-500 mb-4">Productivity Velocity</h3>
+                        <canvas id="chart-velocity" height="200"></canvas>
+                    </div>
+                    <div class="bg-white/5 p-4 rounded-xl">
+                        <h3 class="text-xs uppercase text-slate-500 mb-4">Subject Allocation</h3>
+                        <canvas id="chart-subjects" height="200"></canvas>
+                    </div>
+                </div>
+                
+                <h3 class="text-xs uppercase text-slate-500 mb-2">Recent Logs</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-white/5 text-xs uppercase text-slate-500">
+                            <tr><th class="p-3">Artifact</th><th class="p-3">Time</th><th class="p-3 text-right">Profit</th></tr>
+                        </thead>
+                        <tbody id="log-table-body" class="text-sm mono text-slate-300"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: FOCUS MODE (POMODORO) -->
+    <div id="modal-focus" class="fixed inset-0 z-[100] hidden flex-col items-center justify-center p-4" style="background: radial-gradient(circle at center, rgba(10,10,10,0.98), #000);">
+        <div class="text-center relative">
+            <button onclick="toggleModal('modal-focus'); stopFocusTimer();" class="absolute -top-12 right-0 text-slate-500 hover:text-white"><i class="fa-solid fa-times text-xl"></i></button>
+            
+            <div class="mb-8">
+                <h2 class="text-4xl font-bold text-white mb-2 tracking-tight">DEEP DIVE</h2>
+                <p class="text-cyan-400 mono text-sm uppercase tracking-widest">Focus Protocol Engaged</p>
+            </div>
+
+            <div class="relative w-64 h-64 mx-auto mb-8 flex items-center justify-center">
+                <div class="absolute inset-0 border-4 border-white/5 rounded-full"></div>
+                <svg class="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
+                    <circle id="focus-ring" cx="50" cy="50" r="46" fill="none" stroke="#00f2ff" stroke-width="4" stroke-dasharray="289" stroke-dashoffset="0" style="transition: stroke-dashoffset 1s linear;"></circle>
+                </svg>
+                <div class="text-6xl font-bold mono text-white" id="focus-display">25:00</div>
+            </div>
+
+            <div class="flex justify-center gap-4">
+                <button onclick="startFocusTimer(25)" class="px-6 py-3 border border-cyan-500/30 text-cyan-400 rounded hover:bg-cyan-500/10 uppercase tracking-widest text-xs font-bold">25m Sprint</button>
+                <button onclick="startFocusTimer(50)" class="px-6 py-3 border border-purple-500/30 text-purple-400 rounded hover:bg-purple-500/10 uppercase tracking-widest text-xs font-bold">50m Flow</button>
+                <button onclick="stopFocusTimer()" class="px-6 py-3 border border-red-500/30 text-red-400 rounded hover:bg-red-500/10 uppercase tracking-widest text-xs font-bold">Abort</button>
             </div>
         </div>
     </div>
@@ -569,8 +632,8 @@
 
     <script>
         /* --- CORE SYSTEM VARIABLES --- */
-        const APP_VERSION = "4.0.2";
-        const DEFAULT_SUBJECTS = ["General", "Maths", "Biology", "Chemistry", "Physics", "History", "Literature", "Coding"];
+        const APP_VERSION = "5.0.0";
+        const DEFAULT_SUBJECTS = ["General", "Maths", "Biology", "Chemistry", "Physics", "History", "Literature", "Coding", "Design", "Business"];
         
         // State
         let user = null;
@@ -594,13 +657,16 @@
         };
         let totalScore = 0;
         let engineInterval;
-        let audioCtx = null; // Audio Context for synths
+        let audioCtx = null;
+        let focusInterval;
+        let focusTimeLeft = 0;
+        let focusTotalTime = 0;
+        let charts = {};
 
         /* --- INITIALIZATION --- */
         document.addEventListener('DOMContentLoaded', () => {
             loadData();
             
-            // Router check
             if (user) {
                 router('app');
                 initEngine();
@@ -652,9 +718,20 @@
                 el.classList.remove('hidden');
                 el.classList.add('flex');
                 playSound('hover');
+                if(id === 'modal-stats') renderCharts();
             } else {
                 el.classList.add('hidden');
                 el.classList.remove('flex');
+            }
+        }
+        
+        function toggleDateInput(cb) {
+            if(cb.checked) {
+                document.getElementById('lifespanInput').classList.add('hidden');
+                document.getElementById('deadlineInput').classList.remove('hidden');
+            } else {
+                document.getElementById('lifespanInput').classList.remove('hidden');
+                document.getElementById('deadlineInput').classList.add('hidden');
             }
         }
 
@@ -687,8 +764,8 @@
             } else if (type === 'success') {
                 osc.type = 'triangle';
                 osc.frequency.setValueAtTime(440, now);
-                osc.frequency.setValueAtTime(554, now + 0.1); // C#
-                osc.frequency.setValueAtTime(659, now + 0.2); // E
+                osc.frequency.setValueAtTime(554, now + 0.1); 
+                osc.frequency.setValueAtTime(659, now + 0.2); 
                 gain.gain.setValueAtTime(0.1, now);
                 gain.gain.linearRampToValueAtTime(0, now + 0.4);
                 osc.start(now);
@@ -730,12 +807,10 @@
             renderSubjectOptions();
             renderArtifacts();
             renderSchedule();
-            // updateStats(); // Removed as it was undefined
             
             engineInterval = setInterval(tick, 1000);
-            tick(); // Run immediately to initialize UI
+            tick(); 
             
-            // Request Notification Permission if previously enabled
             if (settings.notifications && Notification.permission !== "granted") {
                 Notification.requestPermission();
             }
@@ -747,7 +822,7 @@
             // Clock
             document.getElementById('navTime').innerText = now.toLocaleTimeString('en-GB', { hour12: false });
 
-            // Bio-Capacity
+            // Bio-Capacity Logic
             const hour = now.getHours() + (now.getMinutes() / 60);
             const peak = settings.peakHour;
             const dist = Math.abs(hour - peak);
@@ -765,34 +840,63 @@
                 // Tracking Time
                 if (art.isTracking) {
                     art.actualTime = (art.actualTime || 0) + 1;
-                    needsRender = true; // Update stopwatch display
+                    needsRender = true;
+                }
+
+                // Recurring Reset Logic (Simple check: if recurrence is daily and last reset was not today)
+                if (art.recurrence && art.recurrence !== 'none') {
+                     // Advanced logic would go here (reseting completed tasks at midnight)
                 }
 
                 // Decay Logic
-                if (art.status === 'active' && isWorkingHours) {
-                    art.timeLeft--;
-                    
-                    // Notification Trigger (once per task)
-                    if (settings.notifications && !art.notified && (art.timeLeft / art.totalTime) < 0.2) {
-                        new Notification(`CRITICAL DECAY: ${art.name}`, { body: "Artifact integrity below 20%. Immediate action required." });
-                        playSound('alert');
-                        art.notified = true;
-                    }
+                if (art.status === 'active') {
+                    // Deadline Mode
+                    if (art.deadline) {
+                        const dl = new Date(art.deadline).getTime();
+                        const n = now.getTime();
+                        if (n >= dl) {
+                            art.status = 'decayed'; // Expired
+                            playSound('delete');
+                            needsRender = true;
+                        } else {
+                            // Decay is handled visually by comparing now vs deadline, no persistent timeLeft subtraction
+                            // But for notifications:
+                            const timeLeftMs = dl - n;
+                            const hoursLeft = timeLeftMs / (1000 * 60 * 60);
+                            
+                            if (settings.notifications && !art.notified && hoursLeft < 2) {
+                                new Notification(`DEADLINE IMMINENT: ${art.name}`, { body: "Less than 2 hours remaining." });
+                                playSound('alert');
+                                art.notified = true;
+                            }
+                            // Visual update every few seconds for smooth bars
+                            if (now.getSeconds() % 10 === 0) needsRender = true;
+                        }
+                    } 
+                    // Session/Lifespan Mode
+                    else if (isWorkingHours) {
+                        art.timeLeft--;
+                        if (settings.notifications && !art.notified && (art.timeLeft / art.totalTime) < 0.2) {
+                            new Notification(`CRITICAL DECAY: ${art.name}`, { body: "Artifact integrity below 20%." });
+                            playSound('alert');
+                            art.notified = true;
+                        }
 
-                    if (art.timeLeft <= 0) {
-                        art.timeLeft = 0;
-                        art.status = 'decayed';
-                        playSound('delete');
-                        needsRender = true;
-                    } else if (now.getSeconds() % 10 === 0) {
-                        needsRender = true; // Update bars occasionally
+                        if (art.timeLeft <= 0) {
+                            art.timeLeft = 0;
+                            art.status = 'decayed';
+                            playSound('delete');
+                            needsRender = true;
+                        } else if (now.getSeconds() % 10 === 0) {
+                            needsRender = true; 
+                        }
                     }
                 }
             });
 
             if (needsRender || now.getSeconds() % 60 === 0) {
-                saveData(); // Auto-save
-                if(needsRender) renderArtifacts(false); // False = don't hard redraw if only updating time/bars (simplified here)
+                saveData(); 
+                if(needsRender) renderArtifacts(false); 
             }
             
             updateAI(energy, isWorkingHours);
@@ -819,7 +923,18 @@
             const subtext = document.getElementById('taskSubtasks').value;
             const subject = document.getElementById('taskSubject').value;
             const complexity = parseInt(document.getElementById('taskComplexity').value);
-            const duration = parseInt(document.getElementById('taskDuration').value);
+            const recur = document.getElementById('taskRecur').value;
+            
+            const useDeadline = document.getElementById('useDeadlineToggle').checked;
+            let duration = 45;
+            let deadline = null;
+
+            if (useDeadline) {
+                deadline = document.getElementById('taskDeadline').value;
+                if(!deadline) return alert("Deadline Date Required");
+            } else {
+                duration = parseInt(document.getElementById('taskDuration').value) || 45;
+            }
 
             let subtasks = [];
             if(subtext.trim()) {
@@ -832,17 +947,21 @@
                 desc,
                 subject,
                 complexity,
+                recurrence: recur,
                 totalTime: duration * 60,
                 timeLeft: duration * 60,
+                deadline: deadline, // ISO string
+                created: new Date().toISOString(),
                 actualTime: 0,
                 status: 'active',
-                created: new Date(),
                 subtasks,
                 isTracking: false,
                 notified: false
             };
 
             artifacts.push(newArt);
+            
+            // Reset inputs
             document.getElementById('taskName').value = '';
             document.getElementById('taskDesc').value = '';
             document.getElementById('taskSubtasks').value = '';
@@ -874,7 +993,7 @@
         function deleteArtifact(id) {
             const art = artifacts.find(a => a.id === id);
             if(art) {
-                if(confirm("Move artifact to Void?")) {
+                if(confirm(`Move "${art.name}" to Void?`)) {
                     trashBin.push(art);
                     artifacts = artifacts.filter(a => a.id !== id);
                     playSound('delete');
@@ -887,20 +1006,52 @@
         function completeArtifact(id) {
             const art = artifacts.find(a => a.id === id);
             if(art) {
+                if(art.subtasks.length > 0 && art.subtasks.some(s => !s.done)) {
+                    if(!confirm("Incomplete checklist items detected. Proceed?")) return;
+                }
+
                 playSound('success');
                 fireConfetti();
                 
-                const ratio = art.timeLeft / art.totalTime;
-                const points = Math.round((ratio * art.complexity * 100) + (art.complexity * 50));
+                let points = 0;
+                
+                if (art.deadline) {
+                    // Points based on how early it was finished
+                    const dl = new Date(art.deadline).getTime();
+                    const now = Date.now();
+                    const diffHours = (dl - now) / (1000 * 60 * 60);
+                    const bonus = Math.max(0, diffHours * 10); // 10 pts per hour early
+                    points = Math.round((art.complexity * 100) + bonus);
+                } else {
+                    const ratio = art.timeLeft / art.totalTime;
+                    points = Math.round((ratio * art.complexity * 100) + (art.complexity * 50));
+                }
                 
                 totalScore += points;
                 document.getElementById('navScore').innerText = totalScore;
                 
-                // Add to log
-                historyLog.unshift({ name: art.name, date: new Date(), points });
-                
+                historyLog.unshift({ name: art.name, date: new Date(), points, subject: art.subject });
                 showROI(points);
                 
+                // Handle Recurrence
+                if (art.recurrence && art.recurrence !== 'none') {
+                    // Logic to reset the task for next cycle instead of deleting would go here.
+                    // For now, we clone it for "tomorrow"
+                    const next = JSON.parse(JSON.stringify(art));
+                    next.id = Date.now();
+                    next.status = 'active';
+                    next.isTracking = false;
+                    next.subtasks.forEach(s => s.done = false);
+                    if(next.deadline) {
+                        // Add 1 day or 1 week
+                        const d = new Date(next.deadline);
+                        if(next.recurrence === 'daily') d.setDate(d.getDate() + 1);
+                        if(next.recurrence === 'weekly') d.setDate(d.getDate() + 7);
+                        next.deadline = d.toISOString().slice(0,16);
+                    }
+                    artifacts.push(next);
+                }
+
                 artifacts = artifacts.filter(a => a.id !== id);
                 saveData();
                 renderArtifacts();
@@ -908,7 +1059,12 @@
         }
 
         /* --- UI RENDERING --- */
-        function renderArtifacts() {
+        function renderArtifacts(fullRedraw = true) {
+            if(!fullRedraw) {
+                // Optimized update (just bars/timers) could go here
+                // For simplicity, we stick to full render in this file structure
+            }
+
             const grid = document.getElementById('artifactGrid');
             const search = document.getElementById('searchBar').value.toLowerCase();
             const subjectFilter = document.getElementById('filterSubject').value;
@@ -921,13 +1077,18 @@
                 return true;
             });
 
-            // Sort: Tracking first, then Decayed last, then by urgency
+            // Sort logic
             filtered.sort((a,b) => {
                 if (a.isTracking) return -1;
                 if (b.isTracking) return 1;
-                if (a.status === 'decayed') return 1;
-                if (b.status === 'decayed') return -1;
-                return (a.timeLeft/a.totalTime) - (b.timeLeft/b.totalTime);
+                // Urgency Sort
+                const getUrgency = (x) => {
+                    if (x.status === 'decayed') return 0;
+                    if (x.deadline) return new Date(x.deadline).getTime();
+                    // Map lifespan to a future date approximation for sorting
+                    return Date.now() + (x.timeLeft * 1000); 
+                };
+                return getUrgency(a) - getUrgency(b);
             });
 
             document.getElementById('activeTaskCount').innerText = artifacts.filter(a=>a.status==='active').length;
@@ -940,10 +1101,36 @@
             document.getElementById('emptyState').classList.add('hidden');
 
             grid.innerHTML = filtered.map(art => {
-                const pct = (art.timeLeft / art.totalTime) * 100;
-                const isCritical = pct < 20 && art.status === 'active';
                 const isDecayed = art.status === 'decayed';
-                
+                let pct = 0;
+                let timeDisplay = "";
+                let isCritical = false;
+
+                if (art.deadline) {
+                    const dl = new Date(art.deadline);
+                    const now = new Date();
+                    const created = new Date(art.created);
+                    const totalDur = dl - created;
+                    const elapsed = now - created;
+                    pct = Math.max(0, 100 - ((elapsed / totalDur) * 100));
+                    
+                    const diffMs = dl - now;
+                    if(diffMs < 0) {
+                        timeDisplay = "OVERDUE";
+                        pct = 0;
+                        isCritical = true;
+                    } else {
+                        const h = Math.floor(diffMs / (1000 * 60 * 60));
+                        const m = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                        timeDisplay = `Due in ${h}h ${m}m`;
+                        if(h < 24) isCritical = h < 2; // Critical if < 2 hours
+                    }
+                } else {
+                    pct = (art.timeLeft / art.totalTime) * 100;
+                    timeDisplay = formatTime(art.timeLeft);
+                    isCritical = pct < 20 && art.status === 'active';
+                }
+
                 let subtaskHTML = '';
                 if(art.subtasks && art.subtasks.length > 0) {
                     const doneCount = art.subtasks.filter(s=>s.done).length;
@@ -965,12 +1152,15 @@
                 return `
                 <div class="artifact-card p-5 rounded-xl ${isDecayed ? 'opacity-50 grayscale' : ''} ${art.isTracking ? 'border-cyan-400 shadow-[0_0_15px_rgba(0,242,255,0.1)]' : ''}">
                     <div class="flex justify-between items-start mb-3">
-                        <div class="flex flex-col gap-1">
-                            <span class="subject-badge bg-white/10 text-slate-300 w-max">${art.subject}</span>
-                            <h3 class="font-bold text-lg leading-tight text-white">${art.name}</h3>
+                        <div class="flex flex-col gap-1 overflow-hidden">
+                            <div class="flex gap-2">
+                                <span class="subject-badge bg-white/10 text-slate-300 w-max">${art.subject}</span>
+                                ${art.recurrence !== 'none' ? '<span class="subject-badge bg-purple-500/20 text-purple-300 w-max"><i class="fa-solid fa-rotate"></i></span>' : ''}
+                            </div>
+                            <h3 class="font-bold text-lg leading-tight text-white truncate pr-2" title="${art.name}">${art.name}</h3>
                             ${art.desc ? `<p class="text-xs text-slate-400 line-clamp-2">${art.desc}</p>` : ''}
                         </div>
-                        <div class="flex gap-2">
+                        <div class="flex gap-2 shrink-0">
                              ${!isDecayed ? `
                              <button onclick="toggleTrack(${art.id})" class="w-8 h-8 rounded-full border flex items-center justify-center transition ${art.isTracking ? 'bg-red-500 border-red-500 text-white animate-pulse' : 'border-white/20 text-slate-400 hover:text-white hover:border-white'}">
                                 <i class="fa-solid ${art.isTracking ? 'fa-pause' : 'fa-play'}"></i>
@@ -988,7 +1178,7 @@
 
                     <div class="mt-4">
                         <div class="flex justify-between text-[10px] uppercase text-slate-500 mb-1 mono">
-                            <span class="${isCritical ? 'text-red-500 animate-pulse' : ''}">${isDecayed ? 'DISSOLVED' : formatTime(art.timeLeft)} Remaining</span>
+                            <span class="${isCritical ? 'text-red-500 animate-pulse font-bold' : ''}">${isDecayed ? 'FAILED' : timeDisplay}</span>
                             <span>Tracked: ${formatTime(art.actualTime)}</span>
                         </div>
                         <div class="decay-bar bg-slate-800">
@@ -1037,12 +1227,19 @@
                 return;
             }
 
-            // Simple Priority Algorithm
+            // Enhanced Priority Algorithm
             const active = artifacts.filter(a => a.status === 'active');
             if (active.length > 0) {
-                const best = active.sort((a,b) => (a.timeLeft/a.totalTime) - (b.timeLeft/b.totalTime))[0];
+                // Find most urgent (closest deadline or lowest decay)
+                active.sort((a,b) => {
+                    const urgA = a.deadline ? new Date(a.deadline).getTime() : Date.now() + a.timeLeft*1000;
+                    const urgB = b.deadline ? new Date(b.deadline).getTime() : Date.now() + b.timeLeft*1000;
+                    return urgA - urgB;
+                });
+                
+                const best = active[0];
                 h.innerHTML = `FOCUS: <span class="text-cyan-400">${best.name}</span>`;
-                r.innerText = `Highest decay rate detected. Immediate attention recommended.`;
+                r.innerText = best.deadline ? "Deadline proximity alert. Immediate execution advised." : "Highest decay rate detected.";
             } else {
                 h.innerText = "ALL CLEAR";
                 r.innerText = "All active artifacts resolved.";
@@ -1054,11 +1251,15 @@
             const data = {
                 user, artifacts, trashBin, historyLog, customSubjects, weeklySchedule, settings, totalScore
             };
-            localStorage.setItem('chronos_omega_data', JSON.stringify(data));
+            localStorage.setItem('chronos_omega_data_v5', JSON.stringify(data));
         }
 
         function loadData() {
-            const raw = localStorage.getItem('chronos_omega_data');
+            // Check v5 data first
+            let raw = localStorage.getItem('chronos_omega_data_v5');
+            // Fallback to v4
+            if(!raw) raw = localStorage.getItem('chronos_omega_data');
+            
             if(raw) {
                 const data = JSON.parse(raw);
                 user = data.user;
@@ -1070,29 +1271,41 @@
                 settings = data.settings || settings;
                 totalScore = data.totalScore || 0;
                 
-                // Hydrate dates not needed for simple math but good practice
                 document.getElementById('navScore').innerText = totalScore;
                 document.getElementById('setting-sound').checked = settings.sound;
                 document.getElementById('setting-notifs').checked = settings.notifications;
-            } else {
-                // Check legacy
-                if(localStorage.getItem('chronos_user')) {
+            } else if(localStorage.getItem('chronos_user')) {
                    user = localStorage.getItem('chronos_user');
-                }
             }
         }
 
-        function exportData() {
+        function exportData(type) {
             saveData();
-            const dataStr = localStorage.getItem('chronos_omega_data');
-            const blob = new Blob([dataStr], {type: "application/json"});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `chronos_backup_${new Date().toISOString().slice(0,10)}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            if (type === 'json') {
+                const dataStr = localStorage.getItem('chronos_omega_data_v5');
+                const blob = new Blob([dataStr], {type: "application/json"});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `chronos_backup_${new Date().toISOString().slice(0,10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } else if (type === 'csv') {
+                // Simple CSV Export
+                let csv = "Designation,Subject,Status,Created,Points\n";
+                historyLog.forEach(h => {
+                    csv += `"${h.name}","${h.subject||''}","Completed","${h.date}","${h.points}"\n`;
+                });
+                const blob = new Blob([csv], {type: "text/csv"});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `chronos_log_${new Date().toISOString().slice(0,10)}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
         }
 
         function importData(input) {
@@ -1102,8 +1315,8 @@
             reader.onload = (e) => {
                 try {
                     const data = JSON.parse(e.target.result);
-                    if (data.user && data.artifacts) { // Simple validation
-                        localStorage.setItem('chronos_omega_data', JSON.stringify(data));
+                    if (data.user && data.artifacts) {
+                        localStorage.setItem('chronos_omega_data_v5', JSON.stringify(data));
                         location.reload();
                     } else {
                         alert("Invalid Chronos file.");
@@ -1137,12 +1350,12 @@
         
         function restoreArtifact(idx) {
             const art = trashBin.splice(idx, 1)[0];
-            art.status = 'active'; // Reset status if it was decayed
+            art.status = 'active'; 
             artifacts.push(art);
             saveData();
             renderArtifacts();
             updateTrashView();
-            toggleModal('modal-trash'); // Close to show result
+            toggleModal('modal-trash');
         }
 
         function emptyTrash() {
@@ -1153,7 +1366,6 @@
             }
         }
 
-        // Hook trash view update
         document.querySelector('button[onclick="toggleModal(\'modal-trash\')"]').addEventListener('click', updateTrashView);
 
         /* --- SETTINGS LOGIC --- */
@@ -1197,20 +1409,124 @@
             renderSubjectOptions();
         }
 
-        /* --- VISUALS --- */
-        function showROI(points) {
-            document.getElementById('modalPoints').innerText = `+${points}`;
-            document.getElementById('roiModal').classList.remove('hidden');
-            document.getElementById('roiModal').classList.add('flex');
+        /* --- FOCUS MODE --- */
+        function startFocusTimer(mins) {
+            stopFocusTimer();
+            focusTotalTime = mins * 60;
+            focusTimeLeft = focusTotalTime;
+            document.getElementById('focus-display').innerText = `${mins}:00`;
             
-            const logs = document.getElementById('log-table-body');
-            logs.innerHTML = historyLog.map(h => `
+            focusInterval = setInterval(() => {
+                focusTimeLeft--;
+                const m = Math.floor(focusTimeLeft / 60);
+                const s = focusTimeLeft % 60;
+                document.getElementById('focus-display').innerText = `${m}:${s.toString().padStart(2,'0')}`;
+                
+                // Ring Animation
+                const offset = 289 - (289 * ((focusTotalTime - focusTimeLeft) / focusTotalTime));
+                document.getElementById('focus-ring').style.strokeDashoffset = offset;
+
+                if (focusTimeLeft <= 0) {
+                    stopFocusTimer();
+                    playSound('success');
+                    new Notification("Chronos Focus", { body: "Deep Dive Complete." });
+                    fireConfetti();
+                    // Add bonus points
+                    const bonus = mins * 10;
+                    totalScore += bonus;
+                    document.getElementById('navScore').innerText = totalScore;
+                    saveData();
+                }
+            }, 1000);
+        }
+
+        function stopFocusTimer() {
+            if(focusInterval) clearInterval(focusInterval);
+            document.getElementById('focus-ring').style.strokeDashoffset = 0;
+            document.getElementById('focus-display').innerText = "25:00";
+        }
+
+        /* --- STATS CHARTS --- */
+        function renderCharts() {
+            const logs = historyLog.slice(0, 50); // Last 50 entries
+            
+            // Render Table
+            document.getElementById('log-table-body').innerHTML = logs.slice(0, 10).map(h => `
                 <tr class="border-b border-white/5">
                     <td class="p-3 text-white">${h.name}</td>
                     <td class="p-3 text-slate-500 text-xs">${new Date(h.date).toLocaleTimeString()}</td>
                     <td class="p-3 text-right text-yellow-400 font-bold">+${h.points}</td>
                 </tr>
             `).join('');
+
+            // Chart 1: Subjects
+            const subData = {};
+            logs.forEach(l => {
+                const s = l.subject || 'General';
+                subData[s] = (subData[s] || 0) + 1;
+            });
+            
+            const ctx1 = document.getElementById('chart-subjects').getContext('2d');
+            if(charts.sub) charts.sub.destroy();
+            charts.sub = new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(subData),
+                    datasets: [{
+                        data: Object.values(subData),
+                        backgroundColor: ['#00f2ff', '#ff0055', '#ffb700', '#a855f7', '#10b981', '#64748b'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 10, family: 'Space Grotesk' } } } }
+                }
+            });
+
+            // Chart 2: Velocity (Last 7 days points)
+            const days = {};
+            for(let i=6; i>=0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                days[d.toDateString()] = 0;
+            }
+            logs.forEach(l => {
+                const d = new Date(l.date).toDateString();
+                if(days[d] !== undefined) days[d] += l.points;
+            });
+
+            const ctx2 = document.getElementById('chart-velocity').getContext('2d');
+            if(charts.vel) charts.vel.destroy();
+            charts.vel = new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: Object.keys(days).map(d => d.slice(0,3)), // Mon, Tue...
+                    datasets: [{
+                        label: 'Focus Units',
+                        data: Object.values(days),
+                        borderColor: '#00f2ff',
+                        backgroundColor: 'rgba(0, 242, 255, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b' } },
+                        x: { grid: { display: false }, ticks: { color: '#64748b' } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        /* --- VISUALS --- */
+        function showROI(points) {
+            document.getElementById('modalPoints').innerText = `+${points}`;
+            document.getElementById('roiModal').classList.remove('hidden');
+            document.getElementById('roiModal').classList.add('flex');
         }
 
         function closeModal() {
