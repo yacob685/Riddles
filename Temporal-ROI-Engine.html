@@ -484,6 +484,14 @@
                     <button onclick="window.handleLogout()" class="text-red-400 text-xs border border-red-500/30 px-3 py-1 rounded hover:bg-red-500/10 transition">Sign Out</button>
                 </div>
 
+   <div class="bg-red-500/5 border border-red-500/20 p-4 rounded-xl text-center">
+                    <h3 class="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-2"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Danger Zone</h3>
+                    <p class="text-[10px] text-slate-500 mb-3 leading-tight">Irreversible action. Wipes all local and cloud data.</p>
+                    <button onclick="window.handleFactoryReset()" class="w-full py-3 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/30 rounded text-xs font-bold uppercase tracking-widest transition-all">
+                        Factory Reset System
+                    </button>
+                </div>
+
                 <!-- Audio Section -->
                 <div class="flex items-center justify-between">
                     <div>
@@ -721,6 +729,45 @@ const firebaseConfig = {
         };
 
         window.handleLogout = () => signOut(auth);
+
+   // NEW: FACTORY RESET LOGIC
+        window.handleFactoryReset = async () => {
+            if(!user) return;
+            
+            if(confirm(⚠️ CRITICAL WARNING: FACTORY RESET ⚠️\n\nThis will permanently DELETE all artifacts, logs, scores, and settings.\n\nThis action CANNOT be undone.\n\nAre you sure?")) {
+                if(confirm("Final Confirmation:\n\nWipe all data and reset system to factory defaults?")) {
+                    
+                    // Reset to Defaults
+                    userData = {
+                        artifacts: [],
+                        trashBin: [],
+                        historyLog: [],
+                        customSubjects: [],
+                        weeklySchedule: [
+                            { id: 0, day: 'Sunday', active: false, start: '09:00', end: '17:00' },
+                            { id: 1, day: 'Monday', active: true, start: '09:00', end: '17:00' },
+                            { id: 2, day: 'Tuesday', active: true, start: '09:00', end: '17:00' },
+                            { id: 3, day: 'Wednesday', active: true, start: '09:00', end: '17:00' },
+                            { id: 4, day: 'Thursday', active: true, start: '09:00', end: '17:00' },
+                            { id: 5, day: 'Friday', active: true, start: '09:00', end: '17:00' },
+                            { id: 6, day: 'Saturday', active: false, start: '09:00', end: '17:00' }
+                        ],
+                        settings: { sound: true, notifications: false, peakHour: 10 },
+                        totalScore: 0
+                    };
+
+                    try {
+                        await window.saveData();
+                        playSound('delete');
+                        alert("System Reset Complete.");
+                        window.location.reload();
+                    } catch(e) { 
+                        console.error("Reset failed", e);
+                        alert("Reset failed: " + e.message);
+                    }
+                }
+            }
+        };
 
         window.saveData = async () => {
             if(!user) return;
