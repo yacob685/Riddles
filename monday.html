@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monday Work OS - Complete Platform</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/auth.css">
+    <link rel="stylesheet" href="styles/dashboard.css">
+    <link rel="stylesheet" href="styles/boards.css">
+    <link rel="stylesheet" href="styles/crm.css">
+    <link rel="stylesheet" href="styles/dev.css">
+    <link rel="stylesheet" href="styles/service.css">
+    <link rel="stylesheet" href="styles/canvas.css">
+    <link rel="stylesheet" href="styles/forms.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+    <!-- Authentication Screen -->
+    <div id="authScreen" class="auth-screen">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h1><i class="fab fa-monday"></i> Monday Work OS</h1>
+                <p>The complete platform for organizing work</p>
+            </div>
+            
+            <div class="auth-tabs">
+                <button class="tab-btn active" onclick="switchTab('login')">Sign In</button>
+                <button class="tab-btn" onclick="switchTab('signup')">Sign Up</button>
+            </div>
+            
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <input type="email" id="loginEmail" placeholder="Email address" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="loginPassword" placeholder="Password" required>
+                </div>
+                <button type="submit" class="auth-btn">Sign In</button>
+            </form>
+            
+            <form id="signupForm" class="auth-form" style="display: none;">
+                <div class="form-group">
+                    <input type="text" id="signupName" placeholder="Full name" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="signupEmail" placeholder="Email address" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="signupPassword" placeholder="Password" required>
+                </div>
+                <button type="submit" class="auth-btn">Create Account</button>
+            </form>
+            
+            <div class="auth-divider">
+                <span>or continue with</span>
+            </div>
+            
+            <div class="social-auth">
+                <button class="social-btn google" onclick="socialAuth('google')">
+                    <i class="fab fa-google"></i> Google
+                </button>
+                <button class="social-btn microsoft" onclick="socialAuth('microsoft')">
+                    <i class="fab fa-microsoft"></i> Microsoft
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" class="main-app" style="display: none;">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fab fa-monday"></i>
+                    <span>Monday</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <h3>CORE PRODUCTS</h3>
+                    <a href="#" class="nav-item active" onclick="showSection('work-management')">
+                        <i class="fas fa-briefcase"></i>
+                        <span>Work Management</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showSection('crm')">
+                        <i class="fas fa-users"></i>
+                        <span>CRM</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showSection('dev')">
+                        <i class="fab fa-dev"></i>
+                        <span>Dev</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showSection('service')">
+                        <i class="fas fa-headset"></i>
+                        <span>Service</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showSection('canvas')">
+                        <i class="fas fa-palette"></i>
+                        <span>WorkCanvas</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showSection('forms')">
+                        <i class="fas fa-wpforms"></i>
+                        <span>WorkForms</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <h3>TOOLS</h3>
+                    <a href="#" class="nav-item" onclick="showSection('automations')">
+                        <i class="fas fa-robot"></i>
+                        <span>Automations</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showSection('workdocs')">
+                        <i class="fas fa-file-alt"></i>
+                        <span>WorkDocs</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showSection('dashboards')">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Dashboards</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showSection('ai-tools')">
+                        <i class="fas fa-magic"></i>
+                        <span>AI Tools</span>
+                    </a>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <img src="https://picsum.photos/seed/user1/40/40" alt="User">
+                    <div class="user-info">
+                        <span class="user-name">John Doe</span>
+                        <span class="user-plan">Pro Plan</span>
+                    </div>
+                </div>
+                <button class="signout-btn" onclick="signOut()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="menu-toggle" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search everything...">
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <button class="header-btn" onclick="showNotifications()">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </button>
+                    <button class="header-btn" onclick="showHelp()">
+                        <i class="fas fa-question-circle"></i>
+                    </button>
+                    <button class="header-btn primary" onclick="createNewItem()">
+                        <i class="fas fa-plus"></i> New
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dynamic Content Sections -->
+            <div id="contentArea" class="content-area">
+                <!-- Content will be dynamically loaded here -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification Panel -->
+    <div id="notificationPanel" class="notification-panel" style="display: none;">
+        <div class="panel-header">
+            <h3>Notifications</h3>
+            <button onclick="closePanel('notificationPanel')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="panel-content">
+            <div class="notification-item">
+                <div class="notification-icon">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="notification-content">
+                    <p><strong>New task assigned</strong></p>
+                    <span>You've been assigned to "Q4 Planning" in Marketing</span>
+                    <small>2 minutes ago</small>
+                </div>
+            </div>
+            <div class="notification-item">
+                <div class="notification-icon">
+                    <i class="fas fa-comment"></i>
+                </div>
+                <div class="notification-content">
+                    <p><strong>New comment</strong></p>
+                    <span>Sarah commented on "Website Redesign"</span>
+                    <small>15 minutes ago</small>
+                </div>
+            </div>
+            <div class="notification-item">
+                <div class="notification-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <div class="notification-content">
+                    <p><strong>Team member added</strong></p>
+                    <span>Mike Johnson joined the Development team</span>
+                    <small>1 hour ago</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/boards.js"></script>
+    <script src="js/crm.js"></script>
+    <script src="js/dev.js"></script>
+    <script src="js/service.js"></script>
+    <script src="js/canvas.js"></script>
+    <script src="js/forms.js"></script>
+    <script src="js/automations.js"></script>
+    <script src="js/workdocs.js"></script>
+    <script src="js/ai-tools.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
