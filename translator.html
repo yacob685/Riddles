@@ -11,6 +11,10 @@
     <meta name="description" content="AI Powered Voice and Text Translator with Tools">
     <title>Gemini Translator Ultimate</title>
     
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5812524294035974"
+     crossorigin="anonymous"></script>
+    
     <!-- PWA Manifest (Data URI for single file portability) -->
     <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiR2VtaW5pIFRyYW5zbGF0b3IgVWx0aW1hdGUiLCJzaG9ydF9uYW1lIjoiR1RyYW5zbGF0ZSIsInN0YXJ0X3VybCI6Ii4iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29xvciI6IiNmZmZmZmYiLCJ0aGVtZV9jb2xvciI6IiM0RjQ2RTUiLCJpY29ucyI6W3sic3JjIjoiaHR0cHM6Ly9jZG4taWNvbnMtcG5nLmZsaXRpY29uLmNvbS81MTIvMzgyMC8zODIwMTk3LnBuZyIsInNpemVzIjoiMTkyeDE5MiIsInR5cGUiOiJpbWFnZS9wbmcifSx7InNyYyI6Imh0dHBzOi8vY2RuLWljb25zLXBuZy5mbGl0aWNvbi5jb20vNTEyLzM4MjAvMzgyMDE5Ny5wbmciLCJzaXplcyI6IjUxMng1MTIiLCJ0eXBlIjoiaW1hZ2UvcG5nIn1dfQ==">
     
@@ -54,28 +58,6 @@
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Ad Styling */
-        .ad-banner {
-            background: #f1f5f9;
-            border: 1px dashed #cbd5e1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            overflow: hidden;
-            position: relative;
-        }
-        .ad-badge {
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            background: #cbd5e1;
-            color: #64748b;
-            font-size: 8px;
-            padding: 1px 4px;
-            border-radius: 2px;
-        }
-
         /* High Contrast Mode */
         .high-contrast { filter: contrast(1.5) saturate(0.8); background: #000 !important; color: #fff !important; }
         .high-contrast .bg-white { background: #1a1a1a !important; color: #fff !important; }
@@ -91,10 +73,16 @@
     <main id="app-container" class="relative bg-white w-full h-full sm:max-w-md sm:h-[90vh] sm:rounded-3xl sm:shadow-2xl sm:border sm:border-slate-200 flex flex-col overflow-hidden">
         
         <!-- Top Ad Banner -->
-        <div class="ad-banner w-full h-[50px] shrink-0">
-            <span class="ad-badge">Ad</span>
-            <div class="text-[10px] text-slate-400">Travel Deals: 50% Off Flights</div>
-            <div class="text-xs font-bold text-slate-600">FlyCheap Airlines ➤</div>
+        <div class="w-full h-[50px] shrink-0 relative overflow-hidden">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-format="fluid"
+     data-ad-layout-key="-gw-3+1f-3d+2z"
+     data-ad-client="ca-pub-5812524294035974"
+     data-ad-slot="1079715089"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
         </div>
 
         <!-- Header -->
@@ -213,11 +201,17 @@
                     </div>
                     
                     <!-- In-feed Ad -->
-                    <div class="ad-banner w-full h-[80px] mt-6 rounded-xl">
-                        <span class="ad-badge">Ad</span>
-                        <div class="text-sm font-bold text-indigo-900">Learn Spanish in 30 Days</div>
-                        <div class="text-xs text-slate-500">The #1 Rated Language App</div>
-                        <button class="mt-1 bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded">Install Now</button>
+                    <div class="w-full h-[80px] mt-6 rounded-xl overflow-hidden">
+                       
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-format="fluid"
+     data-ad-layout-key="-gw-3+1f-3d+2z"
+     data-ad-client="ca-pub-5812524294035974"
+     data-ad-slot="1079715089"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
                     </div>
                 </div>
             </section>
@@ -256,9 +250,16 @@
         <!-- Navigation -->
         <footer class="bg-white border-t border-slate-200 safe-pb w-full z-20">
             <!-- Bottom Ad -->
-            <div class="ad-banner w-full h-[40px] border-b border-slate-100">
-                <span class="ad-badge">Ad</span>
-                <span class="text-[9px] text-slate-500">Best VPN for Travelers - Protect Data</span>
+     
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-format="fluid"
+     data-ad-layout-key="-gw-3+1f-3d+2z"
+     data-ad-client="ca-pub-5812524294035974"
+     data-ad-slot="1079715089"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
             </div>
 
             <nav class="flex justify-around items-center h-16">
@@ -326,7 +327,7 @@
 
     <script>
         /** APP CONFIG & STATE **/
-        const apiKey = "AIzaSyAANADv-VCK68oTD4I19McPhPGquwzgQQc"; // Will use logic to warn if missing, but normally injected
+        const apiKey = "AIzaSyAANADv-VCK68oTD4I19McPhPGquwzgQQc"; // Add your Gemini API key here
         const MODEL = "gemini-2.5-flash-preview-09-2025";
         
         const LANGUAGES = [
@@ -341,8 +342,141 @@
             { code: 'ru-RU', name: 'Russian', flag: '🇷🇺' },
             { code: 'pt-BR', name: 'Portuguese', flag: '🇧🇷' },
             { code: 'hi-IN', name: 'Hindi', flag: '🇮🇳' },
-            { code: 'ar-SA', name: 'Arabic', flag: '🇸🇦' }
+            { code: 'ar-SA', name: 'Arabic', flag: '🇸🇦' },
+            { code: 'tr-TR', name: 'Turkish', flag: '🇹🇷' },
+            { code: 'nl-NL', name: 'Dutch', flag: '🇳🇱' },
+            { code: 'pl-PL', name: 'Polish', flag: '🇵🇱' },
+            { code: 'sv-SE', name: 'Swedish', flag: '🇸🇪' },
+            { code: 'no-NO', name: 'Norwegian', flag: '🇳🇴' },
+            { code: 'da-DK', name: 'Danish', flag: '🇩🇰' },
+            { code: 'fi-FI', name: 'Finnish', flag: '🇫🇮' }
         ];
+
+        /** PRE-SAVED COMMON PHRASES (Zero API Cost) **/
+        const COMMON_PHRASES = {
+            'en-US': {
+                'es-ES': {
+                    'hello': 'hola',
+                    'goodbye': 'adiós',
+                    'thank you': 'gracias',
+                    'please': 'por favor',
+                    'yes': 'sí',
+                    'no': 'no',
+                    'excuse me': 'perdón',
+                    'sorry': 'lo siento',
+                    'help': 'ayuda',
+                    'water': 'agua',
+                    'food': 'comida',
+                    'bathroom': 'baño',
+                    'how much': 'cuánto',
+                    'where': 'dónde',
+                    'how are you': 'cómo estás',
+                    'good morning': 'buenos días',
+                    'good night': 'buenas noches',
+                    'i love you': 'te amo',
+                    'where is the bathroom': 'dónde está el baño',
+                    'how much is this': 'cuánto cuesta esto',
+                    'help me': 'ayúdame',
+                    'water please': 'agua por favor'
+                },
+                'ar-SA': {
+                    'hello': 'مرحبا',
+                    'goodbye': 'وداعا',
+                    'thank you': 'شكرا',
+                    'please': 'من فضلك',
+                    'yes': 'نعم',
+                    'no': 'لا',
+                    'excuse me': 'عفوا',
+                    'sorry': 'آسف',
+                    'help': 'مساعدة',
+                    'water': 'ماء',
+                    'food': 'طعام',
+                    'bathroom': 'حمام',
+                    'how much': 'كم',
+                    'where': 'أين',
+                    'how are you': 'كيف حالك',
+                    'good morning': 'صباح الخير',
+                    'good night': 'تصبح على خير',
+                    'i love you': 'أحبك',
+                    'where is the bathroom': 'أين الحمام',
+                    'how much is this': 'كم سعر هذا',
+                    'help me': 'ساعدني',
+                    'water please': 'ماء من فضلك'
+                },
+                'fr-FR': {
+                    'hello': 'bonjour',
+                    'goodbye': 'au revoir',
+                    'thank you': 'merci',
+                    'please': 's\'il vous plaît',
+                    'yes': 'oui',
+                    'no': 'non',
+                    'excuse me': 'excusez-moi',
+                    'sorry': 'désolé',
+                    'help': 'aide',
+                    'water': 'eau',
+                    'food': 'nourriture',
+                    'bathroom': 'toilettes',
+                    'how much': 'combien',
+                    'where': 'où',
+                    'how are you': 'comment allez-vous',
+                    'good morning': 'bonjour',
+                    'good night': 'bonne nuit',
+                    'i love you': 'je t\'aime',
+                    'where is the bathroom': 'où sont les toilettes',
+                    'how much is this': 'combien ça coûte',
+                    'help me': 'aidez-moi',
+                    'water please': 'de l\'eau s\'il vous plaît'
+                },
+                'de-DE': {
+                    'hello': 'hallo',
+                    'goodbye': 'auf wiedersehen',
+                    'thank you': 'danke',
+                    'please': 'bitte',
+                    'yes': 'ja',
+                    'no': 'nein',
+                    'excuse me': 'entschuldigung',
+                    'sorry': 'es tut mir leid',
+                    'help': 'hilfe',
+                    'water': 'wasser',
+                    'food': 'essen',
+                    'bathroom': 'toilette',
+                    'how much': 'wie viel',
+                    'where': 'wo',
+                    'how are you': 'wie geht es dir',
+                    'good morning': 'guten morgen',
+                    'good night': 'gute nacht',
+                    'i love you': 'ich liebe dich'
+                }
+            },
+            // Add reverse translations for bidirectional support
+            'es-ES': {
+                'en-US': {
+                    'hola': 'hello',
+                    'adiós': 'goodbye',
+                    'gracias': 'thank you',
+                    'por favor': 'please',
+                    'sí': 'yes',
+                    'no': 'no',
+                    'cómo estás': 'how are you'
+                }
+            },
+            'ar-SA': {
+                'en-US': {
+                    'مرحبا': 'hello',
+                    'شكرا': 'thank you',
+                    'كيف حالك': 'how are you',
+                    'وداعا': 'goodbye'
+                }
+            },
+            'fr-FR': {
+                'en-US': {
+                    'bonjour': 'hello',
+                    'merci': 'thank you',
+                    'au revoir': 'goodbye',
+                    'comment allez-vous': 'how are you'
+                }
+            }
+        };
 
         let state = {
             source: LANGUAGES[0],
@@ -421,15 +555,29 @@
         function simulateResponse(prompt) {
             return new Promise(resolve => {
                 setTimeout(() => {
-                    if(prompt.includes("Translate")) resolve("Simulation: Hola, ¿cómo estás?");
-                    else if(prompt.includes("Define")) resolve("Simulation: A greeting used in Spanish.");
-                    else resolve("Simulation response generated.");
-                }, 1000);
+                    if(prompt.includes("Translate")) {
+                        // Extract text after the colon for simulation
+                        const textMatch = prompt.match(/:\s*\n\n(.+)/);
+                        const text = textMatch ? textMatch[1] : "hello";
+                        resolve(`simulated_${text}_translation`);
+                    }
+                    else if(prompt.includes("Define")) resolve("A greeting or salutation");
+                    else resolve("Simulated response");
+                }, 800);
             });
         }
 
+        /** PRE-SAVED PHRASES CHECK **/
+        function checkPreSaved(text, fromCode, toCode) {
+            const normalized = text.toLowerCase().trim();
+            const fromLang = COMMON_PHRASES[fromCode];
+            if (fromLang && fromLang[toCode] && fromLang[toCode][normalized]) {
+                return fromLang[toCode][normalized];
+            }
+            return null;
+        }
+
         /** CACHING & TRANSLATION **/
-        // Optimization: Check local history before burning tokens
         function checkCache(text, toCode) {
              const h = JSON.parse(localStorage.getItem('gtr_history') || '[]');
              // Find exact match for text and target language
@@ -438,21 +586,43 @@
         }
 
         async function translate(text, from, to) {
-            // 1. Check Cache (Zero Token Cost)
+            // 1. Check Pre-Saved Phrases First (Zero API Cost)
+            const preSaved = checkPreSaved(text, from.code, to.code);
+            if(preSaved) {
+                console.log("✅ Pre-saved phrase! 0 tokens used.");
+                saveHistory(text, preSaved, to.code);
+                return preSaved;
+            }
+
+            // 2. Check Cache (Zero Token Cost)
             const cached = checkCache(text, to.code);
             if(cached) {
-                console.log("Cache hit! 0 tokens used.");
+                console.log("✅ Cache hit! 0 tokens used.");
                 saveHistory(text, cached, to.code); // Bump to top of history
                 return cached;
             }
 
-            // 2. Optimized Prompt (Minimal Token Cost)
-            // Instead of verbose sentences, use structure: "Lang1 to Lang2:\nText"
-            const prompt = `Translate ${from.name} to ${to.name}:\n${text}`;
+            // 3. STRICT API Call - Output ONLY translation, no alternatives
+            const prompt = `Translate this ${from.name} text to ${to.name}. Output ONLY the direct translation with no explanations, alternatives, notes, formatting, or extra text. Just the translated sentence:
+
+${text}`;
             
             const result = await callGemini(prompt);
-            saveHistory(text, result, to.code);
-            return result;
+            
+            // Clean up any markdown, asterisks, or formatting - take only first line
+            const cleaned = result
+                .replace(/\*\*/g, '')
+                .replace(/\*/g, '')
+                .replace(/\(/g, '')
+                .replace(/\)/g, '')
+                .trim()
+                .split('\n')[0]
+                .split('(')[0]
+                .split('Alternatively')[0]
+                .trim();
+            
+            saveHistory(text, cleaned, to.code);
+            return cleaned;
         }
 
         /** TOOLS LOGIC **/
@@ -464,14 +634,26 @@
                 title: 'Phrasebook', 
                 hasInput: false,
                 render: () => {
-                   const phrases = ["Hello", "Thank you", "Where is the bathroom?", "How much is this?", "Help me", "Water please"];
+                   // Get pre-saved phrases for current language pair
+                   const fromLang = COMMON_PHRASES[state.source.code];
+                   let phrases = [];
+                   
+                   if (fromLang && fromLang[state.target.code]) {
+                       phrases = Object.keys(fromLang[state.target.code]).map(k => 
+                           k.charAt(0).toUpperCase() + k.slice(1)
+                       );
+                   } else {
+                       // Default fallback phrases
+                       phrases = ["Hello", "Thank you", "Goodbye", "Where is the bathroom?", "How much is this?", "Help me", "Water please", "Good morning", "Good night", "Yes", "No", "Please", "Sorry"];
+                   }
+                   
                    return `<div class="grid grid-cols-1 gap-2">${phrases.map(p => `<button onclick="translatePhrase('${p}')" class="text-left p-3 bg-slate-50 rounded-lg border hover:bg-slate-100 flex justify-between"><span>${p}</span> <i class="fas fa-chevron-right text-xs text-slate-400"></i></button>`).join('')}</div>`;
                 }
             },
-            'dictionary': { title: 'AI Dictionary', prompt: (t) => `Define simply: "${t}"` },
-            'grammar': { title: 'Grammar Fixer', prompt: (t) => `Fix grammar: "${t}"` },
-            'summarize': { title: 'Summarizer', prompt: (t) => `Summarize in 3 bullets: "${t}"` },
-            'tone': { title: 'Formalizer', prompt: (t) => `Make formal: "${t}"` },
+            'dictionary': { title: 'AI Dictionary', prompt: (t) => `Define simply in one short sentence: "${t}"` },
+            'grammar': { title: 'Grammar Fixer', prompt: (t) => `Fix grammar and spelling. Output only the corrected text with no explanations: "${t}"` },
+            'summarize': { title: 'Summarizer', prompt: (t) => `Summarize in 3 short bullets: "${t}"` },
+            'tone': { title: 'Formalizer', prompt: (t) => `Make this formal and professional. Output only the rewritten text: "${t}"` },
             'quiz': {
                 title: 'Quiz Mode',
                 hasInput: false,
@@ -497,10 +679,10 @@
                 hasInput: false,
                 render: () => {
                     const h = JSON.parse(localStorage.getItem('gtr_history') || '[]');
-                    if(h.length === 0) return `<p class="text-center text-slate-500">No history found.</p>`;
+                    if(h.length === 0) return `<p class="text-center text-slate-500">No history found. Start translating!</p>`;
                     return `
                         <div class="space-y-2 max-h-60 overflow-y-auto">
-                            ${h.map(i => `<div class="p-3 bg-yellow-50 border border-yellow-100 rounded-lg flex justify-between items-center"><div><div class="font-bold text-slate-800">${i.target}</div><div class="text-xs text-slate-500">${i.original}</div></div><button onclick="speak('${i.target}', '${i.langCode}')"><i class="fas fa-volume-up text-slate-400"></i></button></div>`).join('')}
+                            ${h.slice(0, 20).map(i => `<div class="p-3 bg-yellow-50 border border-yellow-100 rounded-lg flex justify-between items-center"><div><div class="font-bold text-slate-800">${i.target}</div><div class="text-xs text-slate-500">${i.original}</div></div><button onclick="speak('${i.target.replace(/'/g, "\\'")}', '${i.langCode}')"><i class="fas fa-volume-up text-slate-400"></i></button></div>`).join('')}
                         </div>
                     `;
                 }
@@ -538,12 +720,14 @@
                 result.classList.replace('bg-white', 'bg-indigo-50');
                 input.value = '';
                 btn.onclick = async () => {
-                    if(!input.value) return;
+                    if(!input.value.trim()) return;
                     btn.textContent = 'Processing...';
+                    btn.disabled = true;
                     const res = await callGemini(config.prompt(input.value));
                     result.classList.remove('hidden');
                     result.textContent = res;
                     btn.textContent = 'Run';
+                    btn.disabled = false;
                 };
             }
             
@@ -566,10 +750,11 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'gemini-history.json';
+            a.download = 'gemini-translator-history.json';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
 
         function toggleLargeText() {
@@ -614,226 +799,226 @@
                     speak(translation, state.target.code);
                 } else if (state.activeTab === 'conversation') {
                     // Detect which side initiated
-                    // Simplified: We assume recognition language matches the button pressed
                     const isSource = recognition.lang === state.source.code;
                     const elId = isSource ? 'convSourceText' : 'convTargetText';
-                    const targetId = isSource ? 'convTargetText' : 'convSourceText';
-                    
-                    document.getElementById(elId).textContent = text;
-                    
-                    const from = isSource ? state.source : state.target;
-                    const to = isSource ? state.target : state.source;
-                    
-                    const trans = await translate(text, from, to);
-                    document.getElementById(targetId).textContent = trans;
-                    speak(trans, to.code);
-                }
-            };
-
-            transcribeRecognition.onresult = async (e) => {
-                let interim = '';
-                for (let i = e.resultIndex; i < e.results.length; ++i) {
-                    if (e.results[i].isFinal) {
-                        const original = e.results[i][0].transcript;
-                        const trans = await translate(original, state.source, state.target);
-                        appendTranscript(original, trans);
-                    }
-                }
-            };
-        }
-
-        function toggleMic(lang, mode = 'voice') {
-            if (state.isListening) {
-                recognition.stop();
-                return;
+                    const targetId = isContinue6:48 PMResumed code continuation from previous point.The user wants me to continue the code. Let me continue from where I left off.Source ? 'convTargetText' : 'convSourceText';
+                document.getElementById(elId).textContent = text;
+                
+                const from = isSource ? state.source : state.target;
+                const to = isSource ? state.target : state.source;
+                
+                const trans = await translate(text, from, to);
+                document.getElementById(targetId).textContent = trans;
+                speak(trans, to.code);
             }
-            recognition.lang = lang;
-            recognition.start();
-        }
-
-        function toggleTranscribe() {
-            const btn = document.getElementById('transcribeBtn');
-            if (state.isListening) {
-                transcribeRecognition.stop();
-                state.isListening = false;
-                btn.innerHTML = '<i class="fas fa-play"></i> Start Listening';
-                btn.classList.remove('bg-red-600');
-                btn.classList.add('bg-slate-800');
-            } else {
-                transcribeRecognition.lang = state.source.code;
-                transcribeRecognition.start();
-                state.isListening = true;
-                btn.innerHTML = '<i class="fas fa-stop"></i> Stop';
-                btn.classList.remove('bg-slate-800');
-                btn.classList.add('bg-red-600');
-            }
-        }
-
-        function updateMicVisuals(active) {
-            const ids = ['mainMicBtn', 'convSourceMic', 'convTargetMic'];
-            ids.forEach(id => {
-                const el = document.getElementById(id);
-                if(active) el.classList.add('pulse-ring');
-                else el.classList.remove('pulse-ring');
-            });
-            const status = document.getElementById('voiceStatus');
-            status.textContent = active ? "Listening..." : "Ready";
-            status.className = active ? "text-[10px] font-bold text-red-500 uppercase tracking-widest bg-red-50 px-3 py-1 rounded-full shadow-sm" : "text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white px-3 py-1 rounded-full shadow-sm border border-slate-100";
-        }
-
-        function addChatBubble(text, type) {
-            const container = document.getElementById('voiceChatContainer');
-            // Remove placeholder if exists
-            if(container.querySelector('.fa-microphone-alt')) container.innerHTML = '';
-            
-            const div = document.createElement('div');
-            div.className = `flex w-full ${type==='user'?'justify-end':'justify-start'} animate-fade-in`;
-            
-            const bubble = document.createElement('div');
-            bubble.className = `max-w-[80%] p-3 rounded-2xl text-sm shadow-sm ${type==='user'?'bg-indigo-600 text-white rounded-tr-none':'bg-white border border-slate-100 text-slate-800 rounded-tl-none'}`;
-            bubble.textContent = text;
-            
-            if(type === 'ai') {
-                const actions = document.createElement('div');
-                actions.className = "flex gap-3 mt-2 text-slate-400 text-xs";
-                actions.innerHTML = `<button onclick="speak('${text.replace(/'/g, "\\'")}', '${state.target.code}')"><i class="fas fa-volume-up"></i></button> <button onclick="copyToClip('${text.replace(/'/g, "\\'")}')"><i class="fas fa-copy"></i></button>`;
-                bubble.appendChild(actions);
-            }
-
-            div.appendChild(bubble);
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
-        }
-
-        function appendTranscript(orig, trans) {
-            const c = document.getElementById('transcribeContainer');
-            const div = document.createElement('div');
-            div.className = "p-3 bg-slate-800 rounded-lg animate-fade-in";
-            div.innerHTML = `
-                <div class="text-xs text-slate-500 mb-1">${orig}</div>
-                <div class="text-indigo-300 font-medium">${trans}</div>
-            `;
-            c.appendChild(div);
-            c.scrollTop = c.scrollHeight;
-        }
-
-        function speak(text, lang) {
-            if(!synth) return;
-            synth.cancel();
-            const u = new SpeechSynthesisUtterance(text);
-            u.lang = lang;
-            u.rate = 0.9;
-            synth.speak(u);
-        }
-
-        function copyToClip(text) {
-            navigator.clipboard.writeText(text);
-            // Could add toast here
-        }
-
-        /** NAVIGATION & STATE MANAGEMENT **/
-        function switchTab(tabId) {
-            state.activeTab = tabId;
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.getElementById(`view-${tabId}`).classList.add('active');
-            
-            // Update Nav Icons
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-               btn.classList.remove('text-indigo-600');
-               btn.classList.add('text-slate-400');
-            });
-            // Find button by onclick attr roughly
-            const activeBtn = document.querySelector(`button[onclick="switchTab('${tabId}')"]`);
-            if(activeBtn) {
-                activeBtn.classList.remove('text-slate-400');
-                activeBtn.classList.add('text-indigo-600');
-            }
-
-            // Stop mics on switch
-            if(recognition) recognition.stop();
-            if(transcribeRecognition) transcribeRecognition.stop();
-        }
-
-        function toggleInstall() {
-            if(state.installPrompt) {
-                state.installPrompt.prompt();
-                state.installPrompt.userChoice.then((choice) => {
-                    if (choice.outcome === 'accepted') {
-                        document.getElementById('installBtn').classList.add('hidden');
-                    }
-                    state.installPrompt = null;
-                });
-            } else {
-                // Fallback for logic check
-                alert("Installation not available directly. Please use your browser menu to 'Add to Home Screen'.");
-            }
-        }
-
-        /** LANGUAGE MODAL **/
-        function openLangModal(side) {
-            state.selectingFor = side;
-            document.getElementById('langModal').classList.remove('hidden');
-            document.getElementById('langSearch').value = '';
-            document.getElementById('langSearch').focus();
-            renderLangList();
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
-        }
-
-        function renderLangList(filter = '') {
-            const list = document.getElementById('langList');
-            list.innerHTML = '';
-            LANGUAGES.filter(l => l.name.toLowerCase().includes(filter.toLowerCase())).forEach(lang => {
-                const btn = document.createElement('button');
-                btn.className = "w-full text-left p-3 hover:bg-slate-50 rounded-lg flex items-center gap-3 border-b border-slate-50";
-                btn.innerHTML = `<span class="text-xl">${lang.flag}</span> <span class="text-sm font-medium text-slate-700">${lang.name}</span>`;
-                btn.onclick = () => selectLang(lang);
-                list.appendChild(btn);
-            });
-        }
-
-        function selectLang(lang) {
-            if(state.selectingFor === 'source') state.source = lang;
-            else state.target = lang;
-            updateLangUI();
-            closeModal('langModal');
-        }
-
-        document.getElementById('langSearch').addEventListener('input', (e) => renderLangList(e.target.value));
-
-        document.getElementById('swapBtn').onclick = () => {
-            const temp = state.source;
-            state.source = state.target;
-            state.target = temp;
-            updateLangUI();
-            
-            // Animation
-            const i = document.querySelector('#swapBtn i');
-            i.style.transform = 'rotate(180deg)';
-            setTimeout(() => i.style.transform = 'rotate(0deg)', 300);
         };
 
-        function updateLangUI() {
-            document.querySelector('.text-source').textContent = state.source.name;
-            document.querySelector('.flag-source').textContent = state.source.flag;
-            document.querySelector('.text-target').textContent = state.target.name;
-            document.querySelector('.flag-target').textContent = state.target.flag;
+        transcribeRecognition.onresult = async (e) => {
+            for (let i = e.resultIndex; i < e.results.length; ++i) {
+                if (e.results[i].isFinal) {
+                    const original = e.results[i][0].transcript;
+                    const trans = await translate(original, state.source, state.target);
+                    appendTranscript(original, trans);
+                }
+            }
+        };
+    }
+
+    function toggleMic(lang, mode = 'voice') {
+        if (state.isListening) {
+            recognition.stop();
+            return;
+        }
+        recognition.lang = lang;
+        recognition.start();
+    }
+
+    function toggleTranscribe() {
+        const btn = document.getElementById('transcribeBtn');
+        if (state.isListening) {
+            transcribeRecognition.stop();
+            state.isListening = false;
+            btn.innerHTML = '<i class="fas fa-play"></i> Start Listening';
+            btn.classList.remove('bg-red-600');
+            btn.classList.add('bg-slate-800');
+        } else {
+            transcribeRecognition.lang = state.source.code;
+            transcribeRecognition.start();
+            state.isListening = true;
+            btn.innerHTML = '<i class="fas fa-stop"></i> Stop';
+            btn.classList.remove('bg-slate-800');
+            btn.classList.add('bg-red-600');
+        }
+    }
+
+    function updateMicVisuals(active) {
+        const ids = ['mainMicBtn', 'convSourceMic', 'convTargetMic'];
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if(active) el.classList.add('pulse-ring');
+            else el.classList.remove('pulse-ring');
+        });
+        const status = document.getElementById('voiceStatus');
+        status.textContent = active ? "Listening..." : "Ready";
+        status.className = active ? "text-[10px] font-bold text-red-500 uppercase tracking-widest bg-red-50 px-3 py-1 rounded-full shadow-sm" : "text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white px-3 py-1 rounded-full shadow-sm border border-slate-100";
+    }
+
+    function addChatBubble(text, type) {
+        const container = document.getElementById('voiceChatContainer');
+        // Remove placeholder if exists
+        if(container.querySelector('.fa-microphone-alt')) container.innerHTML = '';
+        
+        const div = document.createElement('div');
+        div.className = `flex w-full ${type==='user'?'justify-end':'justify-start'} animate-fade-in`;
+        
+        const bubble = document.createElement('div');
+        bubble.className = `max-w-[80%] p-3 rounded-2xl text-sm shadow-sm ${type==='user'?'bg-indigo-600 text-white rounded-tr-none':'bg-white border border-slate-100 text-slate-800 rounded-tl-none'}`;
+        bubble.textContent = text;
+        
+        if(type === 'ai') {
+            const actions = document.createElement('div');
+            actions.className = "flex gap-3 mt-2 text-slate-400 text-xs";
+            actions.innerHTML = `<button onclick="speak('${text.replace(/'/g, "\\'")}', '${state.target.code}')"><i class="fas fa-volume-up"></i></button> <button onclick="copyToClip('${text.replace(/'/g, "\\'")}')"><i class="fas fa-copy"></i></button>`;
+            bubble.appendChild(actions);
         }
 
-        /** HISTORY **/
-        function saveHistory(original, target, langCode) {
-            const h = JSON.parse(localStorage.getItem('gtr_history') || '[]');
-            // Remove existing duplicate if any to bump to top
-            const existingIdx = h.findIndex(i => i.original === original && i.langCode === langCode);
-            if(existingIdx > -1) h.splice(existingIdx, 1);
-            
-            h.unshift({ original, target, langCode, date: Date.now() });
-            localStorage.setItem('gtr_history', JSON.stringify(h.slice(0, 50)));
+        div.appendChild(bubble);
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function appendTranscript(orig, trans) {
+        const c = document.getElementById('transcribeContainer');
+        const div = document.createElement('div');
+        div.className = "p-3 bg-slate-800 rounded-lg animate-fade-in";
+        div.innerHTML = `
+            <div class="text-xs text-slate-500 mb-1">${orig}</div>
+            <div class="text-indigo-300 font-medium">${trans}</div>
+        `;
+        c.appendChild(div);
+        c.scrollTop = c.scrollHeight;
+    }
+
+    function speak(text, lang) {
+        if(!synth) return;
+        synth.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = lang;
+        u.rate = 0.9;
+        synth.speak(u);
+    }
+
+    function copyToClip(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            // Successfully copied
+        }).catch(err => {
+            console.error('Copy failed:', err);
+        });
+    }
+
+    /** NAVIGATION & STATE MANAGEMENT **/
+    function switchTab(tabId) {
+        state.activeTab = tabId;
+        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+        document.getElementById(`view-${tabId}`).classList.add('active');
+        
+        // Update Nav Icons
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+           btn.classList.remove('text-indigo-600');
+           btn.classList.add('text-slate-400');
+        });
+        // Find button by onclick attr roughly
+        const activeBtn = document.querySelector(`button[onclick="switchTab('${tabId}')"]`);
+        if(activeBtn) {
+            activeBtn.classList.remove('text-slate-400');
+            activeBtn.classList.add('text-indigo-600');
         }
 
-        window.onload = init;
-    </script>
+        // Stop mics on switch
+        if(recognition) recognition.stop();
+        if(transcribeRecognition) transcribeRecognition.stop();
+    }
+
+    function toggleInstall() {
+        if(state.installPrompt) {
+            state.installPrompt.prompt();
+            state.installPrompt.userChoice.then((choice) => {
+                if (choice.outcome === 'accepted') {
+                    document.getElementById('installBtn').classList.add('hidden');
+                }
+                state.installPrompt = null;
+            });
+        } else {
+            // Fallback for logic check
+            alert("Installation not available directly. Please use your browser menu to 'Add to Home Screen'.");
+        }
+    }
+
+    /** LANGUAGE MODAL **/
+    function openLangModal(side) {
+        state.selectingFor = side;
+        document.getElementById('langModal').classList.remove('hidden');
+        document.getElementById('langSearch').value = '';
+        document.getElementById('langSearch').focus();
+        renderLangList();
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).classList.add('hidden');
+    }
+
+    function renderLangList(filter = '') {
+        const list = document.getElementById('langList');
+        list.innerHTML = '';
+        LANGUAGES.filter(l => l.name.toLowerCase().includes(filter.toLowerCase())).forEach(lang => {
+            const btn = document.createElement('button');
+            btn.className = "w-full text-left p-3 hover:bg-slate-50 rounded-lg flex items-center gap-3 border-b border-slate-50";
+            btn.innerHTML = `<span class="text-xl">${lang.flag}</span> <span class="text-sm font-medium text-slate-700">${lang.name}</span>`;
+            btn.onclick = () => selectLang(lang);
+            list.appendChild(btn);
+        });
+    }
+
+    function selectLang(lang) {
+        if(state.selectingFor === 'source') state.source = lang;
+        else state.target = lang;
+        updateLangUI();
+        closeModal('langModal');
+    }
+
+    document.getElementById('langSearch').addEventListener('input', (e) => renderLangList(e.target.value));
+
+    document.getElementById('swapBtn').onclick = () => {
+        const temp = state.source;
+        state.source = state.target;
+        state.target = temp;
+        updateLangUI();
+        
+        // Animation
+        const i = document.querySelector('#swapBtn i');
+        i.style.transform = 'rotate(180deg)';
+        setTimeout(() => i.style.transform = 'rotate(0deg)', 300);
+    };
+
+    function updateLangUI() {
+        document.querySelector('.text-source').textContent = state.source.name;
+        document.querySelector('.flag-source').textContent = state.source.flag;
+        document.querySelector('.text-target').textContent = state.target.name;
+        document.querySelector('.flag-target').textContent = state.target.flag;
+    }
+
+    /** HISTORY **/
+    function saveHistory(original, target, langCode) {
+        const h = JSON.parse(localStorage.getItem('gtr_history') || '[]');
+        // Remove existing duplicate if any to bump to top
+        const existingIdx = h.findIndex(i => i.original.toLowerCase() === original.toLowerCase() && i.langCode === langCode);
+        if(existingIdx > -1) h.splice(existingIdx, 1);
+        
+        h.unshift({ original, target, langCode, date: Date.now() });
+        localStorage.setItem('gtr_history', JSON.stringify(h.slice(0, 100)));
+    }
+
+    window.onload = init;
+</script>
 </body>
 </html>
