@@ -13,12 +13,17 @@
     
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5812524294035974"
-     crossorigin="anonymous"></script>
+         crossorigin="anonymous"></script>
     
-    <!-- PWA Manifest (Data URI for single file portability) -->
+    <!-- PWA Manifest -->
     <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiR2VtaW5pIFRyYW5zbGF0b3IgVWx0aW1hdGUiLCJzaG9ydF9uYW1lIjoiR1RyYW5zbGF0ZSIsInN0YXJ0X3VybCI6Ii4iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29xvciI6IiNmZmZmZmYiLCJ0aGVtZV9jb2xvciI6IiM0RjQ2RTUiLCJpY29ucyI6W3sic3JjIjoiaHR0cHM6Ly9jZG4taWNvbnMtcG5nLmZsaXRpY29uLmNvbS81MTIvMzgyMC8zODIwMTk3LnBuZyIsInNpemVzIjoiMTkyeDE5MiIsInR5cGUiOiJpbWFnZS9wbmcifSx7InNyYyI6Imh0dHBzOi8vY2RuLWljb25zLXBuZy5mbGl0aWNvbi5jb20vNTEyLzM4MjAvMzgyMDE5Ny5wbmciLCJzaXplcyI6IjUxMng1MTIiLCJ0eXBlIjoiaW1hZ2UvcG5nIn1dfQ==">
     
     <link rel="apple-touch-icon" href="https://cdn-icons-png.fliticon.com/512/3820/3820197.png">
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -28,10 +33,9 @@
         body { 
             font-family: 'Inter', sans-serif; 
             -webkit-tap-highlight-color: transparent; 
-            overscroll-behavior-y: none; /* Prevent pull-to-refresh on mobile */
+            overscroll-behavior-y: none;
         }
         
-        /* Animations */
         .pulse-ring {
             box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7);
             animation: pulse-blue 1.5s infinite cubic-bezier(0.66, 0, 0, 1);
@@ -44,7 +48,6 @@
         .slide-up { animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-        /* Utilities */
         .gradient-text {
             background-clip: text; -webkit-background-clip: text; color: transparent;
             background-image: linear-gradient(to right, #4F46E5, #9333EA);
@@ -54,27 +57,47 @@
         .safe-pb { padding-bottom: env(safe-area-inset-bottom); }
         .safe-pt { padding-top: env(safe-area-inset-top); }
         
-        /* Custom Scrollbar for tools */
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* High Contrast Mode */
         .high-contrast { filter: contrast(1.5) saturate(0.8); background: #000 !important; color: #fff !important; }
         .high-contrast .bg-white { background: #1a1a1a !important; color: #fff !important; }
         .high-contrast .text-slate-800 { color: #fff !important; }
         
-        /* Large Text Mode */
         .large-text { font-size: 1.1em; }
+
+        .chat-item:hover .chat-actions { display: flex; }
+        .chat-actions { display: none; }
     </style>
 </head>
 <body class="bg-slate-100 h-[100dvh] w-screen overflow-hidden flex flex-col items-center justify-center">
 
+    <!-- Login Screen -->
+    <div id="loginScreen" class="fixed inset-0 bg-gradient-to-br from-indigo-600 to-purple-700 z-[100] flex items-center justify-center p-6">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <i class="fas fa-language text-3xl text-white"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-slate-800 mb-2">Gemini<span class="gradient-text">Ultra</span></h1>
+                <p class="text-slate-600 text-sm">AI-Powered Translation</p>
+            </div>
+            
+            <button id="googleSignInBtn" class="w-full bg-white border-2 border-slate-200 text-slate-700 py-4 rounded-xl font-bold flex items-center justify-center gap-3 hover:bg-slate-50 transition shadow-sm mb-4">
+                <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                Continue with Google
+            </button>
+            
+            <p class="text-xs text-slate-500 text-center">By continuing, you agree to our Terms of Service and Privacy Policy</p>
+        </div>
+    </div>
+
     <!-- App Container -->
-    <main id="app-container" class="relative bg-white w-full h-full sm:max-w-md sm:h-[90vh] sm:rounded-3xl sm:shadow-2xl sm:border sm:border-slate-200 flex flex-col overflow-hidden">
+    <main id="app-container" class="relative bg-white w-full h-full sm:max-w-md sm:h-[90vh] sm:rounded-3xl sm:shadow-2xl sm:border sm:border-slate-200 flex flex-col overflow-hidden" style="display: none;">
         
         <!-- Top Ad Banner -->
         <div class="w-full h-[50px] shrink-0 relative overflow-hidden">
-<ins class="adsbygoogle"
+            <ins class="adsbygoogle"
      style="display:block"
      data-ad-format="fluid"
      data-ad-layout-key="-gw-3+1f-3d+2z"
@@ -92,9 +115,9 @@
                 <button onclick="toggleInstall()" class="text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full text-xs font-bold hidden" id="installBtn">
                     <i class="fas fa-download mr-1"></i> Install
                 </button>
-                <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 cursor-pointer hover:bg-slate-200 transition">
+                <button onclick="openSettings()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 cursor-pointer hover:bg-slate-200 transition">
                     <i class="fas fa-cog"></i>
-                </div>
+                </button>
             </div>
         </header>
 
@@ -133,66 +156,56 @@
                 </div>
             </section>
 
-            <!-- TOOLS VIEW (The 10 Tools) -->
+            <!-- TOOLS VIEW -->
             <section id="view-tools" class="view-section bg-slate-50 overflow-y-auto">
                 <div class="p-6">
                     <h2 class="text-lg font-bold text-slate-800 mb-4">Power Tools</h2>
                     <div class="grid grid-cols-2 gap-4">
-                        <!-- Tool 1: Phrasebook -->
                         <div onclick="launchTool('phrasebook')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 active:scale-95 transition cursor-pointer">
                             <div class="w-10 h-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mb-3"><i class="fas fa-book"></i></div>
                             <h3 class="font-bold text-sm text-slate-800">Phrasebook</h3>
                             <p class="text-[10px] text-slate-400 mt-1">Travel essentials</p>
                         </div>
-                        <!-- Tool 2: Dictionary -->
                         <div onclick="launchTool('dictionary')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 active:scale-95 transition cursor-pointer">
                             <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-3"><i class="fas fa-spell-check"></i></div>
                             <h3 class="font-bold text-sm text-slate-800">Dictionary</h3>
                             <p class="text-[10px] text-slate-400 mt-1">AI Definitions</p>
                         </div>
-                        <!-- Tool 3: Grammar -->
                         <div onclick="launchTool('grammar')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 active:scale-95 transition cursor-pointer">
                             <div class="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-3"><i class="fas fa-check-double"></i></div>
                             <h3 class="font-bold text-sm text-slate-800">Grammar Fix</h3>
                             <p class="text-[10px] text-slate-400 mt-1">Polish your text</p>
                         </div>
-                        <!-- Tool 4: Summarizer -->
                         <div onclick="launchTool('summarize')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 active:scale-95 transition cursor-pointer">
                             <div class="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center mb-3"><i class="fas fa-compress-alt"></i></div>
                             <h3 class="font-bold text-sm text-slate-800">Summarizer</h3>
                             <p class="text-[10px] text-slate-400 mt-1">Shorten long text</p>
                         </div>
-                        <!-- Tool 5: Flashcards -->
                         <div onclick="launchTool('flashcards')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 active:scale-95 transition cursor-pointer">
                             <div class="w-10 h-10 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center mb-3"><i class="fas fa-layer-group"></i></div>
                             <h3 class="font-bold text-sm text-slate-800">Flashcards</h3>
                             <p class="text-[10px] text-slate-400 mt-1">Review history</p>
                         </div>
-                         <!-- Tool 6: Quiz -->
                          <div onclick="launchTool('quiz')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 active:scale-95 transition cursor-pointer">
                             <div class="w-10 h-10 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center mb-3"><i class="fas fa-graduation-cap"></i></div>
                             <h3 class="font-bold text-sm text-slate-800">Quiz Mode</h3>
                             <p class="text-[10px] text-slate-400 mt-1">Test skills</p>
                         </div>
-                         <!-- Tool 7: Tone Changer -->
                          <div onclick="launchTool('tone')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 active:scale-95 transition cursor-pointer">
                             <div class="w-10 h-10 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center mb-3"><i class="fas fa-user-tie"></i></div>
                             <h3 class="font-bold text-sm text-slate-800">Formalize</h3>
                             <p class="text-[10px] text-slate-400 mt-1">Change tone</p>
                         </div>
-                         <!-- Tool 8: Export -->
                          <div onclick="downloadData()" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 active:scale-95 transition cursor-pointer">
                             <div class="w-10 h-10 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center mb-3"><i class="fas fa-file-export"></i></div>
                             <h3 class="font-bold text-sm text-slate-800">Export</h3>
                             <p class="text-[10px] text-slate-400 mt-1">Save JSON</p>
                         </div>
-                         <!-- Tool 9: Large Text -->
                          <div onclick="toggleLargeText()" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 active:scale-95 transition cursor-pointer">
                             <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-3"><i class="fas fa-text-height"></i></div>
                             <h3 class="font-bold text-sm text-slate-800">Large Text</h3>
                             <p class="text-[10px] text-slate-400 mt-1">Accessibility</p>
                         </div>
-                         <!-- Tool 10: Contrast -->
                          <div onclick="toggleContrast()" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 active:scale-95 transition cursor-pointer">
                             <div class="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center mb-3"><i class="fas fa-adjust"></i></div>
                             <h3 class="font-bold text-sm text-slate-800">Contrast</h3>
@@ -202,8 +215,7 @@
                     
                     <!-- In-feed Ad -->
                     <div class="w-full h-[80px] mt-6 rounded-xl overflow-hidden">
-                       
-<ins class="adsbygoogle"
+                        <ins class="adsbygoogle"
      style="display:block"
      data-ad-format="fluid"
      data-ad-layout-key="-gw-3+1f-3d+2z"
@@ -212,6 +224,21 @@
 <script>
      (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CHATS HISTORY VIEW -->
+            <section id="view-history" class="view-section bg-slate-50 overflow-y-auto">
+                <div class="p-6">
+                    <h2 class="text-lg font-bold text-slate-800 mb-4">Recent Chats</h2>
+                    <div id="chatsList" class="space-y-2">
+                        <p class="text-center text-slate-400 text-sm py-8">No chats yet</p>
+                    </div>
+                    
+                    <h2 class="text-lg font-bold text-slate-800 mb-4 mt-8">Archived</h2>
+                    <div id="archivedChatsList" class="space-y-2">
+                        <p class="text-center text-slate-400 text-sm py-8">No archived chats</p>
                     </div>
                 </div>
             </section>
@@ -250,8 +277,8 @@
         <!-- Navigation -->
         <footer class="bg-white border-t border-slate-200 safe-pb w-full z-20">
             <!-- Bottom Ad -->
-     
-<ins class="adsbygoogle"
+            <div class="w-full h-[40px] border-b border-slate-100 overflow-hidden">
+              <ins class="adsbygoogle"
      style="display:block"
      data-ad-format="fluid"
      data-ad-layout-key="-gw-3+1f-3d+2z"
@@ -266,6 +293,9 @@
                 <button onclick="switchTab('voice')" class="nav-btn text-indigo-600 flex-1 flex flex-col items-center group">
                     <i class="fas fa-microphone text-lg mb-1 group-active:scale-90 transition"></i><span class="text-[9px] font-bold uppercase">Voice</span>
                 </button>
+                <button onclick="switchTab('history')" class="nav-btn text-slate-400 flex-1 flex flex-col items-center group">
+                    <i class="fas fa-history text-lg mb-1 group-active:scale-90 transition"></i><span class="text-[9px] font-bold uppercase">Chats</span>
+                </button>
                 <button onclick="switchTab('conversation')" class="nav-btn text-slate-400 flex-1 flex flex-col items-center group">
                     <i class="fas fa-user-friends text-lg mb-1 group-active:scale-90 transition"></i><span class="text-[9px] font-bold uppercase">Split</span>
                 </button>
@@ -279,7 +309,67 @@
         </footer>
 
         <!-- MODALS -->
-        <!-- Generic Tool Input Modal -->
+        
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-end sm:items-center justify-center backdrop-blur-sm">
+            <div class="bg-white w-full sm:w-[90%] sm:max-h-[80vh] sm:rounded-2xl rounded-t-2xl overflow-hidden slide-up shadow-2xl flex flex-col">
+                <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-white sticky top-0 z-10">
+                    <h3 class="font-bold text-lg">Settings</h3>
+                    <button onclick="closeModal('settingsModal')" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="p-6 overflow-y-auto flex-1">
+                    <!-- User Info -->
+                    <div class="bg-gradient-to-br from-indigo-50 to-purple-50 p-4 rounded-xl mb-6 flex items-center gap-4">
+                        <img id="userAvatar" src="" class="w-16 h-16 rounded-full border-2 border-white shadow">
+                        <div class="flex-1">
+                            <div id="userName" class="font-bold text-slate-800"></div>
+                            <div id="userEmail" class="text-sm text-slate-600"></div>
+                        </div>
+                    </div>
+
+                    <!-- Settings Options -->
+                    <div class="space-y-3">
+                        <button onclick="window.open('steps.html', '_blank')" class="w-full text-left p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-download text-indigo-600"></i>
+                                <div>
+                                    <div class="font-bold text-slate-800">Download App Steps</div>
+                                    <div class="text-xs text-slate-500">How to install on your device</div>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right text-slate-400"></i>
+                        </button>
+
+                        <button onclick="factoryReset()" class="w-full text-left p-4 bg-red-50 rounded-xl hover:bg-red-100 transition flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-trash-restore text-red-600"></i>
+                                <div>
+                                    <div class="font-bold text-red-800">Factory Reset</div>
+                                    <div class="text-xs text-red-600">Delete all chats and data</div>
+                                </div>
+                            </div>
+                        </button>
+
+                        <button onclick="signOut()" class="w-full text-left p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-sign-out-alt text-slate-600"></i>
+                                <div>
+                                    <div class="font-bold text-slate-800">Sign Out</div>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="mt-6 p-4 bg-slate-50 rounded-xl text-xs text-slate-500">
+                        <p class="font-bold mb-2">About</p>
+                        <p>Gemini Translator Ultimate v1.0</p>
+                        <p class="mt-2">Powered by Google Gemini AI</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tool Modal -->
         <div id="toolModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-end sm:items-center justify-center backdrop-blur-sm">
             <div class="bg-white w-full sm:w-[90%] sm:rounded-2xl rounded-t-2xl p-6 slide-up shadow-2xl">
                 <div class="flex justify-between items-center mb-4">
@@ -308,7 +398,27 @@
             </div>
         </div>
 
-        <!-- IOS Install Instruction Modal -->
+        <!-- Chat Actions Menu -->
+        <div id="chatActionsMenu" class="fixed inset-0 bg-black/50 z-50 hidden flex items-end justify-center" onclick="closeModal('chatActionsMenu')">
+            <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-4 slide-up" onclick="event.stopPropagation()">
+                <div class="space-y-2">
+                    <button onclick="loadChat(currentChatId)" class="w-full text-left p-4 hover:bg-slate-50 rounded-xl flex items-center gap-3">
+                        <i class="fas fa-eye text-indigo-600"></i>
+                        <span class="font-medium">View Chat</span>
+                    </button>
+                    <button onclick="archiveChat(currentChatId)" class="w-full text-left p-4 hover:bg-slate-50 rounded-xl flex items-center gap-3">
+                        <i class="fas fa-archive text-yellow-600"></i>
+                        <span class="font-medium">Archive</span>
+                    </button>
+                    <button onclick="deleteChat(currentChatId)" class="w-full text-left p-4 hover:bg-red-50 rounded-xl flex items-center gap-3">
+                        <i class="fas fa-trash text-red-600"></i>
+                        <span class="font-medium text-red-600">Delete</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- IOS Install Modal -->
         <div id="iosInstallModal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-6 backdrop-blur-md">
             <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center relative">
                 <button onclick="closeModal('iosInstallModal')" class="absolute top-3 right-3 text-slate-400"><i class="fas fa-times"></i></button>
@@ -326,9 +436,27 @@
     </main>
 
     <script>
+        /** FIREBASE CONFIG **/
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyB-3kAk-lMT3jTny2YIs2R1_0mG-tJlmJI",
+  authDomain: "puzzlesapp.firebaseapp.com",
+  databaseURL: "https://puzzlesapp-default-rtdb.firebaseio.com",
+  projectId: "puzzlesapp",
+  storageBucket: "puzzlesapp.firebasestorage.app",
+  messagingSenderId: "303461259730",
+  appId: "1:303461259730:web:a1790a976b6d58d71dd00b",
+  measurementId: "G-8YEJEBX0NE"
+};
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
         /** APP CONFIG & STATE **/
         const apiKey = "AIzaSyAANADv-VCK68oTD4I19McPhPGquwzgQQc"; // Add your Gemini API key here
-        const MODEL = "gemini-2.5-flash-preview-09-2025";
+        const MODEL = "gemini-2.0-flash-exp";
         
         const LANGUAGES = [
             { code: 'en-US', name: 'English', flag: '🇺🇸' },
@@ -345,135 +473,36 @@
             { code: 'ar-SA', name: 'Arabic', flag: '🇸🇦' },
             { code: 'tr-TR', name: 'Turkish', flag: '🇹🇷' },
             { code: 'nl-NL', name: 'Dutch', flag: '🇳🇱' },
-            { code: 'pl-PL', name: 'Polish', flag: '🇵🇱' },
-            { code: 'sv-SE', name: 'Swedish', flag: '🇸🇪' },
-            { code: 'no-NO', name: 'Norwegian', flag: '🇳🇴' },
-            { code: 'da-DK', name: 'Danish', flag: '🇩🇰' },
-            { code: 'fi-FI', name: 'Finnish', flag: '🇫🇮' }
+            { code: 'pl-PL', name: 'Polish', flag: '🇵🇱' }
         ];
 
-        /** PRE-SAVED COMMON PHRASES (Zero API Cost) **/
+        /** PRE-SAVED COMMON PHRASES **/
         const COMMON_PHRASES = {
             'en-US': {
                 'es-ES': {
-                    'hello': 'hola',
-                    'goodbye': 'adiós',
-                    'thank you': 'gracias',
-                    'please': 'por favor',
-                    'yes': 'sí',
-                    'no': 'no',
-                    'excuse me': 'perdón',
-                    'sorry': 'lo siento',
-                    'help': 'ayuda',
-                    'water': 'agua',
-                    'food': 'comida',
-                    'bathroom': 'baño',
-                    'how much': 'cuánto',
-                    'where': 'dónde',
-                    'how are you': 'cómo estás',
-                    'good morning': 'buenos días',
-                    'good night': 'buenas noches',
-                    'i love you': 'te amo',
-                    'where is the bathroom': 'dónde está el baño',
-                    'how much is this': 'cuánto cuesta esto',
-                    'help me': 'ayúdame',
-                    'water please': 'agua por favor'
+                    'hello': 'hola', 'goodbye': 'adiós', 'thank you': 'gracias', 'please': 'por favor',
+                    'yes': 'sí', 'no': 'no', 'excuse me': 'perdón', 'sorry': 'lo siento',
+                    'help': 'ayuda', 'water': 'agua', 'food': 'comida', 'bathroom': 'baño',
+                    'how much': 'cuánto', 'where': 'dónde', 'how are you': 'cómo estás',
+                    'good morning': 'buenos días', 'good night': 'buenas noches', 'i love you': 'te amo',
+                    'where is the bathroom': 'dónde está el baño', 'how much is this': 'cuánto cuesta esto',
+                    'help me': 'ayúdame', 'water please': 'agua por favor'
                 },
                 'ar-SA': {
-                    'hello': 'مرحبا',
-                    'goodbye': 'وداعا',
-                    'thank you': 'شكرا',
-                    'please': 'من فضلك',
-                    'yes': 'نعم',
-                    'no': 'لا',
-                    'excuse me': 'عفوا',
-                    'sorry': 'آسف',
-                    'help': 'مساعدة',
-                    'water': 'ماء',
-                    'food': 'طعام',
-                    'bathroom': 'حمام',
-                    'how much': 'كم',
-                    'where': 'أين',
-                    'how are you': 'كيف حالك',
-                    'good morning': 'صباح الخير',
-                    'good night': 'تصبح على خير',
-                    'i love you': 'أحبك',
-                    'where is the bathroom': 'أين الحمام',
-                    'how much is this': 'كم سعر هذا',
-                    'help me': 'ساعدني',
-                    'water please': 'ماء من فضلك'
+                    'hello': 'مرحبا', 'goodbye': 'وداعا', 'thank you': 'شكرا', 'please': 'من فضلك',
+                    'yes': 'نعم', 'no': 'لا', 'excuse me': 'عفوا', 'sorry': 'آسف',
+                    'help': 'مساعدة', 'water': 'ماء', 'food': 'طعام', 'bathroom': 'حمام',
+                    'how much': 'كم', 'where': 'أين', 'how are you': 'كيف حالك',
+                    'good morning': 'صباح الخير', 'good night': 'تصبح على خير', 'i love you': 'أحبك',
+                    'where is the bathroom': 'أين الحمام', 'how much is this': 'كم سعر هذا',
+                    'help me': 'ساعدني', 'water please': 'ماء من فضلك'
                 },
                 'fr-FR': {
-                    'hello': 'bonjour',
-                    'goodbye': 'au revoir',
-                    'thank you': 'merci',
-                    'please': 's\'il vous plaît',
-                    'yes': 'oui',
-                    'no': 'non',
-                    'excuse me': 'excusez-moi',
-                    'sorry': 'désolé',
-                    'help': 'aide',
-                    'water': 'eau',
-                    'food': 'nourriture',
-                    'bathroom': 'toilettes',
-                    'how much': 'combien',
-                    'where': 'où',
-                    'how are you': 'comment allez-vous',
-                    'good morning': 'bonjour',
-                    'good night': 'bonne nuit',
-                    'i love you': 'je t\'aime',
-                    'where is the bathroom': 'où sont les toilettes',
-                    'how much is this': 'combien ça coûte',
-                    'help me': 'aidez-moi',
-                    'water please': 'de l\'eau s\'il vous plaît'
-                },
-                'de-DE': {
-                    'hello': 'hallo',
-                    'goodbye': 'auf wiedersehen',
-                    'thank you': 'danke',
-                    'please': 'bitte',
-                    'yes': 'ja',
-                    'no': 'nein',
-                    'excuse me': 'entschuldigung',
-                    'sorry': 'es tut mir leid',
-                    'help': 'hilfe',
-                    'water': 'wasser',
-                    'food': 'essen',
-                    'bathroom': 'toilette',
-                    'how much': 'wie viel',
-                    'where': 'wo',
-                    'how are you': 'wie geht es dir',
-                    'good morning': 'guten morgen',
-                    'good night': 'gute nacht',
-                    'i love you': 'ich liebe dich'
-                }
-            },
-            // Add reverse translations for bidirectional support
-            'es-ES': {
-                'en-US': {
-                    'hola': 'hello',
-                    'adiós': 'goodbye',
-                    'gracias': 'thank you',
-                    'por favor': 'please',
-                    'sí': 'yes',
-                    'no': 'no',
-                    'cómo estás': 'how are you'
-                }
-            },
-            'ar-SA': {
-                'en-US': {
-                    'مرحبا': 'hello',
-                    'شكرا': 'thank you',
-                    'كيف حالك': 'how are you',
-                    'وداعا': 'goodbye'
-                }
-            },
-            'fr-FR': {
-                'en-US': {
-                    'bonjour': 'hello',
-                    'merci': 'thank you',
-                    'au revoir': 'goodbye',
-                    'comment allez-vous': 'how are you'
+                    'hello': 'bonjour', 'goodbye': 'au revoir', 'thank you': 'merci', 'please': 's\'il vous plaît',
+                    'yes': 'oui', 'no': 'non', 'excuse me': 'excusez-moi', 'sorry': 'désolé',
+                    'help': 'aide', 'water': 'eau', 'food': 'nourriture', 'bathroom': 'toilettes',
+                    'how much': 'combien', 'where': 'où', 'how are you': 'comment allez-vous',
+                    'good morning': 'bonjour', 'good night': 'bonne nuit', 'i love you': 'je t\'aime'
                 }
             }
         };
@@ -484,324 +513,564 @@
             isListening: false,
             activeTab: 'voice',
             installPrompt: null,
-            selectingFor: 'source' // 'source' or 'target'
+            selectingFor: 'source',
+            currentUser: null,
+            currentChatId: null,
+            currentSessionMessages: []
         };
 
+        let currentChatId = null;
         let recognition = null;
         let transcribeRecognition = null;
         let synth = window.speechSynthesis;
 
-        /** INITIALIZATION **/
-        function init() {
-            // Setup Speech Recognition
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (SpeechRecognition) {
-                recognition = new SpeechRecognition();
-                recognition.continuous = false;
+        /** AUTH HANDLERS **/
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                state.currentUser = user;
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('app-container').style.display = 'flex';
                 
-                transcribeRecognition = new SpeechRecognition();
-                transcribeRecognition.continuous = true;
-                transcribeRecognition.interimResults = true;
+                // Update user info in settings
+                document.getElementById('userAvatar').src = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName);
+                document.getElementById('userName').textContent = user.displayName || 'User';
+                document.getElementById('userEmail').textContent = user.email;
                 
-                setupMicEvents();
+                await loadUserChats();
+                init();
             } else {
-                alert("Voice features not supported in this browser. Try Chrome/Safari.");
+                document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('app-container').style.display = 'none';
             }
+        });
 
-            // PWA Install Logic
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                state.installPrompt = e;
-                document.getElementById('installBtn').classList.remove('hidden');
-            });
-
-            updateLangUI();
-            renderLangList();
-            
-            // Check IOS
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            if(isIOS && !window.navigator.standalone) {
-                document.getElementById('installBtn').classList.remove('hidden');
-                document.getElementById('installBtn').onclick = () => {
-                    document.getElementById('iosInstallModal').classList.remove('hidden');
-                };
-            }
-        }
-
-        /** CORE GEMINI API **/
-        async function callGemini(prompt) {
-            if(!apiKey) {
-                // For demo purposes, we simulate if no key provided
-                if(!confirm("API Key is missing. Using simulation mode?")) return "Error: No API Key";
-                return await simulateResponse(prompt);
-            }
-            
+        document.getElementById('googleSignInBtn').onclick = async () => {
             try {
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-                });
-                const data = await res.json();
-                if(data.error) throw new Error(data.error.message);
-                return data.candidates[0].content.parts[0].text.trim();
-            } catch (e) {
-                console.error(e);
-                return "Connection Error. Please try again.";
-            }
-        }
-
-        // Fallback for demo without key
-        function simulateResponse(prompt) {
-            return new Promise(resolve => {
-                setTimeout(() => {
-                    if(prompt.includes("Translate")) {
-                        // Extract text after the colon for simulation
-                        const textMatch = prompt.match(/:\s*\n\n(.+)/);
-                        const text = textMatch ? textMatch[1] : "hello";
-                        resolve(`simulated_${text}_translation`);
-                    }
-                    else if(prompt.includes("Define")) resolve("A greeting or salutation");
-                    else resolve("Simulated response");
-                }, 800);
-            });
-        }
-
-        /** PRE-SAVED PHRASES CHECK **/
-        function checkPreSaved(text, fromCode, toCode) {
-            const normalized = text.toLowerCase().trim();
-            const fromLang = COMMON_PHRASES[fromCode];
-            if (fromLang && fromLang[toCode] && fromLang[toCode][normalized]) {
-                return fromLang[toCode][normalized];
-            }
-            return null;
-        }
-
-        /** CACHING & TRANSLATION **/
-        function checkCache(text, toCode) {
-             const h = JSON.parse(localStorage.getItem('gtr_history') || '[]');
-             // Find exact match for text and target language
-             const found = h.find(i => i.original.toLowerCase() === text.toLowerCase() && i.langCode === toCode);
-             return found ? found.target : null;
-        }
-
-        async function translate(text, from, to) {
-            // 1. Check Pre-Saved Phrases First (Zero API Cost)
-            const preSaved = checkPreSaved(text, from.code, to.code);
-            if(preSaved) {
-                console.log("✅ Pre-saved phrase! 0 tokens used.");
-                saveHistory(text, preSaved, to.code);
-                return preSaved;
-            }
-
-            // 2. Check Cache (Zero Token Cost)
-            const cached = checkCache(text, to.code);
-            if(cached) {
-                console.log("✅ Cache hit! 0 tokens used.");
-                saveHistory(text, cached, to.code); // Bump to top of history
-                return cached;
-            }
-
-            // 3. STRICT API Call - Output ONLY translation, no alternatives
-            const prompt = `Translate this ${from.name} text to ${to.name}. Output ONLY the direct translation with no explanations, alternatives, notes, formatting, or extra text. Just the translated sentence:
-
-${text}`;
-            
-            const result = await callGemini(prompt);
-            
-            // Clean up any markdown, asterisks, or formatting - take only first line
-            const cleaned = result
-                .replace(/\*\*/g, '')
-                .replace(/\*/g, '')
-                .replace(/\(/g, '')
-                .replace(/\)/g, '')
-                .trim()
-                .split('\n')[0]
-                .split('(')[0]
-                .split('Alternatively')[0]
-                .trim();
-            
-            saveHistory(text, cleaned, to.code);
-            return cleaned;
-        }
-
-        /** TOOLS LOGIC **/
-        let currentTool = null;
-
-        // Optimized Tool Prompts for Token Efficiency
-        const toolsConfig = {
-            'phrasebook': { 
-                title: 'Phrasebook', 
-                hasInput: false,
-                render: () => {
-                   // Get pre-saved phrases for current language pair
-                   const fromLang = COMMON_PHRASES[state.source.code];
-                   let phrases = [];
-                   
-                   if (fromLang && fromLang[state.target.code]) {
-                       phrases = Object.keys(fromLang[state.target.code]).map(k => 
-                           k.charAt(0).toUpperCase() + k.slice(1)
-                       );
-                   } else {
-                       // Default fallback phrases
-                       phrases = ["Hello", "Thank you", "Goodbye", "Where is the bathroom?", "How much is this?", "Help me", "Water please", "Good morning", "Good night", "Yes", "No", "Please", "Sorry"];
-                   }
-                   
-                   return `<div class="grid grid-cols-1 gap-2">${phrases.map(p => `<button onclick="translatePhrase('${p}')" class="text-left p-3 bg-slate-50 rounded-lg border hover:bg-slate-100 flex justify-between"><span>${p}</span> <i class="fas fa-chevron-right text-xs text-slate-400"></i></button>`).join('')}</div>`;
-                }
-            },
-            'dictionary': { title: 'AI Dictionary', prompt: (t) => `Define simply in one short sentence: "${t}"` },
-            'grammar': { title: 'Grammar Fixer', prompt: (t) => `Fix grammar and spelling. Output only the corrected text with no explanations: "${t}"` },
-            'summarize': { title: 'Summarizer', prompt: (t) => `Summarize in 3 short bullets: "${t}"` },
-            'tone': { title: 'Formalizer', prompt: (t) => `Make this formal and professional. Output only the rewritten text: "${t}"` },
-            'quiz': {
-                title: 'Quiz Mode',
-                hasInput: false,
-                render: () => {
-                    const h = JSON.parse(localStorage.getItem('gtr_history') || '[]');
-                    if(h.length < 3) return `<p class="text-center text-slate-500">Translate a few things first to unlock the quiz!</p>`;
-                    const q = h[Math.floor(Math.random() * h.length)];
-                    return `
-                        <div class="text-center p-4">
-                            <p class="text-sm text-slate-500 mb-2">What does this mean?</p>
-                            <p class="text-xl font-bold mb-6">"${q.target}"</p>
-                            <button onclick="this.nextElementSibling.classList.remove('hidden'); this.classList.add('hidden')" class="bg-indigo-600 text-white px-6 py-2 rounded-full">Reveal Answer</button>
-                            <div class="hidden mt-4 animate-fade-in">
-                                <p class="text-lg font-bold text-green-600">${q.original}</p>
-                                <button onclick="launchTool('quiz')" class="mt-4 text-indigo-600 text-sm font-bold">Next Question</button>
-                            </div>
-                        </div>
-                    `;
-                }
-            },
-            'flashcards': {
-                title: 'Flashcards',
-                hasInput: false,
-                render: () => {
-                    const h = JSON.parse(localStorage.getItem('gtr_history') || '[]');
-                    if(h.length === 0) return `<p class="text-center text-slate-500">No history found. Start translating!</p>`;
-                    return `
-                        <div class="space-y-2 max-h-60 overflow-y-auto">
-                            ${h.slice(0, 20).map(i => `<div class="p-3 bg-yellow-50 border border-yellow-100 rounded-lg flex justify-between items-center"><div><div class="font-bold text-slate-800">${i.target}</div><div class="text-xs text-slate-500">${i.original}</div></div><button onclick="speak('${i.target.replace(/'/g, "\\'")}', '${i.langCode}')"><i class="fas fa-volume-up text-slate-400"></i></button></div>`).join('')}
-                        </div>
-                    `;
-                }
+                const provider = new firebase.auth.GoogleAuthProvider();
+                await auth.signInWithPopup(provider);
+            } catch (error) {
+                console.error('Sign in error:', error);
+                alert('Sign in failed: ' + error.message);
             }
         };
 
-        function launchTool(toolId) {
-            currentTool = toolId;
-            const config = toolsConfig[toolId];
-            if(!config) return;
-
-            const modal = document.getElementById('toolModal');
-            const title = document.getElementById('toolTitle');
-            const input = document.getElementById('toolInput');
-            const result = document.getElementById('toolResult');
-            const btn = document.getElementById('toolActionBtn');
-            const content = document.getElementById('toolContent');
-
-            title.textContent = config.title;
-            result.classList.add('hidden');
-            result.textContent = '';
-            
-            // Reset Layout
-            input.classList.remove('hidden');
-            btn.classList.remove('hidden');
-            
-            // Custom Render tools (No input needed)
-            if(config.hasInput === false) {
-                input.classList.add('hidden');
-                btn.classList.add('hidden');
-                result.classList.remove('hidden');
-                result.innerHTML = config.render();
-                result.classList.replace('bg-indigo-50', 'bg-white'); // Reset bg
-            } else {
-                result.classList.replace('bg-white', 'bg-indigo-50');
-                input.value = '';
-                btn.onclick = async () => {
-                    if(!input.value.trim()) return;
-                    btn.textContent = 'Processing...';
-                    btn.disabled = true;
-                    const res = await callGemini(config.prompt(input.value));
-                    result.classList.remove('hidden');
-                    result.textContent = res;
-                    btn.textContent = 'Run';
-                    btn.disabled = false;
-                };
+        async function signOut() {
+            if (confirm('Are you sure you want to sign out?')) {
+                await auth.signOut();
             }
+        }
+
+        /** FIREBASE CHAT MANAGEMENT **/
+        async function saveMessageToFirebase(original, translated, fromLang, toLang) {
+            if (!state.currentUser) return;
             
-            modal.classList.remove('hidden');
+            try {
+                const message = {
+                    original,
+                    translated,
+                    fromLang,
+                    toLang,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                // Create new chat if none exists
+                if (!state.currentChatId) {
+                    const chatRef = await db.collection('users').doc(state.currentUser.uid).collection('chats').add({
+                        title: original.substring(0, 30) + (original.length > 30 ? '...' : ''),
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastMessage: original,
+                        archived: false
+                    });
+                    state.currentChatId = chatRef.id;
+                }
+
+                // Add message to current chat
+                await db.collection('users').doc(state.currentUser.uid)
+                    .collection('chats').doc(state.currentChatId)
+                    .collection('messages').add(message);
+
+                // Update chat's last message
+                await db.collection('users').doc(state.currentUser.uid)
+                    .collection('chats').doc(state.currentChatId)
+                    .update({
+                        lastMessage: original,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                state.currentSessionMessages.push(message);
+            } catch (error) {
+                console.error('Error saving message:', error);
+            }
         }
 
-        async function translatePhrase(phrase) {
-            closeModal('toolModal');
-            switchTab('voice');
-            // Simulate voice input flow
-            addChatBubble(phrase, 'user');
-            const trans = await translate(phrase, state.source, state.target);
-            addChatBubble(trans, 'ai');
-            speak(trans, state.target.code);
+        async function loadUserChats() {
+            if (!state.currentUser) return;
+
+            try {
+                const chatsSnapshot = await db.collection('users').doc(state.currentUser.uid)
+                    .collection('chats')
+                    .where('archived', '==', false)
+                    .orderBy('updatedAt', 'desc')
+                    .limit(50)
+                    .get();
+
+                const archivedSnapshot = await db.collection('users').doc(state.currentUser.uid)
+                    .collection('chats')
+                    .where('archived', '==', true)
+                    .orderBy('updatedAt', 'desc')
+                    .limit(50)
+                    .get();
+
+                renderChats(chatsSnapshot.docs, 'chatsList');
+                renderChats(archivedSnapshot.docs, 'archivedChatsList');
+            } catch (error) {
+                console.error('Error loading chats:', error);
+            }
         }
 
-        function downloadData() {
-            const data = localStorage.getItem('gtr_history') || '[]';
-            const blob = new Blob([data], {type: 'application/json'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'gemini-translator-history.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        function toggleLargeText() {
-            document.body.classList.toggle('large-text');
-        }
-
-        function toggleContrast() {
-            document.body.classList.toggle('high-contrast');
-        }
-
-        /** VOICE & UI LOGIC **/
-        function setupMicEvents() {
-            // Main Mic
-            const mainMic = document.getElementById('mainMicBtn');
-            mainMic.onclick = () => toggleMic(state.source.code);
-
-            // Split View Mics
-            document.getElementById('convSourceMic').onclick = () => toggleMic(state.source.code, 'conv');
-            document.getElementById('convTargetMic').onclick = () => toggleMic(state.target.code, 'conv');
-
-            // Transcribe
-            document.getElementById('transcribeBtn').onclick = toggleTranscribe;
-
-            // Recognition Results
-            recognition.onstart = () => {
-                state.isListening = true;
-                updateMicVisuals(true);
-            };
+        function renderChats(chatDocs, containerId) {
+            const container = document.getElementById(containerId);
             
-            recognition.onend = () => {
-                state.isListening = false;
-                updateMicVisuals(false);
-            };
+            if (chatDocs.length === 0) {
+                container.innerHTML = '<p class="text-center text-slate-400 text-sm py-8">No chats yet</p>';
+                return;
+            }
 
-            recognition.onresult = async (event) => {
-                const text = event.results[0][0].transcript;
+            container.innerHTML = chatDocs.map(doc => {
+                const chat = doc.data();
+                const date = chat.updatedAt ? chat.updatedAt.toDate().toLocaleDateString() : 'Recently';
+                return `
+                    <div class="chat-item bg-white p-4 rounded-xl border border-slate-100 hover:bg-slate-50 transition cursor-pointer relative"
+                         onclick="loadChat('${doc.id}')">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1 pr-12">
+                                <div class="font-bold text-slate-800">${chat.title || 'Untitled'}</div>
+                                <div class="text-sm text-slate-500 truncate">${chat.lastMessage || ''}</div>
+                                <div class="text-xs text-slate-400 mt-1">${date}</div>
+                            </div>
+                            <button class="chat-actions absolute right-4 top-4 p-2 rounded-lg hover:bg-slate-200 transition"
+                                    onclick="event.stopPropagation(); openChatActions('${doc.id}')">
+                                <i class="fas fa-ellipsis-v text-slate-400"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function loadChat(chatId) {
+            if (!state.currentUser) return;
+
+            try {
+                state.currentChatId = chatId;
                 
-                if (state.activeTab === 'voice') {
-                    addChatBubble(text, 'user');
-                    const translation = await translate(text, state.source, state.target);
-                    addChatBubble(translation, 'ai');
-                    speak(translation, state.target.code);
-                } else if (state.activeTab === 'conversation') {
-                    // Detect which side initiated
-                    const isSource = recognition.lang === state.source.code;
-                    const elId = isSource ? 'convSourceText' : 'convTargetText';
-                    const targetId = isSource ? 'convTargetText' : 'convSourceText';
+                const messagesSnapshot = await db.collection('users').doc(state.currentUser.uid)
+                    .collection('chats').doc(chatId)
+                    .collection('messages')
+                    .orderBy('timestamp', 'asc')
+                    .get();
+
+                // Clear current chat
+                const container = document.getElementById('voiceChatContainer');
+                container.innerHTML = '';
+
+                // Render messages
+                messagesSnapshot.docs.forEach(doc => {
+                    const msg = doc.data();
+                    addChatBubble(msg.original, 'user');
+addChatBubble(msg.translated, 'ai');
+});
+            // Switch to voice tab
+            switchTab('voice');
+            closeModal('chatActionsMenu');
+        } catch (error) {
+            console.error('Error loading chat:', error);
+        }
+    }
+
+    function openChatActions(chatId) {
+        currentChatId = chatId;
+        document.getElementById('chatActionsMenu').classList.remove('hidden');
+    }
+
+    async function deleteChat(chatId) {
+        if (!confirm('Are you sure you want to delete this chat?')) return;
+        
+        try {
+            // Delete all messages in the chat
+            const messagesSnapshot = await db.collection('users').doc(state.currentUser.uid)
+                .collection('chats').doc(chatId)
+                .collection('messages').get();
+            
+            const batch = db.batch();
+            messagesSnapshot.docs.forEach(doc => {
+                batch.delete(doc.ref);
+            });
+            await batch.commit();
+
+            // Delete the chat document
+            await db.collection('users').doc(state.currentUser.uid)
+                .collection('chats').doc(chatId).delete();
+
+            closeModal('chatActionsMenu');
+            await loadUserChats();
+            
+            // Clear UI if this was the current chat
+            if (state.currentChatId === chatId) {
+                state.currentChatId = null;
+                document.getElementById('voiceChatContainer').innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-slate-300">
+                        <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-microphone-alt text-3xl text-slate-300"></i>
+                        </div>
+                        <p class="text-sm font-medium">Tap microphone to speak</p>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Error deleting chat:', error);
+            alert('Failed to delete chat');
+        }
+    }
+
+    async function archiveChat(chatId) {
+        try {
+            await db.collection('users').doc(state.currentUser.uid)
+                .collection('chats').doc(chatId)
+                .update({ archived: true });
+
+            closeModal('chatActionsMenu');
+            await loadUserChats();
+        } catch (error) {
+            console.error('Error archiving chat:', error);
+            alert('Failed to archive chat');
+        }
+    }
+
+    async function factoryReset() {
+        if (!confirm('⚠️ WARNING: This will permanently delete ALL your chats and data. This cannot be undone. Are you sure?')) return;
+        if (!confirm('Final confirmation: Delete everything?')) return;
+
+        try {
+            // Delete all chats and messages
+            const chatsSnapshot = await db.collection('users').doc(state.currentUser.uid)
+                .collection('chats').get();
+
+            for (const chatDoc of chatsSnapshot.docs) {
+                // Delete messages
+                const messagesSnapshot = await chatDoc.ref.collection('messages').get();
+                const batch = db.batch();
+                messagesSnapshot.docs.forEach(doc => batch.delete(doc.ref));
+                await batch.commit();
+
+                // Delete chat
+                await chatDoc.ref.delete();
+            }
+
+            // Clear local storage
+            localStorage.clear();
+
+            // Reset UI
+            state.currentChatId = null;
+            state.currentSessionMessages = [];
+            document.getElementById('voiceChatContainer').innerHTML = `
+                <div class="h-full flex flex-col items-center justify-center text-slate-300">
+                    <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-microphone-alt text-3xl text-slate-300"></i>
+                    </div>
+                    <p class="text-sm font-medium">Tap microphone to speak</p>
+                </div>
+            `;
+
+            await loadUserChats();
+            closeModal('settingsModal');
+            alert('✅ Factory reset complete. All data has been deleted.');
+        } catch (error) {
+            console.error('Error during factory reset:', error);
+            alert('Failed to complete factory reset');
+        }
+    }
+
+    function openSettings() {
+        document.getElementById('settingsModal').classList.remove('hidden');
+    }
+
+    /** INITIALIZATION **/
+    function init() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            
+            transcribeRecognition = new SpeechRecognition();
+            transcribeRecognition.continuous = true;
+            transcribeRecognition.interimResults = true;
+            
+            setupMicEvents();
+        } else {
+            alert("Voice features not supported in this browser. Try Chrome/Safari.");
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            state.installPrompt = e;
+            document.getElementById('installBtn').classList.remove('hidden');
+        });
+
+        updateLangUI();
+        renderLangList();
+        
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        if(isIOS && !window.navigator.standalone) {
+            document.getElementById('installBtn').classList.remove('hidden');
+            document.getElementById('installBtn').onclick = () => {
+                document.getElementById('iosInstallModal').classList.remove('hidden');
+            };
+        }
+    }
+
+    /** CORE GEMINI API **/
+    async function callGemini(prompt) {
+        if(!apiKey) {
+            if(!confirm("API Key is missing. Using simulation mode?")) return "Error: No API Key";
+            return await simulateResponse(prompt);
+        }
+        
+        try {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            });
+            const data = await res.json();
+            if(data.error) throw new Error(data.error.message);
+            return data.candidates[0].content.parts[0].text.trim();
+        } catch (e) {
+            console.error(e);
+            return "Connection Error. Please try again.";
+        }
+    }
+
+    function simulateResponse(prompt) {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                if(prompt.includes("Translate")) {
+                    const textMatch = prompt.match(/:\s*\n\n(.+)/);
+                    const text = textMatch ? textMatch[1] : "hello";
+                    resolve(`simulated_${text}_translation`);
+                }
+                else if(prompt.includes("Define")) resolve("A greeting or salutation");
+                else resolve("Simulated response");
+            }, 800);
+        });
+    }
+
+    function checkPreSaved(text, fromCode, toCode) {
+        const normalized = text.toLowerCase().trim();
+        const fromLang = COMMON_PHRASES[fromCode];
+        if (fromLang && fromLang[toCode] && fromLang[toCode][normalized]) {
+            return fromLang[toCode][normalized];
+        }
+        return null;
+    }
+
+    function checkCache(text, toCode) {
+         const h = JSON.parse(localStorage.getItem('gtr_history') || '[]');
+         const found = h.find(i => i.original.toLowerCase() === text.toLowerCase() && i.langCode === toCode);
+         return found ? found.target : null;
+    }
+
+    async function translate(text, from, to) {
+        const preSaved = checkPreSaved(text, from.code, to.code);
+        if(preSaved) {
+            console.log("✅ Pre-saved phrase! 0 tokens used.");
+            await saveMessageToFirebase(text, preSaved, from.name, to.name);
+            return preSaved;
+        }
+
+        const cached = checkCache(text, to.code);
+        if(cached) {
+            console.log("✅ Cache hit! 0 tokens used.");
+            await saveMessageToFirebase(text, cached, from.name, to.name);
+            return cached;
+        }
+
+        const prompt = `Translate this ${from.name} text to ${to.name}. Output ONLY the direct translation with no explanations, alternatives, notes, formatting, or extra text. Just the translated sentence:
+${text}`;
+        const result = await callGemini(prompt);
+        const cleaned = result.replace(/\*\*/g, '').replace(/\*/g, '').trim().split('\n')[0].split('(')[0].split('Alternatively')[0].trim();
+        
+        await saveMessageToFirebase(text, cleaned, from.name, to.name);
+        saveHistory(text, cleaned, to.code);
+        return cleaned;
+    }
+
+    /** TOOLS LOGIC **/
+    let currentTool = null;
+
+    const toolsConfig = {
+        'phrasebook': { 
+            title: 'Phrasebook', 
+            hasInput: false,
+            render: () => {
+               const fromLang = COMMON_PHRASES[state.source.code];
+               let phrases = [];
+               
+               if (fromLang && fromLang[state.target.code]) {
+                   phrases = Object.keys(fromLang[state.target.code]).map(k => 
+                       k.charAt(0).toUpperCase() + k.slice(1)
+                   );
+               } else {
+                   phrases = ["Hello", "Thank you", "Goodbye", "Where is the bathroom?", "How much is this?", "Help me", "Water please"];
+               }
+               
+               return `<div class="grid grid-cols-1 gap-2">${phrases.map(p => `<button onclick="translatePhrase('${p}')" class="text-left p-3 bg-slate-50 rounded-lg border hover:bg-slate-100 flex justify-between"><span>${p}</span> <i class="fas fa-chevron-right text-xs text-slate-400"></i></button>`).join('')}</div>`;
+            }
+        },
+        'dictionary': { title: 'AI Dictionary', prompt: (t) => `Define simply in one short sentence: "${t}"` },
+        'grammar': { title: 'Grammar Fixer', prompt: (t) => `Fix grammar and spelling. Output only the corrected text with no explanations: "${t}"` },
+        'summarize': { title: 'Summarizer', prompt: (t) => `Summarize in 3 short bullets: "${t}"` },
+        'tone': { title: 'Formalizer', prompt: (t) => `Make this formal and professional. Output only the rewritten text: "${t}"` },
+        'quiz': {
+            title: 'Quiz Mode',
+            hasInput: false,
+            render: () => {
+                const h = JSON.parse(localStorage.getItem('gtr_history') || '[]');
+                if(h.length < 3) return `<p class="text-center text-slate-500">Translate a few things first to unlock the quiz!</p>`;
+                const q = h[Math.floor(Math.random() * h.length)];
+                return `
+                    <div class="text-center p-4">
+                        <p class="text-sm text-slate-500 mb-2">What does this mean?</p>
+                        <p class="text-xl font-bold mb-6">"${q.target}"</p>
+                        <button onclick="this.nextElementSibling.classList.remove('hidden'); this.classList.add('hidden')" class="bg-indigo-600 text-white px-6 py-2 rounded-full">Reveal Answer</button>
+                        <div class="hidden mt-4 animate-fade-in">
+                            <p class="text-lg font-bold text-green-600">${q.original}</p>
+                            <button onclick="launchTool('quiz')" class="mt-4 text-indigo-600 text-sm font-bold">Next Question</button>
+                        </div>
+                    </div>
+                `;
+            }
+        },
+        'flashcards': {
+            title: 'Flashcards',
+            hasInput: false,
+            render: () => {
+                const h = JSON.parse(localStorage.getItem('gtr_history') || '[]');
+                if(h.length === 0) return `<p class="text-center text-slate-500">No history found. Start translating!</p>`;
+                return `
+                    <div class="space-y-2 max-h-60 overflow-y-auto">
+                        ${h.slice(0, 20).map(i => `<div class="p-3 bg-yellow-50 border border-yellow-100 rounded-lg flex justify-between items-center"><div><div class="font-bold text-slate-800">${i.target}</div><div class="text-xs text-slate-500">${i.original}</div></div><button onclick="speak('${i.target.replace(/'/g, "\\'")}', '${i.langCode}')"><i class="fas fa-volume-up text-slate-400"></i></button></div>`).join('')}
+                    </div>
+                `;
+            }
+        }
+    };
+
+    function launchTool(toolId) {
+        currentTool = toolId;
+        const config = toolsConfig[toolId];
+        if(!config) return;
+
+        const modal = document.getElementById('toolModal');
+        const title = document.getElementById('toolTitle');
+        const input = document.getElementById('toolInput');
+        const result = document.getElementById('toolResult');
+        const btn = document.getElementById('toolActionBtn');
+
+        title.textContent = config.title;
+        result.classList.add('hidden');
+        result.textContent = '';
+        
+        input.classList.remove('hidden');
+        btn.classList.remove('hidden');
+        
+        if(config.hasInput === false) {
+            input.classList.add('hidden');
+            btn.classList.add('hidden');
+            result.classList.remove('hidden');
+            result.innerHTML = config.render();
+            result.classList.replace('bg-indigo-50', 'bg-white');
+        } else {
+            result.classList.replace('bg-white', 'bg-indigo-50');
+            input.value = '';
+            btn.onclick = async () => {
+                if(!input.value.trim()) return;
+                btn.textContent = 'Processing...';
+                btn.disabled = true;
+                const res = await callGemini(config.prompt(input.value));
+                result.classList.remove('hidden');
+                result.textContent = res;
+                btn.textContent = 'Run';
+                btn.disabled = false;
+            };
+        }
+        
+        modal.classList.remove('hidden');
+    }
+
+    async function translatePhrase(phrase) {
+        closeModal('toolModal');
+        switchTab('voice');
+        addChatBubble(phrase, 'user');
+        const trans = await translate(phrase, state.source, state.target);
+        addChatBubble(trans, 'ai');
+        speak(trans, state.target.code);
+    }
+
+    function downloadData() {
+        const data = localStorage.getItem('gtr_history') || '[]';
+        const blob = new Blob([data], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'gemini-translator-history.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function toggleLargeText() {
+        document.body.classList.toggle('large-text');
+    }
+
+    function toggleContrast() {
+        document.body.classList.toggle('high-contrast');
+    }
+
+    /** VOICE & UI LOGIC **/
+    function setupMicEvents() {
+        const mainMic = document.getElementById('mainMicBtn');
+        mainMic.onclick = () => toggleMic(state.source.code);
+
+        document.getElementById('convSourceMic').onclick = () => toggleMic(state.source.code, 'conv');
+        document.getElementById('convTargetMic').onclick = () => toggleMic(state.target.code, 'conv');
+
+        document.getElementById('transcribeBtn').onclick = toggleTranscribe;
+
+        recognition.onstart = () => {
+            state.isListening = true;
+            updateMicVisuals(true);
+        };
+        
+        recognition.onend = () => {
+            state.isListening = false;
+            updateMicVisuals(false);
+        };
+
+        recognition.onresult = async (event) => {
+            const text = event.results[0][0].transcript;
+            
+            if (state.activeTab === 'voice') {
+                addChatBubble(text, 'user');
+                const translation = await translate(text, state.source, state.target);
+                addChatBubble(translation, 'ai');
+                speak(translation, state.target.code);
+            } else if (state.activeTab === 'conversation') {
+                const isSource = recognition.lang === state.source.code;
+                const elId = isSource ? 'convSourceText' : 'convTargetText';
+                const targetId = isSource ? 'convTargetText' : 'convSourceText';
+                
                 document.getElementById(elId).textContent = text;
                 
                 const from = isSource ? state.source : state.target;
@@ -865,7 +1134,6 @@ ${text}`;
 
     function addChatBubble(text, type) {
         const container = document.getElementById('voiceChatContainer');
-        // Remove placeholder if exists
         if(container.querySelector('.fa-microphone-alt')) container.innerHTML = '';
         
         const div = document.createElement('div');
@@ -910,33 +1178,36 @@ ${text}`;
 
     function copyToClip(text) {
         navigator.clipboard.writeText(text).then(() => {
-            // Successfully copied
+            // Success
         }).catch(err => {
             console.error('Copy failed:', err);
         });
     }
 
-    /** NAVIGATION & STATE MANAGEMENT **/
+    /** NAVIGATION **/
     function switchTab(tabId) {
         state.activeTab = tabId;
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
         document.getElementById(`view-${tabId}`).classList.add('active');
         
-        // Update Nav Icons
         document.querySelectorAll('.nav-btn').forEach(btn => {
            btn.classList.remove('text-indigo-600');
            btn.classList.add('text-slate-400');
         });
-        // Find button by onclick attr roughly
+        
         const activeBtn = document.querySelector(`button[onclick="switchTab('${tabId}')"]`);
         if(activeBtn) {
             activeBtn.classList.remove('text-slate-400');
             activeBtn.classList.add('text-indigo-600');
         }
 
-        // Stop mics on switch
         if(recognition) recognition.stop();
         if(transcribeRecognition) transcribeRecognition.stop();
+
+        // Reload chats when switching to history tab
+        if(tabId === 'history') {
+            loadUserChats();
+        }
     }
 
     function toggleInstall() {
@@ -949,7 +1220,6 @@ ${text}`;
                 state.installPrompt = null;
             });
         } else {
-            // Fallback for logic check
             alert("Installation not available directly. Please use your browser menu to 'Add to Home Screen'.");
         }
     }
@@ -959,7 +1229,6 @@ ${text}`;
         state.selectingFor = side;
         document.getElementById('langModal').classList.remove('hidden');
         document.getElementById('langSearch').value = '';
-        document.getElementById('langSearch').focus();
         renderLangList();
     }
 
@@ -994,7 +1263,6 @@ ${text}`;
         state.target = temp;
         updateLangUI();
         
-        // Animation
         const i = document.querySelector('#swapBtn i');
         i.style.transform = 'rotate(180deg)';
         setTimeout(() => i.style.transform = 'rotate(0deg)', 300);
@@ -1010,16 +1278,12 @@ ${text}`;
     /** HISTORY **/
     function saveHistory(original, target, langCode) {
         const h = JSON.parse(localStorage.getItem('gtr_history') || '[]');
-        // Remove existing duplicate if any to bump to top
         const existingIdx = h.findIndex(i => i.original.toLowerCase() === original.toLowerCase() && i.langCode === langCode);
         if(existingIdx > -1) h.splice(existingIdx, 1);
         
         h.unshift({ original, target, langCode, date: Date.now() });
         localStorage.setItem('gtr_history', JSON.stringify(h.slice(0, 100)));
     }
-
-    window.onload = init;
 </script>
 </body>
 </html>
-
