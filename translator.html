@@ -801,7 +801,7 @@ ${text}`;
                     // Detect which side initiated
                     const isSource = recognition.lang === state.source.code;
                     const elId = isSource ? 'convSourceText' : 'convTargetText';
-                    const targetId = isContinue6:48 PMResumed code continuation from previous point.The user wants me to continue the code. Let me continue from where I left off.Source ? 'convTargetText' : 'convSourceText';
+                    const targetId = isSource ? 'convTargetText' : 'convSourceText';
                 document.getElementById(elId).textContent = text;
                 
                 const from = isSource ? state.source : state.target;
@@ -1022,3 +1022,4 @@ ${text}`;
 </script>
 </body>
 </html>
+
