@@ -326,7 +326,7 @@
 
     <script>
         /** APP CONFIG & STATE **/
-        const apiKey = ""; // Will use logic to warn if missing, but normally injected
+        const apiKey = "AIzaSyAANADv-VCK68oTD4I19McPhPGquwzgQQc"; // Will use logic to warn if missing, but normally injected
         const MODEL = "gemini-2.5-flash-preview-09-2025";
         
         const LANGUAGES = [
@@ -428,8 +428,28 @@
             });
         }
 
+        /** CACHING & TRANSLATION **/
+        // Optimization: Check local history before burning tokens
+        function checkCache(text, toCode) {
+             const h = JSON.parse(localStorage.getItem('gtr_history') || '[]');
+             // Find exact match for text and target language
+             const found = h.find(i => i.original.toLowerCase() === text.toLowerCase() && i.langCode === toCode);
+             return found ? found.target : null;
+        }
+
         async function translate(text, from, to) {
-            const prompt = `Translate this text from ${from.name} to ${to.name}. Return ONLY the translation, no extra text: "${text}"`;
+            // 1. Check Cache (Zero Token Cost)
+            const cached = checkCache(text, to.code);
+            if(cached) {
+                console.log("Cache hit! 0 tokens used.");
+                saveHistory(text, cached, to.code); // Bump to top of history
+                return cached;
+            }
+
+            // 2. Optimized Prompt (Minimal Token Cost)
+            // Instead of verbose sentences, use structure: "Lang1 to Lang2:\nText"
+            const prompt = `Translate ${from.name} to ${to.name}:\n${text}`;
+            
             const result = await callGemini(prompt);
             saveHistory(text, result, to.code);
             return result;
@@ -438,6 +458,7 @@
         /** TOOLS LOGIC **/
         let currentTool = null;
 
+        // Optimized Tool Prompts for Token Efficiency
         const toolsConfig = {
             'phrasebook': { 
                 title: 'Phrasebook', 
@@ -447,10 +468,10 @@
                    return `<div class="grid grid-cols-1 gap-2">${phrases.map(p => `<button onclick="translatePhrase('${p}')" class="text-left p-3 bg-slate-50 rounded-lg border hover:bg-slate-100 flex justify-between"><span>${p}</span> <i class="fas fa-chevron-right text-xs text-slate-400"></i></button>`).join('')}</div>`;
                 }
             },
-            'dictionary': { title: 'AI Dictionary', prompt: (t) => `Define the word or phrase "${t}" simply for a learner.` },
-            'grammar': { title: 'Grammar Fixer', prompt: (t) => `Correct the grammar and spelling of this text: "${t}"` },
-            'summarize': { title: 'Summarizer', prompt: (t) => `Summarize this text in 3 bullet points: "${t}"` },
-            'tone': { title: 'Formalizer', prompt: (t) => `Rewrite this text to be very formal and professional: "${t}"` },
+            'dictionary': { title: 'AI Dictionary', prompt: (t) => `Define simply: "${t}"` },
+            'grammar': { title: 'Grammar Fixer', prompt: (t) => `Fix grammar: "${t}"` },
+            'summarize': { title: 'Summarizer', prompt: (t) => `Summarize in 3 bullets: "${t}"` },
+            'tone': { title: 'Formalizer', prompt: (t) => `Make formal: "${t}"` },
             'quiz': {
                 title: 'Quiz Mode',
                 hasInput: false,
@@ -804,6 +825,10 @@
         /** HISTORY **/
         function saveHistory(original, target, langCode) {
             const h = JSON.parse(localStorage.getItem('gtr_history') || '[]');
+            // Remove existing duplicate if any to bump to top
+            const existingIdx = h.findIndex(i => i.original === original && i.langCode === langCode);
+            if(existingIdx > -1) h.splice(existingIdx, 1);
+            
             h.unshift({ original, target, langCode, date: Date.now() });
             localStorage.setItem('gtr_history', JSON.stringify(h.slice(0, 50)));
         }
