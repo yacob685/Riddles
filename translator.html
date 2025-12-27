@@ -2,481 +2,813 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#4F46E5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Gemini Instant Translator</title>
+    <meta name="apple-mobile-web-app-title" content="GeminiTranslate">
+    <meta name="description" content="AI Powered Voice and Text Translator with Tools">
+    <title>Gemini Translator Ultimate</title>
+    
+    <!-- PWA Manifest (Data URI for single file portability) -->
+    <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiR2VtaW5pIFRyYW5zbGF0b3IgVWx0aW1hdGUiLCJzaG9ydF9uYW1lIjoiR1RyYW5zbGF0ZSIsInN0YXJ0X3VybCI6Ii4iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29xvciI6IiNmZmZmZmYiLCJ0aGVtZV9jb2xvciI6IiM0RjQ2RTUiLCJpY29ucyI6W3sic3JjIjoiaHR0cHM6Ly9jZG4taWNvbnMtcG5nLmZsaXRpY29uLmNvbS81MTIvMzgyMC8zODIwMTk3LnBuZyIsInNpemVzIjoiMTkyeDE5MiIsInR5cGUiOiJpbWFnZS9wbmcifSx7InNyYyI6Imh0dHBzOi8vY2RuLWljb25zLXBuZy5mbGl0aWNvbi5jb20vNTEyLzM4MjAvMzgyMDE5Ny5wbmciLCJzaXplcyI6IjUxMng1MTIiLCJ0eXBlIjoiaW1hZ2UvcG5nIn1dfQ==">
+    
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.fliticon.com/512/3820/3820197.png">
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         
+        body { 
+            font-family: 'Inter', sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+            overscroll-behavior-y: none; /* Prevent pull-to-refresh on mobile */
+        }
+        
+        /* Animations */
         .pulse-ring {
-            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
-            animation: pulse-red 1.5s infinite cubic-bezier(0.66, 0, 0, 1);
+            box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7);
+            animation: pulse-blue 1.5s infinite cubic-bezier(0.66, 0, 0, 1);
         }
-        @keyframes pulse-red {
-            to { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
-        }
+        @keyframes pulse-blue { to { box-shadow: 0 0 0 20px rgba(79, 70, 229, 0); } }
         
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .slide-up { animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+        /* Utilities */
         .gradient-text {
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
+            background-clip: text; -webkit-background-clip: text; color: transparent;
             background-image: linear-gradient(to right, #4F46E5, #9333EA);
         }
+        .view-section { display: none; height: 100%; flex-direction: column; }
+        .view-section.active { display: flex; }
+        .safe-pb { padding-bottom: env(safe-area-inset-bottom); }
+        .safe-pt { padding-top: env(safe-area-inset-top); }
+        
+        /* Custom Scrollbar for tools */
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Custom Scrollbar for the modal */
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #c7c7c7; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #a1a1a1; }
+        /* Ad Styling */
+        .ad-banner {
+            background: #f1f5f9;
+            border: 1px dashed #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+        .ad-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: #cbd5e1;
+            color: #64748b;
+            font-size: 8px;
+            padding: 1px 4px;
+            border-radius: 2px;
+        }
+
+        /* High Contrast Mode */
+        .high-contrast { filter: contrast(1.5) saturate(0.8); background: #000 !important; color: #fff !important; }
+        .high-contrast .bg-white { background: #1a1a1a !important; color: #fff !important; }
+        .high-contrast .text-slate-800 { color: #fff !important; }
+        
+        /* Large Text Mode */
+        .large-text { font-size: 1.1em; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex flex-col items-center justify-center p-0 sm:p-4">
+<body class="bg-slate-100 h-[100dvh] w-screen overflow-hidden flex flex-col items-center justify-center">
 
     <!-- App Container -->
-    <div class="w-full h-screen sm:h-auto sm:max-w-md bg-white sm:rounded-3xl shadow-xl overflow-hidden border-0 sm:border border-slate-100 flex flex-col relative">
+    <main id="app-container" class="relative bg-white w-full h-full sm:max-w-md sm:h-[90vh] sm:rounded-3xl sm:shadow-2xl sm:border sm:border-slate-200 flex flex-col overflow-hidden">
         
+        <!-- Top Ad Banner -->
+        <div class="ad-banner w-full h-[50px] shrink-0">
+            <span class="ad-badge">Ad</span>
+            <div class="text-[10px] text-slate-400">Travel Deals: 50% Off Flights</div>
+            <div class="text-xs font-bold text-slate-600">FlyCheap Airlines ➤</div>
+        </div>
+
         <!-- Header -->
-        <div class="bg-white p-6 pb-2 shrink-0">
-            <div class="flex items-center justify-between mb-2">
-                <h1 class="text-2xl font-bold text-slate-800">Gemini <span class="gradient-text">Live</span></h1>
-                <div class="text-xs font-semibold px-2 py-1 bg-green-100 text-green-700 rounded-full flex items-center gap-1">
-                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    Token Optimized
+        <header class="px-6 pt-4 pb-2 flex justify-between items-center bg-white z-10">
+            <h1 class="text-xl font-bold text-slate-800 tracking-tight">Gemini<span class="gradient-text">Ultra</span></h1>
+            <div class="flex gap-2">
+                <button onclick="toggleInstall()" class="text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full text-xs font-bold hidden" id="installBtn">
+                    <i class="fas fa-download mr-1"></i> Install
+                </button>
+                <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 cursor-pointer hover:bg-slate-200 transition">
+                    <i class="fas fa-cog"></i>
                 </div>
             </div>
-            <p class="text-slate-500 text-sm">Ultra-low latency speech translation.</p>
-        </div>
+        </header>
 
-        <!-- Language Controls -->
-        <div class="px-6 py-4 grid grid-cols-[1fr,auto,1fr] gap-2 items-center shrink-0 bg-white z-10">
+        <!-- Main Content Area -->
+        <div class="flex-1 relative overflow-hidden flex flex-col">
             
-            <!-- Source Language Button -->
-            <button id="sourceLangBtn" class="w-full bg-slate-50 border border-slate-200 text-slate-700 py-3 px-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-semibold truncate transition-all active:scale-95 text-center">
-                Arabic (Saudi)
-            </button>
+            <!-- VOICE VIEW -->
+            <section id="view-voice" class="view-section active">
+                <!-- Language Selector -->
+                <div class="px-6 py-2 grid grid-cols-[1fr,auto,1fr] gap-2 items-center z-10">
+                    <button onclick="openLangModal('source')" class="lang-btn-source bg-slate-50 border border-slate-200 py-3 rounded-xl text-sm font-bold truncate active:bg-slate-100 shadow-sm flex items-center justify-center gap-2">
+                        <span class="flag-source">🇺🇸</span> <span class="text-source">English</span>
+                    </button>
+                    <button id="swapBtn" class="p-2 text-indigo-500 active:scale-90 transition-transform bg-indigo-50 rounded-full"><i class="fas fa-exchange-alt"></i></button>
+                    <button onclick="openLangModal('target')" class="lang-btn-target bg-slate-50 border border-slate-200 py-3 rounded-xl text-sm font-bold truncate active:bg-slate-100 shadow-sm flex items-center justify-center gap-2">
+                        <span class="flag-target">🇪🇸</span> <span class="text-target">Spanish</span>
+                    </button>
+                </div>
 
-            <!-- Swap Button -->
-            <button id="swapBtn" class="p-2 text-slate-400 hover:text-indigo-600 transition-colors rounded-full hover:bg-slate-50 active:scale-90">
-                <i class="fas fa-exchange-alt"></i>
-            </button>
+                <!-- Chat Area -->
+                <div id="voiceChatContainer" class="flex-1 overflow-y-auto px-6 py-4 space-y-4 bg-slate-50/50 pb-20">
+                    <div class="h-full flex flex-col items-center justify-center text-slate-300">
+                        <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-microphone-alt text-3xl text-slate-300"></i>
+                        </div>
+                        <p class="text-sm font-medium">Tap microphone to speak</p>
+                    </div>
+                </div>
 
-            <!-- Target Language Button -->
-            <button id="targetLangBtn" class="w-full bg-slate-50 border border-slate-200 text-slate-700 py-3 px-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-semibold truncate transition-all active:scale-95 text-center">
-                English (US)
-            </button>
+                <!-- Mic Controls -->
+                <div class="absolute bottom-4 left-0 right-0 px-6 flex flex-col items-center gap-3 bg-gradient-to-t from-white via-white to-transparent pt-10">
+                    <div id="voiceStatus" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white px-3 py-1 rounded-full shadow-sm border border-slate-100">Ready</div>
+                    <button id="mainMicBtn" class="w-16 h-16 rounded-full bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white shadow-xl flex items-center justify-center text-2xl active:scale-95 transition-all hover:shadow-2xl ring-4 ring-indigo-100">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- TOOLS VIEW (The 10 Tools) -->
+            <section id="view-tools" class="view-section bg-slate-50 overflow-y-auto">
+                <div class="p-6">
+                    <h2 class="text-lg font-bold text-slate-800 mb-4">Power Tools</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Tool 1: Phrasebook -->
+                        <div onclick="launchTool('phrasebook')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 active:scale-95 transition cursor-pointer">
+                            <div class="w-10 h-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mb-3"><i class="fas fa-book"></i></div>
+                            <h3 class="font-bold text-sm text-slate-800">Phrasebook</h3>
+                            <p class="text-[10px] text-slate-400 mt-1">Travel essentials</p>
+                        </div>
+                        <!-- Tool 2: Dictionary -->
+                        <div onclick="launchTool('dictionary')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 active:scale-95 transition cursor-pointer">
+                            <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-3"><i class="fas fa-spell-check"></i></div>
+                            <h3 class="font-bold text-sm text-slate-800">Dictionary</h3>
+                            <p class="text-[10px] text-slate-400 mt-1">AI Definitions</p>
+                        </div>
+                        <!-- Tool 3: Grammar -->
+                        <div onclick="launchTool('grammar')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 active:scale-95 transition cursor-pointer">
+                            <div class="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-3"><i class="fas fa-check-double"></i></div>
+                            <h3 class="font-bold text-sm text-slate-800">Grammar Fix</h3>
+                            <p class="text-[10px] text-slate-400 mt-1">Polish your text</p>
+                        </div>
+                        <!-- Tool 4: Summarizer -->
+                        <div onclick="launchTool('summarize')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 active:scale-95 transition cursor-pointer">
+                            <div class="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center mb-3"><i class="fas fa-compress-alt"></i></div>
+                            <h3 class="font-bold text-sm text-slate-800">Summarizer</h3>
+                            <p class="text-[10px] text-slate-400 mt-1">Shorten long text</p>
+                        </div>
+                        <!-- Tool 5: Flashcards -->
+                        <div onclick="launchTool('flashcards')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 active:scale-95 transition cursor-pointer">
+                            <div class="w-10 h-10 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center mb-3"><i class="fas fa-layer-group"></i></div>
+                            <h3 class="font-bold text-sm text-slate-800">Flashcards</h3>
+                            <p class="text-[10px] text-slate-400 mt-1">Review history</p>
+                        </div>
+                         <!-- Tool 6: Quiz -->
+                         <div onclick="launchTool('quiz')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 active:scale-95 transition cursor-pointer">
+                            <div class="w-10 h-10 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center mb-3"><i class="fas fa-graduation-cap"></i></div>
+                            <h3 class="font-bold text-sm text-slate-800">Quiz Mode</h3>
+                            <p class="text-[10px] text-slate-400 mt-1">Test skills</p>
+                        </div>
+                         <!-- Tool 7: Tone Changer -->
+                         <div onclick="launchTool('tone')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 active:scale-95 transition cursor-pointer">
+                            <div class="w-10 h-10 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center mb-3"><i class="fas fa-user-tie"></i></div>
+                            <h3 class="font-bold text-sm text-slate-800">Formalize</h3>
+                            <p class="text-[10px] text-slate-400 mt-1">Change tone</p>
+                        </div>
+                         <!-- Tool 8: Export -->
+                         <div onclick="downloadData()" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 active:scale-95 transition cursor-pointer">
+                            <div class="w-10 h-10 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center mb-3"><i class="fas fa-file-export"></i></div>
+                            <h3 class="font-bold text-sm text-slate-800">Export</h3>
+                            <p class="text-[10px] text-slate-400 mt-1">Save JSON</p>
+                        </div>
+                         <!-- Tool 9: Large Text -->
+                         <div onclick="toggleLargeText()" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 active:scale-95 transition cursor-pointer">
+                            <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-3"><i class="fas fa-text-height"></i></div>
+                            <h3 class="font-bold text-sm text-slate-800">Large Text</h3>
+                            <p class="text-[10px] text-slate-400 mt-1">Accessibility</p>
+                        </div>
+                         <!-- Tool 10: Contrast -->
+                         <div onclick="toggleContrast()" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 active:scale-95 transition cursor-pointer">
+                            <div class="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center mb-3"><i class="fas fa-adjust"></i></div>
+                            <h3 class="font-bold text-sm text-slate-800">Contrast</h3>
+                            <p class="text-[10px] text-slate-400 mt-1">Dark/High Vis</p>
+                        </div>
+                    </div>
+                    
+                    <!-- In-feed Ad -->
+                    <div class="ad-banner w-full h-[80px] mt-6 rounded-xl">
+                        <span class="ad-badge">Ad</span>
+                        <div class="text-sm font-bold text-indigo-900">Learn Spanish in 30 Days</div>
+                        <div class="text-xs text-slate-500">The #1 Rated Language App</div>
+                        <button class="mt-1 bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded">Install Now</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SPLIT VIEW -->
+            <section id="view-conversation" class="view-section">
+                <div class="flex-1 bg-indigo-50 flex flex-col items-center justify-center relative p-6 border-b-4 border-dashed border-indigo-200" style="transform: rotate(180deg);">
+                    <div id="convTargetText" class="text-2xl text-center font-medium mb-10 text-slate-700">Ready...</div>
+                    <button id="convTargetMic" class="w-16 h-16 rounded-full bg-white text-indigo-600 shadow-md flex items-center justify-center text-2xl active:scale-95"><i class="fas fa-microphone"></i></button>
+                </div>
+                <div class="flex-1 bg-white flex flex-col items-center justify-center relative p-6">
+                    <button id="convSourceMic" class="w-16 h-16 rounded-full bg-indigo-600 text-white shadow-lg flex items-center justify-center text-2xl mb-10 active:scale-95"><i class="fas fa-microphone"></i></button>
+                    <div id="convSourceText" class="text-2xl text-center font-medium text-slate-700">Ready...</div>
+                </div>
+            </section>
+
+            <!-- LIVE TRANSCRIBE VIEW -->
+            <section id="view-transcribe" class="view-section bg-slate-900 text-white">
+                <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+                    <h1 class="text-lg font-bold">Live Transcript</h1>
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                        <span class="text-xs font-mono text-slate-400">REC</span>
+                    </div>
+                </div>
+                <div id="transcribeContainer" class="flex-1 overflow-y-auto p-6 space-y-4 font-mono text-sm leading-relaxed"></div>
+                <div class="p-6 flex justify-center bg-slate-900 border-t border-slate-800">
+                    <button id="transcribeBtn" class="w-full py-4 rounded-xl bg-slate-800 border border-slate-700 font-bold flex items-center justify-center gap-2 active:scale-95 transition-transform hover:bg-slate-700">
+                        <i class="fas fa-play"></i> Start Listening
+                    </button>
+                </div>
+            </section>
+
         </div>
 
-        <!-- Conversation Area -->
-        <div id="chatContainer" class="flex-1 overflow-y-auto px-6 py-2 space-y-4 scroll-smooth custom-scrollbar bg-slate-50/50">
-            <!-- Welcome Message -->
-            <div class="flex flex-col items-center justify-center h-full text-slate-300 text-center space-y-2 opacity-50">
-                <i class="fas fa-microphone-lines text-4xl"></i>
-                <p class="text-sm">Tap mic to speak</p>
+        <!-- Navigation -->
+        <footer class="bg-white border-t border-slate-200 safe-pb w-full z-20">
+            <!-- Bottom Ad -->
+            <div class="ad-banner w-full h-[40px] border-b border-slate-100">
+                <span class="ad-badge">Ad</span>
+                <span class="text-[9px] text-slate-500">Best VPN for Travelers - Protect Data</span>
             </div>
-        </div>
 
-        <!-- Mic Button Area -->
-        <div class="p-6 bg-gradient-to-t from-white via-white to-transparent shrink-0">
-            <div class="flex flex-col items-center gap-4">
-                <div id="statusText" class="h-5 text-xs font-semibold text-slate-400 uppercase tracking-wider">Ready</div>
-                
-                <button id="micBtn" class="w-20 h-20 rounded-full bg-indigo-600 text-white shadow-lg shadow-indigo-200 flex items-center justify-center text-3xl transition-all transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-indigo-100">
-                    <i class="fas fa-microphone"></i>
+            <nav class="flex justify-around items-center h-16">
+                <button onclick="switchTab('voice')" class="nav-btn text-indigo-600 flex-1 flex flex-col items-center group">
+                    <i class="fas fa-microphone text-lg mb-1 group-active:scale-90 transition"></i><span class="text-[9px] font-bold uppercase">Voice</span>
                 </button>
-            </div>
-        </div>
-
-        <!-- Stats -->
-        <div class="pb-4 text-[10px] text-slate-300 font-mono text-center shrink-0">
-            Gemini 2.5 Flash • Web Speech API
-        </div>
-    </div>
-
-    <!-- Language Selection Modal (Hidden by default) -->
-    <div id="langModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300 flex items-end sm:items-center justify-center">
-        <div class="bg-white w-full h-[85vh] sm:h-[600px] sm:max-w-sm rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col transform translate-y-full transition-transform duration-300" id="modalContent">
-            
-            <!-- Modal Header -->
-            <div class="p-4 border-b border-slate-100 flex items-center justify-between">
-                <h3 class="font-bold text-slate-800 text-lg" id="modalTitle">Select Language</h3>
-                <button id="closeModalBtn" class="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100">
-                    <i class="fas fa-times"></i>
+                <button onclick="switchTab('conversation')" class="nav-btn text-slate-400 flex-1 flex flex-col items-center group">
+                    <i class="fas fa-user-friends text-lg mb-1 group-active:scale-90 transition"></i><span class="text-[9px] font-bold uppercase">Split</span>
                 </button>
-            </div>
+                <button onclick="switchTab('transcribe')" class="nav-btn text-slate-400 flex-1 flex flex-col items-center group">
+                    <i class="fas fa-wave-square text-lg mb-1 group-active:scale-90 transition"></i><span class="text-[9px] font-bold uppercase">Live</span>
+                </button>
+                <button onclick="switchTab('tools')" class="nav-btn text-slate-400 flex-1 flex flex-col items-center group">
+                    <i class="fas fa-th-large text-lg mb-1 group-active:scale-90 transition"></i><span class="text-[9px] font-bold uppercase">Tools</span>
+                </button>
+            </nav>
+        </footer>
 
-            <!-- Search -->
-            <div class="p-4 bg-slate-50">
-                <div class="relative">
-                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="text" id="langSearch" placeholder="Search languages..." class="w-full bg-white border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm">
+        <!-- MODALS -->
+        <!-- Generic Tool Input Modal -->
+        <div id="toolModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-end sm:items-center justify-center backdrop-blur-sm">
+            <div class="bg-white w-full sm:w-[90%] sm:rounded-2xl rounded-t-2xl p-6 slide-up shadow-2xl">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 id="toolTitle" class="text-lg font-bold text-slate-800">Tool</h3>
+                    <button onclick="closeModal('toolModal')" class="text-slate-400"><i class="fas fa-times"></i></button>
+                </div>
+                <div id="toolContent" class="space-y-4">
+                    <textarea id="toolInput" class="w-full h-32 p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-none" placeholder="Enter text here..."></textarea>
+                    <div id="toolResult" class="hidden p-3 bg-indigo-50 rounded-xl text-slate-700 text-sm max-h-40 overflow-y-auto"></div>
+                    <button id="toolActionBtn" class="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg active:scale-[0.98]">Run</button>
                 </div>
             </div>
+        </div>
 
-            <!-- Language List -->
-            <div id="langList" class="flex-1 overflow-y-auto p-2 custom-scrollbar">
-                <!-- Items injected via JS -->
+        <!-- Language Selection Modal -->
+        <div id="langModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-end sm:items-center justify-center">
+            <div class="bg-white w-full sm:w-[90%] h-[70vh] sm:h-[60vh] sm:rounded-2xl rounded-t-2xl flex flex-col slide-up">
+                <div class="p-4 border-b border-slate-100 flex justify-between items-center">
+                    <h3 class="font-bold">Select Language</h3>
+                    <button onclick="closeModal('langModal')" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="p-2">
+                    <input type="text" id="langSearch" placeholder="Search language..." class="w-full p-3 bg-slate-50 rounded-xl text-sm focus:outline-none">
+                </div>
+                <div id="langList" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
             </div>
         </div>
-    </div>
+
+        <!-- IOS Install Instruction Modal -->
+        <div id="iosInstallModal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-6 backdrop-blur-md">
+            <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center relative">
+                <button onclick="closeModal('iosInstallModal')" class="absolute top-3 right-3 text-slate-400"><i class="fas fa-times"></i></button>
+                <i class="fas fa-share-square text-4xl text-indigo-600 mb-4"></i>
+                <h3 class="text-lg font-bold mb-2">Install App</h3>
+                <p class="text-sm text-slate-600 mb-4">To install on iOS:</p>
+                <ol class="text-left text-sm text-slate-600 space-y-2 mb-4 bg-slate-50 p-4 rounded-xl">
+                    <li>1. Tap the <strong>Share</strong> button <i class="fas fa-share-square"></i> in Safari.</li>
+                    <li>2. Scroll down and tap <strong>Add to Home Screen</strong>.</li>
+                </ol>
+                <button onclick="closeModal('iosInstallModal')" class="w-full py-2 bg-slate-200 rounded-lg font-bold text-slate-700">Got it</button>
+            </div>
+        </div>
+
+    </main>
 
     <script>
-        // ---------------------------------------------------------
-        // Configuration
-        // ---------------------------------------------------------
-        const apiKey = "AIzaSyAANADv-VCK68oTD4I19McPhPGquwzgQQc"; // System provides this automatically
-        const MODEL_NAME = "gemini-2.5-flash-preview-09-2025";
+        /** APP CONFIG & STATE **/
+        const apiKey = ""; // Will use logic to warn if missing, but normally injected
+        const MODEL = "gemini-2.5-flash-preview-09-2025";
         
-        // Comprehensive Language List (Web Speech API supported locales)
         const LANGUAGES = [
-            { code: 'af-ZA', name: 'Afrikaans (South Africa)' },
-            { code: 'am-ET', name: 'Amharic (Ethiopia)' },
-            { code: 'ar-SA', name: 'Arabic (Saudi Arabia)' },
-            { code: 'ar-AE', name: 'Arabic (UAE)' },
-            { code: 'ar-EG', name: 'Arabic (Egypt)' },
-            { code: 'bg-BG', name: 'Bulgarian' },
-            { code: 'bn-BD', name: 'Bengali (Bangladesh)' },
-            { code: 'bn-IN', name: 'Bengali (India)' },
-            { code: 'ca-ES', name: 'Catalan' },
-            { code: 'cs-CZ', name: 'Czech' },
-            { code: 'da-DK', name: 'Danish' },
-            { code: 'de-DE', name: 'German' },
-            { code: 'el-GR', name: 'Greek' },
-            { code: 'en-US', name: 'English (US)' },
-            { code: 'en-GB', name: 'English (UK)' },
-            { code: 'en-AU', name: 'English (Australia)' },
-            { code: 'en-IN', name: 'English (India)' },
-            { code: 'es-ES', name: 'Spanish (Spain)' },
-            { code: 'es-MX', name: 'Spanish (Mexico)' },
-            { code: 'es-US', name: 'Spanish (US)' },
-            { code: 'et-EE', name: 'Estonian' },
-            { code: 'fa-IR', name: 'Persian' },
-            { code: 'fi-FI', name: 'Finnish' },
-            { code: 'fil-PH', name: 'Filipino' },
-            { code: 'fr-FR', name: 'French' },
-            { code: 'fr-CA', name: 'French (Canada)' },
-            { code: 'gu-IN', name: 'Gujarati' },
-            { code: 'he-IL', name: 'Hebrew' },
-            { code: 'hi-IN', name: 'Hindi' },
-            { code: 'hr-HR', name: 'Croatian' },
-            { code: 'hu-HU', name: 'Hungarian' },
-            { code: 'id-ID', name: 'Indonesian' },
-            { code: 'is-IS', name: 'Icelandic' },
-            { code: 'it-IT', name: 'Italian' },
-            { code: 'ja-JP', name: 'Japanese' },
-            { code: 'jv-ID', name: 'Javanese' },
-            { code: 'kn-IN', name: 'Kannada' },
-            { code: 'km-KH', name: 'Khmer' },
-            { code: 'ko-KR', name: 'Korean' },
-            { code: 'lt-LT', name: 'Lithuanian' },
-            { code: 'lv-LV', name: 'Latvian' },
-            { code: 'ml-IN', name: 'Malayalam' },
-            { code: 'mr-IN', name: 'Marathi' },
-            { code: 'ms-MY', name: 'Malay' },
-            { code: 'nl-NL', name: 'Dutch' },
-            { code: 'nb-NO', name: 'Norwegian' },
-            { code: 'ne-NP', name: 'Nepali' },
-            { code: 'pl-PL', name: 'Polish' },
-            { code: 'pt-BR', name: 'Portuguese (Brazil)' },
-            { code: 'pt-PT', name: 'Portuguese (Portugal)' },
-            { code: 'ro-RO', name: 'Romanian' },
-            { code: 'ru-RU', name: 'Russian' },
-            { code: 'si-LK', name: 'Sinhala' },
-            { code: 'sk-SK', name: 'Slovak' },
-            { code: 'sl-SI', name: 'Slovenian' },
-            { code: 'sr-RS', name: 'Serbian' },
-            { code: 'su-ID', name: 'Sundanese' },
-            { code: 'sv-SE', name: 'Swedish' },
-            { code: 'sw-TZ', name: 'Swahili' },
-            { code: 'ta-IN', name: 'Tamil (India)' },
-            { code: 'te-IN', name: 'Telugu' },
-            { code: 'th-TH', name: 'Thai' },
-            { code: 'tr-TR', name: 'Turkish' },
-            { code: 'uk-UA', name: 'Ukrainian' },
-            { code: 'ur-PK', name: 'Urdu (Pakistan)' },
-            { code: 'ur-IN', name: 'Urdu (India)' },
-            { code: 'vi-VN', name: 'Vietnamese' },
-            { code: 'zh-CN', name: 'Chinese (Simplified)' },
-            { code: 'zh-TW', name: 'Chinese (Traditional)' },
-            { code: 'zu-ZA', name: 'Zulu' }
+            { code: 'en-US', name: 'English', flag: '🇺🇸' },
+            { code: 'es-ES', name: 'Spanish', flag: '🇪🇸' },
+            { code: 'fr-FR', name: 'French', flag: '🇫🇷' },
+            { code: 'de-DE', name: 'German', flag: '🇩🇪' },
+            { code: 'it-IT', name: 'Italian', flag: '🇮🇹' },
+            { code: 'ja-JP', name: 'Japanese', flag: '🇯🇵' },
+            { code: 'ko-KR', name: 'Korean', flag: '🇰🇷' },
+            { code: 'zh-CN', name: 'Chinese', flag: '🇨🇳' },
+            { code: 'ru-RU', name: 'Russian', flag: '🇷🇺' },
+            { code: 'pt-BR', name: 'Portuguese', flag: '🇧🇷' },
+            { code: 'hi-IN', name: 'Hindi', flag: '🇮🇳' },
+            { code: 'ar-SA', name: 'Arabic', flag: '🇸🇦' }
         ];
 
-        // ---------------------------------------------------------
-        // State & Elements
-        // ---------------------------------------------------------
-        const micBtn = document.getElementById('micBtn');
-        const statusText = document.getElementById('statusText');
-        const chatContainer = document.getElementById('chatContainer');
-        const sourceBtn = document.getElementById('sourceLangBtn');
-        const targetBtn = document.getElementById('targetLangBtn');
-        const swapBtn = document.getElementById('swapBtn');
-        
-        // Modal Elements
-        const modal = document.getElementById('langModal');
-        const modalContent = document.getElementById('modalContent');
-        const modalTitle = document.getElementById('modalTitle');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-        const langSearch = document.getElementById('langSearch');
-        const langList = document.getElementById('langList');
+        let state = {
+            source: LANGUAGES[0],
+            target: LANGUAGES[1],
+            isListening: false,
+            activeTab: 'voice',
+            installPrompt: null,
+            selectingFor: 'source' // 'source' or 'target'
+        };
 
-        let isListening = false;
-        let recognition;
-        
-        // Current Selection State
-        let sourceLang = { code: 'ar-SA', name: 'Arabic (Saudi Arabia)' };
-        let targetLang = { code: 'en-US', name: 'English (US)' };
-        let activeSelectionSide = null; // 'source' or 'target'
+        let recognition = null;
+        let transcribeRecognition = null;
+        let synth = window.speechSynthesis;
 
-        // ---------------------------------------------------------
-        // Initialization
-        // ---------------------------------------------------------
+        /** INITIALIZATION **/
         function init() {
-            updateLangButtons();
-
-            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            // Setup Speech Recognition
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (SpeechRecognition) {
                 recognition = new SpeechRecognition();
                 recognition.continuous = false;
-                recognition.interimResults = false;
-                setupRecognition();
+                
+                transcribeRecognition = new SpeechRecognition();
+                transcribeRecognition.continuous = true;
+                transcribeRecognition.interimResults = true;
+                
+                setupMicEvents();
             } else {
-                alert("Speech API not supported in this browser.");
-                micBtn.disabled = true;
-                statusText.textContent = "Not Supported";
+                alert("Voice features not supported in this browser. Try Chrome/Safari.");
+            }
+
+            // PWA Install Logic
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                state.installPrompt = e;
+                document.getElementById('installBtn').classList.remove('hidden');
+            });
+
+            updateLangUI();
+            renderLangList();
+            
+            // Check IOS
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            if(isIOS && !window.navigator.standalone) {
+                document.getElementById('installBtn').classList.remove('hidden');
+                document.getElementById('installBtn').onclick = () => {
+                    document.getElementById('iosInstallModal').classList.remove('hidden');
+                };
             }
         }
 
-        function setupRecognition() {
+        /** CORE GEMINI API **/
+        async function callGemini(prompt) {
+            if(!apiKey) {
+                // For demo purposes, we simulate if no key provided
+                if(!confirm("API Key is missing. Using simulation mode?")) return "Error: No API Key";
+                return await simulateResponse(prompt);
+            }
+            
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+                const data = await res.json();
+                if(data.error) throw new Error(data.error.message);
+                return data.candidates[0].content.parts[0].text.trim();
+            } catch (e) {
+                console.error(e);
+                return "Connection Error. Please try again.";
+            }
+        }
+
+        // Fallback for demo without key
+        function simulateResponse(prompt) {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    if(prompt.includes("Translate")) resolve("Simulation: Hola, ¿cómo estás?");
+                    else if(prompt.includes("Define")) resolve("Simulation: A greeting used in Spanish.");
+                    else resolve("Simulation response generated.");
+                }, 1000);
+            });
+        }
+
+        async function translate(text, from, to) {
+            const prompt = `Translate this text from ${from.name} to ${to.name}. Return ONLY the translation, no extra text: "${text}"`;
+            const result = await callGemini(prompt);
+            saveHistory(text, result, to.code);
+            return result;
+        }
+
+        /** TOOLS LOGIC **/
+        let currentTool = null;
+
+        const toolsConfig = {
+            'phrasebook': { 
+                title: 'Phrasebook', 
+                hasInput: false,
+                render: () => {
+                   const phrases = ["Hello", "Thank you", "Where is the bathroom?", "How much is this?", "Help me", "Water please"];
+                   return `<div class="grid grid-cols-1 gap-2">${phrases.map(p => `<button onclick="translatePhrase('${p}')" class="text-left p-3 bg-slate-50 rounded-lg border hover:bg-slate-100 flex justify-between"><span>${p}</span> <i class="fas fa-chevron-right text-xs text-slate-400"></i></button>`).join('')}</div>`;
+                }
+            },
+            'dictionary': { title: 'AI Dictionary', prompt: (t) => `Define the word or phrase "${t}" simply for a learner.` },
+            'grammar': { title: 'Grammar Fixer', prompt: (t) => `Correct the grammar and spelling of this text: "${t}"` },
+            'summarize': { title: 'Summarizer', prompt: (t) => `Summarize this text in 3 bullet points: "${t}"` },
+            'tone': { title: 'Formalizer', prompt: (t) => `Rewrite this text to be very formal and professional: "${t}"` },
+            'quiz': {
+                title: 'Quiz Mode',
+                hasInput: false,
+                render: () => {
+                    const h = JSON.parse(localStorage.getItem('gtr_history') || '[]');
+                    if(h.length < 3) return `<p class="text-center text-slate-500">Translate a few things first to unlock the quiz!</p>`;
+                    const q = h[Math.floor(Math.random() * h.length)];
+                    return `
+                        <div class="text-center p-4">
+                            <p class="text-sm text-slate-500 mb-2">What does this mean?</p>
+                            <p class="text-xl font-bold mb-6">"${q.target}"</p>
+                            <button onclick="this.nextElementSibling.classList.remove('hidden'); this.classList.add('hidden')" class="bg-indigo-600 text-white px-6 py-2 rounded-full">Reveal Answer</button>
+                            <div class="hidden mt-4 animate-fade-in">
+                                <p class="text-lg font-bold text-green-600">${q.original}</p>
+                                <button onclick="launchTool('quiz')" class="mt-4 text-indigo-600 text-sm font-bold">Next Question</button>
+                            </div>
+                        </div>
+                    `;
+                }
+            },
+            'flashcards': {
+                title: 'Flashcards',
+                hasInput: false,
+                render: () => {
+                    const h = JSON.parse(localStorage.getItem('gtr_history') || '[]');
+                    if(h.length === 0) return `<p class="text-center text-slate-500">No history found.</p>`;
+                    return `
+                        <div class="space-y-2 max-h-60 overflow-y-auto">
+                            ${h.map(i => `<div class="p-3 bg-yellow-50 border border-yellow-100 rounded-lg flex justify-between items-center"><div><div class="font-bold text-slate-800">${i.target}</div><div class="text-xs text-slate-500">${i.original}</div></div><button onclick="speak('${i.target}', '${i.langCode}')"><i class="fas fa-volume-up text-slate-400"></i></button></div>`).join('')}
+                        </div>
+                    `;
+                }
+            }
+        };
+
+        function launchTool(toolId) {
+            currentTool = toolId;
+            const config = toolsConfig[toolId];
+            if(!config) return;
+
+            const modal = document.getElementById('toolModal');
+            const title = document.getElementById('toolTitle');
+            const input = document.getElementById('toolInput');
+            const result = document.getElementById('toolResult');
+            const btn = document.getElementById('toolActionBtn');
+            const content = document.getElementById('toolContent');
+
+            title.textContent = config.title;
+            result.classList.add('hidden');
+            result.textContent = '';
+            
+            // Reset Layout
+            input.classList.remove('hidden');
+            btn.classList.remove('hidden');
+            
+            // Custom Render tools (No input needed)
+            if(config.hasInput === false) {
+                input.classList.add('hidden');
+                btn.classList.add('hidden');
+                result.classList.remove('hidden');
+                result.innerHTML = config.render();
+                result.classList.replace('bg-indigo-50', 'bg-white'); // Reset bg
+            } else {
+                result.classList.replace('bg-white', 'bg-indigo-50');
+                input.value = '';
+                btn.onclick = async () => {
+                    if(!input.value) return;
+                    btn.textContent = 'Processing...';
+                    const res = await callGemini(config.prompt(input.value));
+                    result.classList.remove('hidden');
+                    result.textContent = res;
+                    btn.textContent = 'Run';
+                };
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        async function translatePhrase(phrase) {
+            closeModal('toolModal');
+            switchTab('voice');
+            // Simulate voice input flow
+            addChatBubble(phrase, 'user');
+            const trans = await translate(phrase, state.source, state.target);
+            addChatBubble(trans, 'ai');
+            speak(trans, state.target.code);
+        }
+
+        function downloadData() {
+            const data = localStorage.getItem('gtr_history') || '[]';
+            const blob = new Blob([data], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'gemini-history.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function toggleLargeText() {
+            document.body.classList.toggle('large-text');
+        }
+
+        function toggleContrast() {
+            document.body.classList.toggle('high-contrast');
+        }
+
+        /** VOICE & UI LOGIC **/
+        function setupMicEvents() {
+            // Main Mic
+            const mainMic = document.getElementById('mainMicBtn');
+            mainMic.onclick = () => toggleMic(state.source.code);
+
+            // Split View Mics
+            document.getElementById('convSourceMic').onclick = () => toggleMic(state.source.code, 'conv');
+            document.getElementById('convTargetMic').onclick = () => toggleMic(state.target.code, 'conv');
+
+            // Transcribe
+            document.getElementById('transcribeBtn').onclick = toggleTranscribe;
+
+            // Recognition Results
             recognition.onstart = () => {
-                isListening = true;
-                updateUI(true);
-                statusText.textContent = "Listening...";
+                state.isListening = true;
+                updateMicVisuals(true);
             };
-
+            
             recognition.onend = () => {
-                isListening = false;
-                updateUI(false);
-                statusText.textContent = "Ready";
-            };
-
-            recognition.onerror = (event) => {
-                console.error("Speech Error:", event.error);
-                isListening = false;
-                updateUI(false);
-                statusText.textContent = "Retry (" + event.error + ")";
+                state.isListening = false;
+                updateMicVisuals(false);
             };
 
             recognition.onresult = async (event) => {
-                const transcript = event.results[0][0].transcript;
-                addMessage(transcript, 'user');
-                statusText.textContent = "Translating...";
+                const text = event.results[0][0].transcript;
                 
-                try {
-                    const translatedText = await translateWithGemini(transcript);
-                    addMessage(translatedText, 'ai');
-                    speakText(translatedText, targetLang.code);
-                    statusText.textContent = "Ready";
-                } catch (err) {
-                    addMessage("Translation failed.", 'error');
-                    statusText.textContent = "Error";
+                if (state.activeTab === 'voice') {
+                    addChatBubble(text, 'user');
+                    const translation = await translate(text, state.source, state.target);
+                    addChatBubble(translation, 'ai');
+                    speak(translation, state.target.code);
+                } else if (state.activeTab === 'conversation') {
+                    // Detect which side initiated
+                    // Simplified: We assume recognition language matches the button pressed
+                    const isSource = recognition.lang === state.source.code;
+                    const elId = isSource ? 'convSourceText' : 'convTargetText';
+                    const targetId = isSource ? 'convTargetText' : 'convSourceText';
+                    
+                    document.getElementById(elId).textContent = text;
+                    
+                    const from = isSource ? state.source : state.target;
+                    const to = isSource ? state.target : state.source;
+                    
+                    const trans = await translate(text, from, to);
+                    document.getElementById(targetId).textContent = trans;
+                    speak(trans, to.code);
+                }
+            };
+
+            transcribeRecognition.onresult = async (e) => {
+                let interim = '';
+                for (let i = e.resultIndex; i < e.results.length; ++i) {
+                    if (e.results[i].isFinal) {
+                        const original = e.results[i][0].transcript;
+                        const trans = await translate(original, state.source, state.target);
+                        appendTranscript(original, trans);
+                    }
                 }
             };
         }
 
-        // ---------------------------------------------------------
-        // Modal & Language Selection Logic
-        // ---------------------------------------------------------
-        
-        function openModal(side) {
-            activeSelectionSide = side;
-            modalTitle.textContent = side === 'source' ? 'Translate From' : 'Translate To';
-            langSearch.value = '';
-            renderLangList(LANGUAGES);
-            
-            modal.classList.remove('hidden');
-            // Small delay to allow display:block to apply before opacity transition
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                modalContent.classList.remove('translate-y-full');
-            }, 10);
-            
-            // Auto focus search
-            setTimeout(() => langSearch.focus(), 300);
+        function toggleMic(lang, mode = 'voice') {
+            if (state.isListening) {
+                recognition.stop();
+                return;
+            }
+            recognition.lang = lang;
+            recognition.start();
         }
 
-        function closeModal() {
-            modal.classList.add('opacity-0');
-            modalContent.classList.add('translate-y-full');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                activeSelectionSide = null;
-            }, 300);
+        function toggleTranscribe() {
+            const btn = document.getElementById('transcribeBtn');
+            if (state.isListening) {
+                transcribeRecognition.stop();
+                state.isListening = false;
+                btn.innerHTML = '<i class="fas fa-play"></i> Start Listening';
+                btn.classList.remove('bg-red-600');
+                btn.classList.add('bg-slate-800');
+            } else {
+                transcribeRecognition.lang = state.source.code;
+                transcribeRecognition.start();
+                state.isListening = true;
+                btn.innerHTML = '<i class="fas fa-stop"></i> Stop';
+                btn.classList.remove('bg-slate-800');
+                btn.classList.add('bg-red-600');
+            }
         }
 
-        function renderLangList(items) {
-            langList.innerHTML = '';
-            items.forEach(lang => {
-                const btn = document.createElement('button');
-                btn.className = "w-full text-left px-4 py-3 rounded-xl hover:bg-indigo-50 hover:text-indigo-700 transition-colors text-slate-700 font-medium text-sm flex items-center justify-between group";
-                
-                const isSelected = (activeSelectionSide === 'source' && lang.code === sourceLang.code) || 
-                                   (activeSelectionSide === 'target' && lang.code === targetLang.code);
-                
-                btn.innerHTML = `
-                    <span>${lang.name}</span>
-                    ${isSelected ? '<i class="fas fa-check text-indigo-600"></i>' : ''}
-                `;
-                
-                if (isSelected) btn.classList.add('bg-indigo-50', 'text-indigo-700');
+        function updateMicVisuals(active) {
+            const ids = ['mainMicBtn', 'convSourceMic', 'convTargetMic'];
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if(active) el.classList.add('pulse-ring');
+                else el.classList.remove('pulse-ring');
+            });
+            const status = document.getElementById('voiceStatus');
+            status.textContent = active ? "Listening..." : "Ready";
+            status.className = active ? "text-[10px] font-bold text-red-500 uppercase tracking-widest bg-red-50 px-3 py-1 rounded-full shadow-sm" : "text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white px-3 py-1 rounded-full shadow-sm border border-slate-100";
+        }
 
-                btn.onclick = () => {
-                    if (activeSelectionSide === 'source') {
-                        sourceLang = lang;
-                    } else {
-                        targetLang = lang;
+        function addChatBubble(text, type) {
+            const container = document.getElementById('voiceChatContainer');
+            // Remove placeholder if exists
+            if(container.querySelector('.fa-microphone-alt')) container.innerHTML = '';
+            
+            const div = document.createElement('div');
+            div.className = `flex w-full ${type==='user'?'justify-end':'justify-start'} animate-fade-in`;
+            
+            const bubble = document.createElement('div');
+            bubble.className = `max-w-[80%] p-3 rounded-2xl text-sm shadow-sm ${type==='user'?'bg-indigo-600 text-white rounded-tr-none':'bg-white border border-slate-100 text-slate-800 rounded-tl-none'}`;
+            bubble.textContent = text;
+            
+            if(type === 'ai') {
+                const actions = document.createElement('div');
+                actions.className = "flex gap-3 mt-2 text-slate-400 text-xs";
+                actions.innerHTML = `<button onclick="speak('${text.replace(/'/g, "\\'")}', '${state.target.code}')"><i class="fas fa-volume-up"></i></button> <button onclick="copyToClip('${text.replace(/'/g, "\\'")}')"><i class="fas fa-copy"></i></button>`;
+                bubble.appendChild(actions);
+            }
+
+            div.appendChild(bubble);
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function appendTranscript(orig, trans) {
+            const c = document.getElementById('transcribeContainer');
+            const div = document.createElement('div');
+            div.className = "p-3 bg-slate-800 rounded-lg animate-fade-in";
+            div.innerHTML = `
+                <div class="text-xs text-slate-500 mb-1">${orig}</div>
+                <div class="text-indigo-300 font-medium">${trans}</div>
+            `;
+            c.appendChild(div);
+            c.scrollTop = c.scrollHeight;
+        }
+
+        function speak(text, lang) {
+            if(!synth) return;
+            synth.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = lang;
+            u.rate = 0.9;
+            synth.speak(u);
+        }
+
+        function copyToClip(text) {
+            navigator.clipboard.writeText(text);
+            // Could add toast here
+        }
+
+        /** NAVIGATION & STATE MANAGEMENT **/
+        function switchTab(tabId) {
+            state.activeTab = tabId;
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(`view-${tabId}`).classList.add('active');
+            
+            // Update Nav Icons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+               btn.classList.remove('text-indigo-600');
+               btn.classList.add('text-slate-400');
+            });
+            // Find button by onclick attr roughly
+            const activeBtn = document.querySelector(`button[onclick="switchTab('${tabId}')"]`);
+            if(activeBtn) {
+                activeBtn.classList.remove('text-slate-400');
+                activeBtn.classList.add('text-indigo-600');
+            }
+
+            // Stop mics on switch
+            if(recognition) recognition.stop();
+            if(transcribeRecognition) transcribeRecognition.stop();
+        }
+
+        function toggleInstall() {
+            if(state.installPrompt) {
+                state.installPrompt.prompt();
+                state.installPrompt.userChoice.then((choice) => {
+                    if (choice.outcome === 'accepted') {
+                        document.getElementById('installBtn').classList.add('hidden');
                     }
-                    updateLangButtons();
-                    closeModal();
-                };
-                langList.appendChild(btn);
+                    state.installPrompt = null;
+                });
+            } else {
+                // Fallback for logic check
+                alert("Installation not available directly. Please use your browser menu to 'Add to Home Screen'.");
+            }
+        }
+
+        /** LANGUAGE MODAL **/
+        function openLangModal(side) {
+            state.selectingFor = side;
+            document.getElementById('langModal').classList.remove('hidden');
+            document.getElementById('langSearch').value = '';
+            document.getElementById('langSearch').focus();
+            renderLangList();
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function renderLangList(filter = '') {
+            const list = document.getElementById('langList');
+            list.innerHTML = '';
+            LANGUAGES.filter(l => l.name.toLowerCase().includes(filter.toLowerCase())).forEach(lang => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-3 hover:bg-slate-50 rounded-lg flex items-center gap-3 border-b border-slate-50";
+                btn.innerHTML = `<span class="text-xl">${lang.flag}</span> <span class="text-sm font-medium text-slate-700">${lang.name}</span>`;
+                btn.onclick = () => selectLang(lang);
+                list.appendChild(btn);
             });
         }
 
-        function filterLanguages(query) {
-            const lower = query.toLowerCase();
-            const filtered = LANGUAGES.filter(l => 
-                l.name.toLowerCase().includes(lower) || 
-                l.code.toLowerCase().includes(lower)
-            );
-            renderLangList(filtered);
+        function selectLang(lang) {
+            if(state.selectingFor === 'source') state.source = lang;
+            else state.target = lang;
+            updateLangUI();
+            closeModal('langModal');
         }
 
-        function updateLangButtons() {
-            sourceBtn.textContent = sourceLang.name;
-            targetBtn.textContent = targetLang.name;
-            if (recognition) recognition.lang = sourceLang.code;
-        }
+        document.getElementById('langSearch').addEventListener('input', (e) => renderLangList(e.target.value));
 
-        // ---------------------------------------------------------
-        // Event Listeners
-        // ---------------------------------------------------------
-        sourceBtn.addEventListener('click', () => openModal('source'));
-        targetBtn.addEventListener('click', () => openModal('target'));
-        closeModalBtn.addEventListener('click', closeModal);
-        modal.addEventListener('click', (e) => {
-            if(e.target === modal) closeModal();
-        });
-
-        langSearch.addEventListener('input', (e) => filterLanguages(e.target.value));
-
-        swapBtn.addEventListener('click', () => {
-            const temp = sourceLang;
-            sourceLang = targetLang;
-            targetLang = temp;
+        document.getElementById('swapBtn').onclick = () => {
+            const temp = state.source;
+            state.source = state.target;
+            state.target = temp;
+            updateLangUI();
             
-            // Add rotation animation
-            const icon = swapBtn.querySelector('i');
-            icon.style.transition = 'transform 0.3s';
-            icon.style.transform = 'rotate(180deg)';
-            setTimeout(() => icon.style.transform = 'rotate(0deg)', 300);
+            // Animation
+            const i = document.querySelector('#swapBtn i');
+            i.style.transform = 'rotate(180deg)';
+            setTimeout(() => i.style.transform = 'rotate(0deg)', 300);
+        };
 
-            updateLangButtons();
-        });
-
-        micBtn.addEventListener('click', () => {
-            if (!recognition) return;
-            if (isListening) {
-                recognition.stop();
-            } else {
-                window.speechSynthesis.cancel();
-                recognition.lang = sourceLang.code;
-                recognition.start();
-            }
-        });
-
-        // ---------------------------------------------------------
-        // Core Logic (Gemini & TTS)
-        // ---------------------------------------------------------
-        
-        async function translateWithGemini(text) {
-            const prompt = `Translate this text from ${sourceLang.name} to ${targetLang.name}. Output only the translation, nothing else. Text: "${text}"`;
-
-            try {
-                const response = await fetch(
-                    `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`,
-                    {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: prompt }] }]
-                        })
-                    }
-                );
-
-                if (!response.ok) throw new Error(`API Error: ${response.status}`);
-                const data = await response.json();
-                return data.candidates[0].content.parts[0].text.trim();
-            } catch (error) {
-                console.warn("API call failed, retrying...", error);
-                return "Error connecting to Gemini.";
-            }
+        function updateLangUI() {
+            document.querySelector('.text-source').textContent = state.source.name;
+            document.querySelector('.flag-source').textContent = state.source.flag;
+            document.querySelector('.text-target').textContent = state.target.name;
+            document.querySelector('.flag-target').textContent = state.target.flag;
         }
 
-        function speakText(text, langCode) {
-            if (!('speechSynthesis' in window)) return;
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = langCode;
-            window.speechSynthesis.speak(utterance);
+        /** HISTORY **/
+        function saveHistory(original, target, langCode) {
+            const h = JSON.parse(localStorage.getItem('gtr_history') || '[]');
+            h.unshift({ original, target, langCode, date: Date.now() });
+            localStorage.setItem('gtr_history', JSON.stringify(h.slice(0, 50)));
         }
 
-        function updateUI(active) {
-            if (active) {
-                micBtn.classList.add('bg-red-500', 'pulse-ring');
-                micBtn.classList.remove('bg-indigo-600');
-                micBtn.innerHTML = '<i class="fas fa-stop"></i>';
-            } else {
-                micBtn.classList.remove('bg-red-500', 'pulse-ring');
-                micBtn.classList.add('bg-indigo-600');
-                micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
-            }
-        }
-
-        function addMessage(text, type) {
-            const emptyState = chatContainer.querySelector('.opacity-50');
-            if(emptyState) emptyState.remove();
-
-            const div = document.createElement('div');
-            const isUser = type === 'user';
-            
-            div.className = `flex w-full ${isUser ? 'justify-end' : 'justify-start'} animate-fade-in mb-4`;
-            
-            const bubble = document.createElement('div');
-            bubble.className = `max-w-[85%] py-3 px-4 rounded-2xl text-sm break-words ${
-                type === 'error' ? 'bg-red-100 text-red-600' :
-                isUser 
-                ? 'bg-indigo-600 text-white rounded-tr-none shadow-md' 
-                : 'bg-white border border-slate-200 text-slate-800 shadow-md rounded-tl-none'
-            }`;
-            
-            bubble.textContent = text;
-            div.appendChild(bubble);
-            chatContainer.appendChild(div);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        const style = document.createElement('style');
-        style.textContent = `
-            .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
-            @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        `;
-        document.head.appendChild(style);
-
-        // Run Init
-        init();
-
+        window.onload = init;
     </script>
 </body>
 </html>
